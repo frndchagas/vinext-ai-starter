@@ -18,7 +18,7 @@ import {
 } from "@vinext-ai-starter/api-client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
@@ -47,6 +47,7 @@ export default function SettingsPage() {
   const passwordMutation = useUpdatePassword();
   const enableMutation = useEnableTwoFactor();
   const confirmTwoFactorMutation = useConfirmTwoFactor();
+  const redirectingAfterPasswordUpdate = useRef(false);
   const [profileMessage, setProfileMessage] = useState<string>();
   const [twoFactorMessage, setTwoFactorMessage] = useState<string>();
   const [twoFactorPasswordError, setTwoFactorPasswordError] = useState<string>();
@@ -61,7 +62,9 @@ export default function SettingsPage() {
   const recoveryQuery = useGetRecoveryCodes({ query: { enabled: showRecoveryCodes } });
 
   useEffect(() => {
-    if (meQuery.data?.status === 401) router.replace("/login");
+    if (meQuery.data?.status === 401 && !redirectingAfterPasswordUpdate.current) {
+      router.replace("/login");
+    }
   }, [meQuery.data?.status, router]);
 
   async function startTwoFactorSetup(event: React.FormEvent<HTMLFormElement>) {
@@ -122,8 +125,9 @@ export default function SettingsPage() {
       {
         onSuccess: (response) => {
           if (response.status === 200) {
+            redirectingAfterPasswordUpdate.current = true;
             queryClient.removeQueries({ queryKey: getGetMeQueryKey() });
-            router.push("/login?password_updated=1");
+            router.replace("/login?password_updated=1");
           }
         },
       },
