@@ -8,7 +8,7 @@ The repository is in its foundation phase. It currently proves Vinext on Node, L
 
 ## Requirements
 
-- Bun 1.4
+- Bun 1.3.14 or newer
 - Node.js 24 or newer
 - PHP 8.5
 - Composer 2.10
