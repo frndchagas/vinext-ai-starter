@@ -37,7 +37,7 @@ TypeSpec --> OpenAPI 3.1 --> Orval --> client, types, Zod, and MSW
 AsyncAPI ---------------------------> drift comparison
 ```
 
-`contracts:check` will compile the contracts and regenerate the artifacts in a temporary directory. An uncommitted diff fails. The integration gate will run the API behind Prism, and oasdiff will identify breaking changes.
+`contracts:check` recompiles the contracts, regenerates the artifacts in place, and fails on any uncommitted diff. oasdiff compares the proposed OpenAPI document against the base branch in CI and fails on breaking changes. Running the API behind Prism as a validation proxy is planned but not part of the 0.1 gates; the feature tests assert the documented status codes, problem format, and payloads directly.
 
 ## Test layers
 
@@ -52,6 +52,8 @@ Runs on every pull request:
 - drift of OpenAPI, AsyncAPI, and the Orval client;
 - Gitleaks;
 - `vinext check` and build.
+
+CI implements this as three jobs: `verify` (frozen installs, contract drift, and the full `bun run check` against SQLite), `integration` (the PHP suite against real PostgreSQL and Redis with migrations from scratch), and `gitleaks`. Playwright E2E runs against the local dev stack and is not part of CI in 0.1.
 
 ### Deep integration
 

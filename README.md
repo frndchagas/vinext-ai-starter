@@ -1,5 +1,7 @@
 # Vinext AI Starter for Laravel
 
+[![CI](https://github.com/frndchagas/vinext-ai-starter/actions/workflows/ci.yml/badge.svg)](https://github.com/frndchagas/vinext-ai-starter/actions/workflows/ci.yml)
+
 An AI-first SaaS starter powered by Vinext and Laravel.
 
 The repository is in its foundation phase. It currently proves Vinext on Node, Laravel 13 as an API, shadcn/ui with Base UI, Bun workspaces, Turborepo and the first mechanical quality gate.
