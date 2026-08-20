@@ -1,8 +1,10 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Foundation\DevCommands;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+DevCommands::artisan('serve --port='.((int) config('development.api_port')), 'server');
+
+// The web app lives in apps/web and runs through Turborepo; the "vite"
+// process the framework registers for this package.json would recurse
+// into `artisan dev` itself.
+DevCommands::except('vite');

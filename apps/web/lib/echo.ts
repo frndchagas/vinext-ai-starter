@@ -26,17 +26,18 @@ export function getEcho(): Echo<"reverb"> {
     "NEXT_PUBLIC_REVERB_APP_KEY",
     process.env.NEXT_PUBLIC_REVERB_APP_KEY,
   );
-  const scheme = process.env.NEXT_PUBLIC_REVERB_SCHEME ?? window.location.protocol.slice(0, -1);
-  const port = Number(process.env.NEXT_PUBLIC_REVERB_PORT ?? (scheme === "https" ? 443 : 80));
+  const secure = window.location.protocol === "https:";
+  const port = Number(window.location.port || (secure ? 443 : 80));
 
   echo = new Echo<"reverb">({
     Pusher,
-    authEndpoint: "/broadcasting/auth",
+    authEndpoint: "/api/broadcasting/auth",
     broadcaster: "reverb",
     enabledTransports: ["ws", "wss"],
-    forceTLS: scheme === "https",
+    forceTLS: secure,
     key,
-    wsHost: process.env.NEXT_PUBLIC_REVERB_HOST ?? window.location.hostname,
+    wsHost: window.location.hostname,
+    wsPath: "/ws",
     wsPort: port,
     wssPort: port,
   });

@@ -4,7 +4,7 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".vinext/**", ".next/**", "dist/**"]
+      "outputs": [".vinext/**", ".next/**", "dist/**", "openapi/**"]
     },
     "format": {
       "cache": false
@@ -24,7 +24,21 @@
     },
     "dev": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "passThroughEnv": [
+        "API_PORT",
+        "APP_URL",
+        "BROADCAST_CONNECTION",
+        "CACHE_STORE",
+        "DB_*",
+        "MAIL_*",
+        "NEXT_PUBLIC_*",
+        "QUEUE_CONNECTION",
+        "REDIS_*",
+        "REVERB_*",
+        "SESSION_DRIVER",
+        "WEB_PORT"
+      ]
     },
     "test:integration": {
       "cache": false

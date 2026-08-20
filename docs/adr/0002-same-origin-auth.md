@@ -8,7 +8,7 @@ The Vinext SPA needs to share a session with Laravel and authorize private chann
 
 ## Decision
 
-The browser will use a single origin published by Caddy. The proxy will forward pages to Vinext, API and authentication routes to Laravel, and the native `/app/*` and `/apps/*` paths to Reverb, without stripping their prefixes. Fortify will provide the identity flows, Sanctum will authenticate the SPA via cookie, and the same guard will authorize private channels at `/api/broadcasting/auth`.
+The browser will use a single origin published by Caddy. The proxy will forward pages to Vinext, API and authentication routes to Laravel, and WebSocket connections under `/ws/*` to Reverb, stripping the `/ws` prefix. The Pusher protocol's native `/app/{key}` path is not exposed directly because it collides with the web application's `app/` router directory; the client sets `wsPath: "/ws"` instead. Fortify will provide the identity flows, Sanctum will authenticate the SPA via cookie, and the same guard will authorize private channels at `/api/broadcasting/auth`.
 
 The initial core will have registration, login, logout, password recovery, and email verification. The `admin` and `member` roles will be persisted by Spatie Laravel Permission, and Policies and Gates will remain responsible for the actual authorization.
 

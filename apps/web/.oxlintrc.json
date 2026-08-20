@@ -27,6 +27,15 @@
     "nextjs",
     "promise"
   ],
+  "overrides": [
+    {
+      "files": ["e2e/**"],
+      "rules": {
+        "eslint/no-await-in-loop": "off",
+        "typescript/no-unsafe-type-assertion": "off"
+      }
+    }
+  ],
   "rules": {
     "import/no-unassigned-import": [
       "deny",

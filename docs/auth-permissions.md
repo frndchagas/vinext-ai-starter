@@ -21,7 +21,7 @@ The Fortify routes live under the versioned prefix `/api/v1/auth/*`, without dup
 - `POST /api/v1/auth/logout`
 - `POST /api/v1/auth/forgot-password`
 - `POST /api/v1/auth/reset-password`
-- `GET /api/v1/auth/verify-email/{id}/{hash}`
+- `GET /api/v1/auth/email/verify/{id}/{hash}`
 - `POST /api/v1/auth/email/verification-notification`
 
 `GET /sanctum/csrf-cookie` remains an infrastructure route, outside the prefix. The current identity lives at `GET /api/v1/me`, returning the User, roles, permissions, and email verification state, without exposing the session-based implementation. All of these endpoints go into the TypeSpec contract.

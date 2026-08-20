@@ -84,7 +84,7 @@ return [
                 ],
                 'allowed_origins' => array_values(array_filter(explode(
                     ',',
-                    env('REVERB_ALLOWED_ORIGINS', 'http://localhost:13000'),
+                    env('REVERB_ALLOWED_ORIGINS', 'localhost'),
                 ))),
                 'ping_interval' => env('REVERB_APP_PING_INTERVAL', 60),
                 'activity_timeout' => env('REVERB_APP_ACTIVITY_TIMEOUT', 30),

@@ -12,7 +12,7 @@ https://app.example.com                    Caddy
   +-- /sanctum/*                -> Laravel
   +-- contracted Fortify routes -> Laravel Fortify
   +-- /api/broadcasting/auth    -> Laravel
-  +-- /app/* and /apps/*        -> Laravel Reverb, preserving the path
+  +-- /ws/*                     -> Laravel Reverb, /ws prefix stripped
                                       |
                                       +-- PostgreSQL
                                       +-- Redis / Horizon
