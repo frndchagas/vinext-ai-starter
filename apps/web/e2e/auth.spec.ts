@@ -1,35 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const MAILPIT_URL = process.env.E2E_MAILPIT_URL ?? "http://localhost:18025";
-
-interface MailpitMessageSummary {
-  ID: string;
-  To: Array<{ Address: string }>;
-}
-
-async function findVerificationLink(email: string): Promise<string> {
-  for (let attempt = 0; attempt < 20; attempt += 1) {
-    const listResponse = await fetch(`${MAILPIT_URL}/api/v1/messages?limit=20`);
-    const list = (await listResponse.json()) as { messages: MailpitMessageSummary[] };
-    const message = list.messages.find((candidate) =>
-      candidate.To.some((recipient) => recipient.Address === email),
-    );
-
-    if (message) {
-      const messageResponse = await fetch(`${MAILPIT_URL}/api/v1/message/${message.ID}`);
-      const body = (await messageResponse.json()) as { Text: string };
-      const match = body.Text.match(/https?:\/\/\S+\/api\/v1\/auth\/email\/verify\/\S+/);
-
-      if (match) {
-        return match[0].replace(/[)\].,]+$/, "");
-      }
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 500));
-  }
-
-  throw new Error(`No verification email arrived for ${email}`);
-}
+import { findPasswordResetLink, findVerificationLink } from "./helpers";
 
 test("register, verify email, use the private channel, sign out and sign in again", async ({
   page,
@@ -76,4 +47,39 @@ test("rejects invalid credentials with a stable field error", async ({ page }) =
 
   await expect(page.getByRole("alert")).toContainText(/credentials/i);
   await expect(page).toHaveURL(/\/login$/);
+});
+
+test("reset a password through the link delivered by email", async ({ page }) => {
+  test.setTimeout(120_000);
+
+  const uniqueEmail = `e2e-reset-${Date.now()}@example.com`;
+  const originalPassword = "original-e2e-password";
+  const newPassword = "new-e2e-password";
+
+  await page.goto("/register");
+  await page.getByLabel("Name").fill("Password Reset User");
+  await page.getByLabel("Email").fill(uniqueEmail);
+  await page.getByLabel("Password", { exact: true }).fill(originalPassword);
+  await page.getByLabel("Confirm password").fill(originalPassword);
+  await page.getByRole("button", { name: "Create account" }).click();
+  await expect(page).toHaveURL(/\/verify-email$/, { timeout: 20_000 });
+
+  await page.getByRole("button", { name: "Sign out" }).click();
+  await page.goto("/forgot-password");
+  await page.getByLabel("Email").fill(uniqueEmail);
+  await page.getByRole("button", { name: "Send reset link" }).click();
+  await expect(page.getByText(/reset link is on its way/i)).toBeVisible();
+
+  const resetLink = await findPasswordResetLink(uniqueEmail);
+  await page.goto(resetLink);
+  await expect(page.getByLabel("Email")).toHaveValue(uniqueEmail);
+  await page.getByLabel("New password", { exact: true }).fill(newPassword);
+  await page.getByLabel("Confirm new password").fill(newPassword);
+  await page.getByRole("button", { name: "Reset password" }).click();
+  await expect(page).toHaveURL(/\/login$/, { timeout: 20_000 });
+
+  await page.getByLabel("Email").fill(uniqueEmail);
+  await page.getByLabel("Password").fill(newPassword);
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await expect(page).toHaveURL(/\/verify-email$/, { timeout: 20_000 });
 });

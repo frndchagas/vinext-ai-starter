@@ -1,40 +1,45 @@
 # Contributing
 
-Thanks for helping improve the starter. The project optimizes for one thing: a
-repository where humans and coding agents can work with little ambiguity.
+Contributions are welcome. Keep changes focused, explain the behavior they change and include evidence from the relevant gate.
 
 ## Setup
 
-```bash
-bun run bootstrap   # install JS and PHP deps, start Docker services, migrate
-bun run dev         # web on :13000 through Caddy, API, Horizon and Reverb
-```
+Follow [Getting started](docs/getting-started.md), then read the root and application-level `AGENTS.md` files before editing.
 
-Requirements are listed in the README. `AGENTS.md` files at the root and inside
-each app describe the layout and the rules that also apply to human contributors.
+## Before opening a pull request
 
-## Before you push
+Run the standard gate:
 
 ```bash
-bun run check            # format, lint, types, unit tests and build
-bun run contracts:check  # recompile TypeSpec, regenerate the client, fail on drift
-cd apps/web && bun run test:e2e   # full flow against the running dev stack
+bun run check
 ```
 
-`bunx lefthook install` wires the same gates as git hooks. CI runs them all
-again and is the authority; a green local run is a courtesy, not a proof.
+Run additional gates when the change touches their boundary:
 
-## Changing the API surface
+```bash
+bun run contracts:check  # TypeSpec, OpenAPI, Orval or AsyncAPI
+bun run audit            # dependencies or lockfiles
+bun run test:e2e         # auth, mail, queue, realtime or browser behavior
+```
 
-The HTTP contract in `contracts/http/main.tsp` is the source of truth. Change
-the TypeSpec first, run `bun run contracts:build`, commit the regenerated
-OpenAPI and client together with the Laravel implementation, and cover the new
-behavior with feature tests. Breaking changes are flagged by oasdiff in CI and
-need a documented, compatible transition. Realtime channels and payloads live
-in `contracts/realtime/asyncapi.yaml`.
+Lefthook runs a smaller local subset. Pre-commit checks formatting and uses Gitleaks when it is installed. Pre-push runs `bun run check`. CI remains authoritative for contracts, dependency review, E2E and security scanning.
 
-## Decisions and vocabulary
+## Public contracts
 
-Architecture decisions live in `docs/adr/`; the domain glossary lives in
-`CONTEXT.md`. If your change contradicts either, update the document in the
-same pull request or open the discussion first.
+Application HTTP changes begin in `contracts/http/main.tsp`. Regenerate OpenAPI and the client with `bun run contracts:build`, then commit source and generated artifacts together. Realtime messages begin in `contracts/realtime/asyncapi.yaml`.
+
+Do not edit `contracts/http/openapi` or `packages/api-client/src/generated` by hand. Oasdiff compares proposed OpenAPI with the pull request target branch.
+
+## Documentation and decisions
+
+Guides describe current behavior. Accepted work that is not implemented belongs in an ADR with `Implementation: pending`. Update `CONTEXT.md` only when domain language changes; implementation terms do not belong there.
+
+Add an ADR only for a costly, surprising trade-off. Keep it short and link to operational guidance rather than duplicating it.
+
+## Pull request checklist
+
+- the changed behavior has a test or reproducible proof;
+- public contracts and generated files agree;
+- migrations are additive and published migrations are unchanged;
+- no secret, `.env`, log, build output or browser artifact is committed;
+- current documentation still matches the implementation.

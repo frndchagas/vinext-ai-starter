@@ -4,7 +4,7 @@ export default defineConfig({
   api: {
     input: "../../contracts/http/openapi/openapi.yaml",
     hooks: {
-      afterAllFilesWrite: "node ./scripts/fix-msw.mjs",
+      afterAllFilesWrite: "oxfmt --write",
     },
     output: {
       target: "./src/generated/endpoints.ts",

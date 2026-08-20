@@ -1,40 +1,31 @@
 # API conventions
 
-These conventions must appear in TypeSpec and in tests before the first domain endpoint.
+These rules apply to every application endpoint exposed through the generated client.
 
 ## Addressing and types
 
-- domain endpoints use the `/api/v1` prefix;
-- resources use UUIDv7 as the primary key and the client treats them as opaque strings;
-- dates and times use ISO 8601 in UTC;
-- monetary values, when they exist, use an integer in the smallest unit and a separate currency code;
-- optional fields and nullable fields are treated as different concepts.
+- Application routes use `/api/v1`.
+- Resource IDs are opaque strings backed by UUIDv7.
+- Dates use ISO 8601 UTC values.
+- Money uses integer minor units and a separate currency code.
+- Optional and nullable fields are different concepts.
 
-## Responses and errors
+## Responses
 
-- success returns the resource or a collection directly, without envelopes that differ per endpoint;
-- errors follow Problem Details for HTTP APIs, RFC 9457;
-- validation errors include a stable map of fields to messages;
-- domain error codes are machine-readable and do not depend on the text shown to the user;
-- every response includes or propagates the correlation ID.
-
-## Collections
-
-- potentially large collections use cursor-based pagination;
-- filters and sorting must be declared in TypeSpec;
-- paginated responses report the next cursor and do not expose internal database details.
+- Resources and collections use stable shapes declared in TypeSpec.
+- Errors use RFC 9457 Problem Details with machine-readable domain codes where needed.
+- Validation errors include a stable field-to-messages map.
+- Potentially large collections use cursor pagination.
+- Every Laravel API response carries `X-Correlation-Id`; middleware adds this cross-cutting header, which is not repeated in every generated response type today.
 
 ## Asynchronous mutations
 
-- creation accepts `Idempotency-Key` when repeating the call could duplicate work;
-- the initial response persists and returns the resource with an explicit state;
-- the client queries that resource through the API, even when it also receives Reverb notifications;
-- a client retry must never create a second logical operation.
+Use `Idempotency-Key` when retrying a mutation could duplicate work. Persist the resource and initial state before dispatching after commit. Replaying the same key and validated input must return the original result; conflicting reuse returns `409`.
+
+Realtime messages never replace the read API. A client can rebuild current state without receiving an event.
 
 ## Compatibility
 
-Oasdiff will compare the proposed OpenAPI with the last published version. Incompatible changes will require a new API version or a documented compatible transition. Adding an optional field still requires regenerating the client and running contract tests.
+HTTP changes begin in TypeSpec and include regenerated OpenAPI and client artifacts. On pull requests, oasdiff compares the proposed document with the target branch. This is not a comparison with the latest tagged release.
 
-## Authentication
-
-The Fortify endpoints used by the SPA are part of the contract consumed by the frontend, even when their implementation is provided by the framework. This includes current session, registration, login, logout, password recovery, password reset, and email verification.
+Protocol endpoints owned by Sanctum, Fortify or Echo may remain outside generated product hooks when application code does not consume them directly. Document each exception in [Authentication](authentication.md).

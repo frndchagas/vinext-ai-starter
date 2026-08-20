@@ -15,7 +15,7 @@ import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { getEcho } from "@/lib/echo";
+import { getEcho, onEchoReconnected } from "@/lib/echo";
 import { formValue } from "@/lib/form";
 import { validationErrors } from "@/lib/problem";
 import { useHydrated } from "@/lib/use-hydrated";
@@ -61,6 +61,9 @@ export default function TasksPage() {
 
     const echo = getEcho();
     const ids = activeIds.split(",");
+    const stopListeningForReconnect = onEchoReconnected(() => {
+      void queryClient.invalidateQueries({ queryKey: getListTasksQueryKey() });
+    });
 
     for (const id of ids) {
       echo.private(`tasks.${id}`).listen(".TaskStatusChanged", () => {
@@ -69,6 +72,8 @@ export default function TasksPage() {
     }
 
     return () => {
+      stopListeningForReconnect();
+
       for (const id of ids) {
         echo.leave(`tasks.${id}`);
       }

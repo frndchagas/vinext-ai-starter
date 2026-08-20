@@ -3,6 +3,10 @@ name: vinext-ai-starter
 services:
   caddy:
     image: caddy:2.11.4-alpine
+    environment:
+      API_UPSTREAM: "${API_UPSTREAM:-host.docker.internal:${API_PORT:-18000}}"
+      REVERB_UPSTREAM: "${REVERB_UPSTREAM:-host.docker.internal:${REVERB_PORT:-19080}}"
+      WEB_UPSTREAM: "${WEB_UPSTREAM:-host.docker.internal:${WEB_PORT:-13100}}"
     ports:
       - "${WEB_PUBLIC_PORT:-13000}:13000"
     volumes:

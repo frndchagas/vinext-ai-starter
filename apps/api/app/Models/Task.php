@@ -17,6 +17,7 @@ use Illuminate\Support\Carbon;
  * @property string $input
  * @property array<string, mixed>|null $output
  * @property TaskState $state
+ * @property string|null $processing_token
  * @property int $version
  * @property string|null $error_code
  * @property string $correlation_id
