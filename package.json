@@ -1,6 +1,6 @@
 {
   "name": "vinext-ai-starter",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "private": true,
   "license": "MIT",
   "packageManager": "bun@1.4.0",
@@ -27,6 +27,7 @@
     "test:e2e": "bun run --filter web test:e2e",
     "test:production": "bash scripts/production-smoke.sh",
     "test:template": "bash scripts/template-smoke.sh",
+    "test:distribution": "bash scripts/distribution-smoke.sh",
     "build": "bun run --parallel --if-present --filter '*' build",
     "config:check": "composer --working-dir apps/api validate --strict && docker compose config --quiet && bun run coolify:check",
     "coolify:build": "bun run scripts/coolify-compose.mjs",

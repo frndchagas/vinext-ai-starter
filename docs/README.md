@@ -16,6 +16,7 @@ Use this page to find the shortest path for the work you are doing.
 - [Asynchronous workflow](async-workflow.md): idempotency, queues and realtime recovery.
 - [Development](development.md): commands, contracts, quality gates and agent instructions.
 - [Deployment](deployment.md): production containers, smoke test and Coolify setup.
+- [Distribution](distribution.md): GitHub template, Laravel installer and Packagist release path.
 
 ## Decide
 
