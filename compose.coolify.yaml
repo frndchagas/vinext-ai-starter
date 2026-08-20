@@ -1,0 +1,10 @@
+include:
+  - compose.production.yaml
+
+services:
+  proxy:
+    environment:
+      SERVICE_URL_PROXY_8080:
+
+  migrate:
+    exclude_from_hc: true

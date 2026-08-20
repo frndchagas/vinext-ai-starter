@@ -15,10 +15,11 @@ Use this page to find the shortest path for the work you are doing.
 - [API conventions](api-conventions.md): rules for public HTTP changes.
 - [Asynchronous workflow](async-workflow.md): idempotency, queues and realtime recovery.
 - [Development](development.md): commands, contracts, quality gates and agent instructions.
+- [Deployment](deployment.md): production containers, smoke test and Coolify setup.
 
 ## Decide
 
 - [Domain glossary](../CONTEXT.md): canonical project terms.
 - [Decision records](adr/): accepted architecture decisions and their implementation state.
 
-Production deployment is not documented yet because the production containers have not been implemented. ADR 0007 records the accepted direction without presenting it as a current capability.
+The deployment guide describes the tested Node and Coolify path. Decisions that are still pending remain marked in their ADRs.

@@ -41,6 +41,7 @@ GitHub Actions runs:
 - integration tests on PHP 8.3 and 8.5 against PostgreSQL and Redis;
 - serial Chromium E2E for auth, mail, queues and reconnection;
 - a fresh template snapshot with isolated ports, migrations, contracts, build and proxy smoke tests;
+- production image builds followed by migrations, health checks, a session flow and queued Task processing;
 - Gitleaks, dependency review and OpenAPI breaking-change detection;
 - GitHub CodeQL default setup outside the repository workflow.
 
