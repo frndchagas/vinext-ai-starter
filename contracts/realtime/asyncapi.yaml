@@ -1,12 +1,13 @@
-asyncapi: 3.0.0
+asyncapi: 3.1.0
 info:
   title: Vinext AI Starter Realtime
-  version: 0.1.0
+  version: 0.2.0
   description: >
-    Public realtime channels and events delivered by Laravel Reverb through
-    the same-origin /ws path. Delivery is at least once and best effort; the
-    state persisted behind the HTTP API is always the source of truth, and
-    consumers re-fetch active resources after a reconnection.
+    Contracted realtime channels and messages delivered by Laravel Reverb
+    through the same-origin /ws path. WebSocket delivery is not guaranteed;
+    duplicates and loss are possible. State persisted behind the HTTP API is
+    always the source of truth, and consumers re-fetch active resources after
+    a reconnection.
 servers:
   reverb:
     host: localhost:13000
@@ -14,6 +15,12 @@ servers:
     protocol: ws
     description: Reverb behind the same-origin proxy. Private channels are authorized through POST /api/broadcasting/auth with the Laravel session.
 channels:
+  userSession:
+    address: private-users.{userId}
+    description: Private connectivity channel for the verified User. It currently carries no contracted messages.
+    parameters:
+      userId:
+        description: Opaque User identifier.
   taskStatus:
     address: private-tasks.{taskId}
     description: Private channel of one Task. Only the owning verified User is authorized.
@@ -34,7 +41,7 @@ components:
     taskStatusChanged:
       name: TaskStatusChanged
       title: Task status changed
-      summary: Emitted after each persisted state transition, only after the database commit.
+      summary: Emitted after a persisted processing, completed or failed transition, only after the database commit.
       payload:
         type: object
         additionalProperties: false

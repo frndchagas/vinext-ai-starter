@@ -13,12 +13,14 @@ describe("starter home", () => {
     expect(
       screen.getByRole("heading", { name: "The baseline settles the recurring decisions." }),
     ).toBeInTheDocument();
-    expect(screen.getByText("A serious starting point for AI software.")).toBeInTheDocument();
+    expect(
+      screen.getByText("A serious Laravel starting point for coding agents."),
+    ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "View architecture" })).toHaveAttribute(
       "href",
       "#architecture",
     );
     expect(screen.getAllByRole("article")).toHaveLength(4);
-    expect(screen.getByText("8 checks passed")).toBeInTheDocument();
+    expect(screen.getByText("One command, objective gates")).toBeInTheDocument();
   });
 });

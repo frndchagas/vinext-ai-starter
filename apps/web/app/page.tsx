@@ -137,7 +137,7 @@ export default function Home() {
           <div className="flex flex-col justify-between border-b border-border px-5 py-14 sm:px-8 sm:py-20 lg:border-r lg:border-b-0 lg:px-10 lg:py-14">
             <div>
               <p className="max-w-sm text-sm font-medium text-pretty text-muted-foreground">
-                Open-source foundation for products built with AI
+                Open-source foundation designed for coding agents
               </p>
               <h1
                 aria-label="Vinext AI Starter for Laravel"
@@ -154,7 +154,7 @@ export default function Home() {
             <div className="mt-16 max-w-2xl lg:mt-10">
               <div aria-hidden="true" className="mb-7 h-0.5 w-12 bg-primary" />
               <h2 className="text-xl font-semibold text-balance sm:text-2xl">
-                A serious starting point for AI software.
+                A serious Laravel starting point for coding agents.
               </h2>
               <p className="mt-4 max-w-xl text-base leading-7 text-pretty text-muted-foreground sm:text-lg sm:leading-8">
                 Vinext handles the interface. Laravel owns identity, permissions and durable state.
@@ -208,23 +208,35 @@ export default function Home() {
                   label="Browser"
                 />
                 <div aria-hidden="true" className="mx-auto h-5 w-px bg-foreground/50" />
-                <StackNode accent icon={<VinextMark className="size-8" />} label="Vinext" />
-                <div aria-hidden="true" className="mx-auto h-5 w-px bg-foreground/50" />
                 <StackNode
                   accent
-                  icon={<SiLaravel aria-hidden="true" className="size-7" title="" />}
-                  label="Laravel"
+                  icon={<Braces className="size-7" />}
+                  label="Caddy · same-origin"
                 />
                 <div aria-hidden="true" className="mx-auto h-5 w-px bg-foreground/50" />
-                <div className="grid grid-cols-2 gap-4">
+                <p className="mb-3 text-center font-mono text-xs text-muted-foreground">
+                  routes by path
+                </p>
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <StackNode accent icon={<VinextMark className="size-8" />} label="Vinext" />
+                  <StackNode
+                    accent
+                    icon={<SiLaravel aria-hidden="true" className="size-7" title="" />}
+                    label="Laravel"
+                  />
                   <StackNode accent icon={<ReverbMark className="size-8" />} label="Reverb" />
+                </div>
+                <div aria-hidden="true" className="mx-auto h-5 w-px bg-foreground/50" />
+                <p className="mb-3 text-center font-mono text-xs text-muted-foreground">
+                  Laravel data services
+                </p>
+                <div className="grid grid-cols-2 gap-4">
                   <StackNode
                     icon={<SiPostgresql aria-hidden="true" className="size-7" title="" />}
                     label="PostgreSQL"
                   />
+                  <StackNode accent icon={<RedisMark className="size-7" />} label="Redis" />
                 </div>
-                <div aria-hidden="true" className="mx-auto h-5 w-px bg-foreground/50" />
-                <StackNode accent icon={<RedisMark className="size-7" />} label="Redis" />
               </div>
             </div>
 
@@ -236,7 +248,8 @@ export default function Home() {
                 <span className="mr-3 text-primary">›</span>bun run check
               </code>
               <span className="flex items-center gap-2 text-sm">
-                <span aria-hidden="true" className="size-2 bg-primary" />8 checks passed
+                <span aria-hidden="true" className="size-2 bg-primary" />
+                One command, objective gates
               </span>
             </div>
           </aside>

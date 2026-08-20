@@ -9,10 +9,10 @@ import { Providers } from "./providers";
 export const metadata: Metadata = {
   title: "Vinext AI Starter for Laravel",
   description:
-    "A serious starting point for AI software, with Vinext, Laravel, typed contracts, queues and realtime.",
+    "A Laravel and Vinext foundation for coding agents, with typed contracts, queues and realtime.",
   openGraph: {
     description:
-      "A serious starting point for AI software, with Vinext, Laravel, typed contracts, queues and realtime.",
+      "A Laravel and Vinext foundation for coding agents, with typed contracts, queues and realtime.",
     title: "Vinext AI Starter for Laravel",
     type: "website",
   },

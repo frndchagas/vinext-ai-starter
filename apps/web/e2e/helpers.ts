@@ -7,7 +7,7 @@ interface MailpitMessageSummary {
   To: Array<{ Address: string }>;
 }
 
-export async function findVerificationLink(email: string): Promise<string> {
+async function findMailLink(email: string, pattern: RegExp): Promise<string> {
   for (let attempt = 0; attempt < 20; attempt += 1) {
     const listResponse = await fetch(`${MAILPIT_URL}/api/v1/messages?limit=20`);
     const list = (await listResponse.json()) as { messages: MailpitMessageSummary[] };
@@ -18,7 +18,7 @@ export async function findVerificationLink(email: string): Promise<string> {
     if (message) {
       const messageResponse = await fetch(`${MAILPIT_URL}/api/v1/message/${message.ID}`);
       const body = (await messageResponse.json()) as { Text: string };
-      const match = body.Text.match(/https?:\/\/\S+\/api\/v1\/auth\/email\/verify\/\S+/);
+      const match = body.Text.match(pattern);
 
       if (match) {
         return match[0].replace(/[)\].,]+$/, "");
@@ -28,7 +28,15 @@ export async function findVerificationLink(email: string): Promise<string> {
     await new Promise((resolve) => setTimeout(resolve, 500));
   }
 
-  throw new Error(`No verification email arrived for ${email}`);
+  throw new Error(`No matching email link arrived for ${email}`);
+}
+
+export function findVerificationLink(email: string): Promise<string> {
+  return findMailLink(email, /https?:\/\/\S+\/api\/v1\/auth\/email\/verify\/\S+/);
+}
+
+export function findPasswordResetLink(email: string): Promise<string> {
+  return findMailLink(email, /https?:\/\/\S+\/reset-password\?\S+/);
 }
 
 export async function registerVerifiedUser(

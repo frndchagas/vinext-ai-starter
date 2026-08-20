@@ -2,73 +2,47 @@
 
 [![CI](https://github.com/frndchagas/vinext-ai-starter/actions/workflows/ci.yml/badge.svg)](https://github.com/frndchagas/vinext-ai-starter/actions/workflows/ci.yml)
 
-An AI-first SaaS starter powered by Vinext and Laravel.
+A Laravel and Vinext foundation for coding agents.
 
-The repository is in its foundation phase. It currently proves Vinext on Node, Laravel 13 as an API, shadcn/ui with Base UI, Bun workspaces, Turborepo and the first mechanical quality gate.
+The starter provides same-origin sessions, explicit HTTP and realtime contracts, a generated TypeScript client, role and permission storage, Redis queues, Reverb and one idempotent asynchronous flow. "AI-first" refers to repository instructions and executable gates; no AI provider ships in the current release.
 
-## Requirements
+Vinext is still in beta and the React Compiler integration is experimental. The repository proves local development and browser behavior, but production containers are not implemented yet.
 
-- Bun 1.3.14 or newer
-- Node.js 24 or newer
-- PHP 8.5
-- Composer 2.10
+## Quickstart
 
-## Setup
+Requirements: Bun 1.4+, Node.js 24+, PHP 8.3+, Composer 2.10, Docker Compose and Git.
 
 ```bash
-bun install --frozen-lockfile
-composer install --working-dir apps/api --no-interaction
-bun run check
+git clone https://github.com/frndchagas/vinext-ai-starter.git
+cd vinext-ai-starter
+cp .env.example .env
+bun run bootstrap
+bun run dev
 ```
 
-Use `bun run dev` to start Vinext, Laravel, Horizon and Reverb. The defaults are port 13000 for the web app, 18000 for Laravel and 19080 for Reverb.
+Open `http://localhost:13000`, register a User and use Mailpit at `http://localhost:18025` to verify the email. The Tasks page demonstrates queued processing and private realtime updates.
 
-PostgreSQL listens on 15432, Redis on 16379, Mailpit SMTP on 11025 and the Mailpit interface on 18025. These defaults avoid common local service ports and can be changed in the root `.env` file.
+See [Getting started](docs/getting-started.md) for the expected services, shutdown steps and first validation.
 
 ## Commands
 
-```text
-bun run dev            Start web and API
-bun run format         Format TypeScript and PHP
-bun run format:check   Check formatting
-bun run lint           Run Oxlint and Larastan
-bun run typecheck      Run TypeScript type checking
-bun run test           Run Vitest and PHPUnit
-bun run build          Build the Vinext application
-bun run config:check   Validate Composer and Docker Compose configuration
-bun run check          Run the standard quality gate
-```
-
-## Repository layout
-
-```text
-apps/web             Vinext, React, shadcn/ui and Tailwind CSS
-apps/api             Laravel API
-packages/api-client  Generated HTTP client, added with the contract phase
-packages/config      Shared TypeScript configuration
-docs                 Architecture guides and decision records
-CONTEXT.md           Domain glossary
-```
+| Command | Purpose |
+| --- | --- |
+| `bun run bootstrap` | Install locked dependencies, start infrastructure and migrate |
+| `bun run dev` | Start Caddy dependencies, Vinext, Laravel, Horizon and Reverb |
+| `bun run check` | Format check, lint, types, unit tests and Vinext build |
+| `bun run contracts:check` | Validate AsyncAPI and detect generated HTTP drift |
+| `bun run audit` | Check dependency deduplication and advisories |
+| `bun run test:e2e` | Run the Playwright browser journeys |
+| `bun run infra:down` | Stop local Docker infrastructure without deleting volumes |
 
 ## Documentation
 
+- [Documentation index](docs/README.md)
+- [Customize the starter](docs/customizing.md)
 - [Architecture](docs/architecture.md)
-- [API conventions](docs/api-conventions.md)
-- [Authentication and permissions](docs/auth-permissions.md)
-- [Monorepo organization](docs/monorepo.md)
-- [Realtime contracts](docs/realtime-contracts.md)
-- [Queue reliability](docs/queue-reliability.md)
-- [Determinism](docs/determinism.md)
-- [Frontend quality](docs/frontend-quality.md)
-- [AI-first developer experience](docs/ai-first-dx.md)
-- [Extensions](docs/extensions.md)
-- [Decision records](docs/adr)
-- [Domain glossary](CONTEXT.md)
+- [Troubleshooting](docs/troubleshooting.md)
+- [Contributing](CONTRIBUTING.md)
+- [Security policy](SECURITY.md)
 
-## Independence
-
-This is an independent community project. It is not affiliated with, sponsored by or endorsed by Cloudflare or the Laravel team. Vinext, Laravel and other trademarks belong to their respective owners.
-
-## License
-
-[MIT](LICENSE)
+This independent MIT-licensed project is not affiliated with or endorsed by Cloudflare or Laravel.

@@ -22,7 +22,12 @@ class ProcessTask implements ShouldBeUnique, ShouldQueue
 
     public bool $failOnTimeout = true;
 
-    public function __construct(public string $taskId) {}
+    public string $processingToken;
+
+    public function __construct(public string $taskId, ?string $processingToken = null)
+    {
+        $this->processingToken = $processingToken ?? (string) Str::uuid7();
+    }
 
     /**
      * @return array<int, int>
@@ -50,15 +55,20 @@ class ProcessTask implements ShouldBeUnique, ShouldQueue
             ->where('state', TaskState::Queued)
             ->update([
                 'state' => TaskState::Processing,
+                'processing_token' => $this->processingToken,
                 'version' => DB::raw('version + 1'),
                 'started_at' => now(),
             ]);
 
-        if ($claimed === 0 && $task->refresh()->state !== TaskState::Processing) {
+        $task->refresh();
+
+        if ($claimed === 0 && ($task->state !== TaskState::Processing || $task->processing_token !== $this->processingToken)) {
             return;
         }
 
-        TaskStatusChanged::dispatch(...self::payload($task->refresh()));
+        if ($claimed === 1) {
+            TaskStatusChanged::dispatch(...self::payload($task));
+        }
 
         $delayMs = (int) config('tasks.simulated_delay_ms');
 
@@ -71,29 +81,46 @@ class ProcessTask implements ShouldBeUnique, ShouldQueue
             'reversed' => Str::reverse($task->input),
         ];
 
-        DB::transaction(function () use ($task, $output): void {
-            $task->forceFill([
+        DB::transaction(function () use ($output): void {
+            $ownedTask = Task::query()
+                ->whereKey($this->taskId)
+                ->where('state', TaskState::Processing)
+                ->where('processing_token', $this->processingToken)
+                ->lockForUpdate()
+                ->first();
+
+            if ($ownedTask === null) {
+                return;
+            }
+
+            $ownedTask->forceFill([
                 'state' => TaskState::Completed,
-                'version' => $task->version + 1,
+                'processing_token' => null,
+                'version' => $ownedTask->version + 1,
                 'output' => $output,
                 'finished_at' => now(),
             ])->save();
 
-            TaskStatusChanged::dispatch(...self::payload($task));
+            TaskStatusChanged::dispatch(...self::payload($ownedTask));
         });
     }
 
     public function failed(?Throwable $exception): void
     {
-        $task = Task::find($this->taskId);
+        DB::transaction(function (): void {
+            $task = Task::query()->whereKey($this->taskId)->lockForUpdate()->first();
 
-        if ($task === null || $task->state->isFinal()) {
-            return;
-        }
+            if ($task === null || $task->state->isFinal()) {
+                return;
+            }
 
-        DB::transaction(function () use ($task): void {
+            if ($task->state === TaskState::Processing && $task->processing_token !== $this->processingToken) {
+                return;
+            }
+
             $task->forceFill([
                 'state' => TaskState::Failed,
+                'processing_token' => null,
                 'version' => $task->version + 1,
                 'error_code' => 'task_failed',
                 'finished_at' => now(),

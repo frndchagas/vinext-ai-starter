@@ -5,9 +5,12 @@ namespace Tests\Feature\Tasks;
 use App\Jobs\ProcessTask;
 use App\Models\Task;
 use App\Models\User;
+use App\Services\CreateTask;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use RuntimeException;
 use Tests\TestCase;
 
 class CreateTaskTest extends TestCase
@@ -67,6 +70,35 @@ class CreateTaskTest extends TestCase
         $response->assertHeader('Content-Type', 'application/problem+json');
         $response->assertJson(['code' => 'idempotency_key_reused']);
         $this->assertSame(1, Task::query()->count());
+    }
+
+    public function test_rolling_back_the_outer_transaction_persists_nothing_and_dispatches_no_job(): void
+    {
+        config(['queue.default' => 'database']);
+
+        $user = User::factory()->create();
+
+        try {
+            DB::transaction(function () use ($user): void {
+                $createTask = app(CreateTask::class);
+                $createTask(
+                    $user,
+                    'discard this task',
+                    (string) Str::uuid7(),
+                    (string) Str::uuid7(),
+                );
+
+                throw new RuntimeException('rollback the request');
+            });
+
+            $this->fail('The transaction should have rolled back.');
+        } catch (RuntimeException $exception) {
+            $this->assertSame('rollback the request', $exception->getMessage());
+        }
+
+        $this->assertDatabaseCount('tasks', 0);
+        $this->assertDatabaseCount('idempotency_keys', 0);
+        $this->assertDatabaseCount('jobs', 0);
     }
 
     public function test_the_idempotency_key_header_is_required(): void

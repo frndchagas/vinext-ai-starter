@@ -1,9 +1,14 @@
-# vinext app
+# Vinext web application
 
-This project was created with create-vinext-app.
+This application contains the Vinext interface and consumes Laravel through the generated API client.
 
-## Scripts
+Run focused checks from this directory:
 
-- `pnpm run dev` starts the vinext dev server.
-- `pnpm run build` builds production output.
-- `pnpm run start` starts the production server locally.
+```bash
+bun run format:check
+bun run lint
+bun run typecheck
+bun run test
+```
+
+Use the root `bun run dev` command for the complete same-origin stack and `bun run test:e2e` at the root for browser flows.

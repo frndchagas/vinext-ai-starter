@@ -24,6 +24,56 @@ paths:
                 $ref: '#/components/schemas/Problem'
       tags:
         - Auth
+  /api/v1/auth/email/verify/{id}/{hash}:
+    get:
+      operationId: verifyEmail
+      description: Verify the authenticated user's email through a temporary signed link and redirect to the SPA.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: hash
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: expires
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+          explode: false
+        - name: signature
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+      responses:
+        '302':
+          description: Redirection
+          headers:
+            location:
+              required: true
+              schema:
+                type: string
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Access is forbidden.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      tags:
+        - Auth
   /api/v1/auth/forgot-password:
     post:
       operationId: forgotPassword
@@ -314,6 +364,12 @@ paths:
                 $ref: '#/components/schemas/Problem'
         '403':
           description: Access is forbidden.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: The server cannot find the requested resource.
           content:
             application/problem+json:
               schema:

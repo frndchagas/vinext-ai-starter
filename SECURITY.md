@@ -1,15 +1,15 @@
 # Security policy
 
-## Reporting a vulnerability
+## Supported versions
 
-Please do not open public issues for security problems. Use GitHub private
-vulnerability reporting on this repository (Security → Report a vulnerability).
-You will get an acknowledgement within a week.
+Security fixes target the latest tagged release and the default branch. Older snapshots created from this template do not receive automatic updates.
 
-## Scope
+## Report a vulnerability
 
-The starter ships with sessions via Laravel Fortify and Sanctum, role storage
-via Spatie Laravel Permission, private Reverb channels, and idempotent job
-processing. Reports about weaknesses in these flows, in the same-origin proxy
-configuration, or in the generated client are all in scope. Vulnerabilities in
-upstream dependencies should go to the upstream projects.
+Do not open a public issue. Use GitHub private vulnerability reporting under **Security > Report a vulnerability**.
+
+Include the affected version, impact, reproduction steps and any suggested mitigation. We aim to acknowledge a complete report within one week, but this is not a contractual response-time guarantee.
+
+Reports about session handling, CSRF, authorization, same-origin proxying, private channels, generated clients, idempotency and queue ownership are in scope. Upstream vulnerabilities should also be reported to the affected project, but report them here when this starter's integration exposes or amplifies the issue.
+
+Do not include real credentials, personal data or production records in a report.

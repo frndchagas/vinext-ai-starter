@@ -5,15 +5,17 @@
 - `apps/web`: Vinext frontend, React, shadcn/ui and Tailwind CSS.
 - `apps/api`: Laravel API and the source of truth for identity and domain state.
 - `packages/api-client`: generated TypeScript client. Do not hand edit generated files.
-- `packages/config`: shared TypeScript configuration.
 - `docs/`: architecture guides. Decision records live in `docs/adr/`.
 - `CONTEXT.md`: domain glossary. Use its canonical terms in code, contracts and UI.
 
 ## Commands
 
+- `bun run bootstrap`: install dependencies, start local infrastructure and migrate.
+- `bun run dev`: start the proxy, web, API, Horizon and Reverb.
 - `bun run format`: format TypeScript and PHP.
 - `bun run check`: run formatting checks, lint, types, unit tests and build.
-- `bun run dev`: start the web and API development servers.
+- `bun run contracts:check`: validate contracts and fail on generated HTTP drift.
+- `bun run test:e2e`: run the Playwright flows against the development stack.
 
 ## Rules
 

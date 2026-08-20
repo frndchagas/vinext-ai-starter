@@ -8,5 +8,5 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ["@base-ui/react", "lucide-react"],
   },
-  plugins: [vinext()],
+  plugins: [vinext({ react: { compiler: true } })],
 });

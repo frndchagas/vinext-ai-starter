@@ -48,6 +48,56 @@ class ProcessTaskTest extends TestCase
         Event::assertNotDispatched(TaskStatusChanged::class);
     }
 
+    public function test_a_worker_cannot_process_a_task_claimed_by_another_worker(): void
+    {
+        Event::fake([TaskStatusChanged::class]);
+
+        $task = Task::factory()->create([
+            'state' => TaskState::Processing,
+            'processing_token' => '00000000-0000-7000-8000-000000000001',
+            'version' => 2,
+            'started_at' => now(),
+        ]);
+
+        $competingWorker = new ProcessTask(
+            (string) $task->getKey(),
+            '00000000-0000-7000-8000-000000000002',
+        );
+
+        $competingWorker->handle();
+
+        $task->refresh();
+        $this->assertSame(TaskState::Processing, $task->state);
+        $this->assertSame(2, $task->version);
+        $this->assertNull($task->output);
+        $this->assertSame('00000000-0000-7000-8000-000000000001', $task->processing_token);
+        Event::assertNotDispatched(TaskStatusChanged::class);
+    }
+
+    public function test_a_retry_keeps_processing_the_task_claimed_by_the_same_job(): void
+    {
+        Event::fake([TaskStatusChanged::class]);
+
+        $processingToken = '00000000-0000-7000-8000-000000000001';
+        $task = Task::factory()->create([
+            'input' => 'retry safely',
+            'state' => TaskState::Processing,
+            'processing_token' => $processingToken,
+            'version' => 2,
+            'started_at' => now(),
+        ]);
+
+        (new ProcessTask((string) $task->getKey(), $processingToken))->handle();
+
+        $task->refresh();
+        $this->assertSame(TaskState::Completed, $task->state);
+        $this->assertSame(3, $task->version);
+        $this->assertNull($task->processing_token);
+        $this->assertSame('ylefas yrter', $task->output['reversed']);
+        Event::assertDispatchedTimes(TaskStatusChanged::class, 1);
+        Event::assertDispatched(TaskStatusChanged::class, fn (TaskStatusChanged $event) => $event->state === 'completed');
+    }
+
     public function test_failed_persists_the_failed_state_with_a_safe_error_code(): void
     {
         Event::fake([TaskStatusChanged::class]);
@@ -74,6 +124,31 @@ class ProcessTaskTest extends TestCase
         (new ProcessTask((string) $task->getKey()))->failed(new RuntimeException('late failure'));
 
         $this->assertSame(TaskState::Completed, $task->refresh()->state);
+        Event::assertNotDispatched(TaskStatusChanged::class);
+    }
+
+    public function test_a_competing_worker_failure_does_not_override_the_active_claim(): void
+    {
+        Event::fake([TaskStatusChanged::class]);
+
+        $task = Task::factory()->create([
+            'state' => TaskState::Processing,
+            'processing_token' => '00000000-0000-7000-8000-000000000001',
+            'version' => 2,
+            'started_at' => now(),
+        ]);
+
+        $competingWorker = new ProcessTask(
+            (string) $task->getKey(),
+            '00000000-0000-7000-8000-000000000002',
+        );
+        $competingWorker->failed(new RuntimeException('failure from the wrong worker'));
+
+        $task->refresh();
+        $this->assertSame(TaskState::Processing, $task->state);
+        $this->assertSame(2, $task->version);
+        $this->assertNull($task->error_code);
+        $this->assertSame('00000000-0000-7000-8000-000000000001', $task->processing_token);
         Event::assertNotDispatched(TaskStatusChanged::class);
     }
 }

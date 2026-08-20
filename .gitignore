@@ -2,8 +2,6 @@
 .env
 .env.*
 !.env.example
-.nx/
-.turbo/
 .idea/
 .vscode/
 node_modules/

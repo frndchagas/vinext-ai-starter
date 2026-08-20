@@ -42,6 +42,13 @@ model ValidationErrorResponse {
   @body body: ValidationProblem;
 }
 
+@error
+model NotFoundResponse {
+  @statusCode statusCode: 404;
+  @header contentType: "application/problem+json";
+  @body body: Problem;
+}
+
 @doc("The authenticated identity, its roles and permissions.")
 model Me {
   @doc("Opaque identifier. Clients must not infer meaning from its value.")
@@ -128,6 +135,20 @@ namespace Auth {
   @route("/email/verification-notification")
   @post
   op resendEmailVerification(): AcceptedResponse | UnauthorizedResponse;
+
+  @operationId("verifyEmail")
+  @doc("Verify the authenticated user's email through a temporary signed link and redirect to the SPA.")
+  @route("/email/verify/{id}/{hash}")
+  @get
+  op verifyEmail(
+    @path id: string,
+    @path hash: string,
+    @query expires?: int64,
+    @query signature?: string,
+  ): {
+    @statusCode statusCode: 302;
+    @header location: string;
+  } | UnauthorizedResponse | ForbiddenResponse;
 }
 
 @tag("Identity")
@@ -231,5 +252,5 @@ namespace Tasks {
   op getTask(@path id: string): {
     @statusCode statusCode: 200;
     @body body: Task;
-  } | UnauthorizedResponse | ForbiddenResponse;
+  } | UnauthorizedResponse | ForbiddenResponse | NotFoundResponse;
 }
