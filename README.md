@@ -34,6 +34,7 @@ See [Getting started](docs/getting-started.md) for the expected services, shutdo
 | `bun run contracts:check` | Validate AsyncAPI and detect generated HTTP drift |
 | `bun run audit` | Check dependency deduplication and advisories |
 | `bun run test:e2e` | Run the Playwright browser journeys |
+| `bun run test:template` | Create and verify a fresh template snapshot |
 | `bun run infra:down` | Stop local Docker infrastructure without deleting volumes |
 
 ## Documentation

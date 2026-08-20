@@ -25,6 +25,7 @@
     "typecheck": "bun run --parallel --if-present --filter '*' typecheck",
     "test": "bun run --parallel --if-present --filter '*' test",
     "test:e2e": "bun run --filter web test:e2e",
+    "test:template": "bash scripts/template-smoke.sh",
     "build": "bun run --parallel --if-present --filter '*' build",
     "config:check": "composer --working-dir apps/api validate --strict && docker compose config --quiet",
     "audit": "bun dedupe --check && bun audit --audit-level=high && composer audit --working-dir apps/api --locked",
