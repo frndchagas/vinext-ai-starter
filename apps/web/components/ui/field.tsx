@@ -7,15 +7,22 @@ interface FieldProps extends React.ComponentProps<typeof Input> {
   errors?: string[] | undefined;
 }
 
-function Field({ label, name, errors, ...props }: FieldProps) {
+function Field({ label, name, id = name, errors, ...props }: FieldProps) {
   const hasErrors = errors !== undefined && errors.length > 0;
+  const errorId = `${id}-error`;
 
   return (
     <div className="flex flex-col gap-1.5">
-      <Label htmlFor={name}>{label}</Label>
-      <Input id={name} name={name} aria-invalid={hasErrors || undefined} {...props} />
+      <Label htmlFor={id}>{label}</Label>
+      <Input
+        id={id}
+        name={name}
+        aria-describedby={hasErrors ? errorId : undefined}
+        aria-invalid={hasErrors || undefined}
+        {...props}
+      />
       {hasErrors ? (
-        <p role="alert" className="text-sm text-destructive">
+        <p id={errorId} role="alert" className="text-sm text-destructive">
           {errors[0]}
         </p>
       ) : null}

@@ -76,6 +76,74 @@ export const ResetPasswordResponse = zod.object({
 })
 
 
+export const CompleteTwoFactorChallengeBody = zod.object({
+  "code": zod.string().optional(),
+  "recovery_code": zod.string().optional()
+})
+
+export const CompleteTwoFactorChallengeResponse = zod.void()
+
+
+export const ConfirmPasswordBody = zod.object({
+  "password": zod.string()
+})
+
+export const ConfirmPasswordResponse = zod.void()
+
+
+export const GetPasswordConfirmationStatusResponse = zod.object({
+  "confirmed": zod.boolean()
+})
+
+
+export const ConfirmTwoFactorBody = zod.object({
+  "code": zod.string()
+})
+
+export const ConfirmTwoFactorResponse = zod.unknown()
+
+
+export const UpdatePasswordBody = zod.object({
+  "current_password": zod.string(),
+  "password": zod.string(),
+  "password_confirmation": zod.string()
+})
+
+export const UpdatePasswordResponse = zod.unknown()
+
+
+export const UpdateProfileBody = zod.object({
+  "name": zod.string(),
+  "email": zod.string()
+})
+
+export const UpdateProfileResponse = zod.unknown()
+
+
+export const EnableTwoFactorResponse = zod.unknown()
+
+
+export const DisableTwoFactorResponse = zod.unknown()
+
+
+export const GetTwoFactorQrCodeResponse = zod.object({
+  "svg": zod.string(),
+  "url": zod.string()
+})
+
+
+export const GetRecoveryCodesResponseItem = zod.string()
+export const GetRecoveryCodesResponse = zod.array(GetRecoveryCodesResponseItem)
+
+
+export const RegenerateRecoveryCodesResponse = zod.unknown()
+
+
+export const GetTwoFactorSecretKeyResponse = zod.object({
+  "secretKey": zod.string()
+})
+
+
 /**
  * Current authenticated identity with roles, permissions and verification state.
  */
@@ -84,6 +152,8 @@ export const GetMeResponse = zod.object({
   "name": zod.string(),
   "email": zod.string(),
   "email_verified": zod.boolean(),
+  "two_factor_enabled": zod.boolean(),
+  "two_factor_confirmed": zod.boolean(),
   "roles": zod.array(zod.string()),
   "permissions": zod.array(zod.string())
 }).describe('The authenticated identity, its roles and permissions.')

@@ -1,3 +1,5 @@
+import { createHmac } from "node:crypto";
+
 import { expect, type Page } from "@playwright/test";
 
 const MAILPIT_URL = process.env.E2E_MAILPIT_URL ?? "http://localhost:18025";
@@ -55,4 +57,30 @@ export async function registerVerifiedUser(
   const verificationLink = await findVerificationLink(email);
   await page.goto(verificationLink);
   await expect(page).toHaveURL(/\/dashboard\?verified=1$/, { timeout: 20_000 });
+}
+
+export function generateTotp(secret: string, now = Date.now()): string {
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+  const normalized = secret.toUpperCase().replaceAll("=", "").replaceAll(/\s/g, "");
+  let bits = "";
+
+  for (const character of normalized) {
+    const value = alphabet.indexOf(character);
+    if (value < 0) throw new Error("Invalid base32 secret.");
+    bits += value.toString(2).padStart(5, "0");
+  }
+
+  const bytes = Buffer.alloc(Math.floor(bits.length / 8));
+  for (let index = 0; index < bytes.length; index += 1) {
+    bytes[index] = Number.parseInt(bits.slice(index * 8, index * 8 + 8), 2);
+  }
+
+  const counter = Math.floor(now / 30_000);
+  const counterBuffer = Buffer.alloc(8);
+  counterBuffer.writeBigUInt64BE(BigInt(counter));
+  const hash = createHmac("sha1", bytes).update(counterBuffer).digest();
+  const offset = hash.at(-1)! & 0x0f;
+  const code = (hash.readUInt32BE(offset) & 0x7fffffff) % 1_000_000;
+
+  return code.toString().padStart(6, "0");
 }
