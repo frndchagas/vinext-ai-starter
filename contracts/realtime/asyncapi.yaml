@@ -1,7 +1,7 @@
 asyncapi: 3.1.0
 info:
   title: Vinext AI Starter Realtime
-  version: 0.2.0
+  version: 1.0.0
   description: >
     Contracted realtime channels and messages delivered by Laravel Reverb
     through the same-origin /ws path. WebSocket delivery is not guaranteed;

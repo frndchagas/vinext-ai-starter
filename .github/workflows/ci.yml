@@ -222,6 +222,27 @@ jobs:
       - name: Fresh template
         run: bun run test:template
 
+  distribution-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.4.0
+
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: "8.3"
+          extensions: pdo_sqlite, redis, pcntl
+          coverage: none
+          tools: composer:2.10.0
+
+      - run: bun ci
+      - run: composer install --working-dir apps/api --no-interaction --prefer-dist
+      - run: bun run test:distribution
+
   production-smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 20

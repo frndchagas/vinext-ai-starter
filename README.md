@@ -4,6 +4,8 @@
 
 A Laravel and Vinext foundation for coding agents.
 
+[Live demo](https://vinext-ai-starter.dev-0.fortetecnologias.com.br) · [Deployment guide](docs/deployment.md)
+
 The starter provides same-origin sessions, profile and password settings, optional TOTP, explicit HTTP and realtime contracts, a generated TypeScript client, role and permission storage, Redis queues, Reverb and one idempotent asynchronous flow. "AI-first" refers to repository instructions and executable gates; no AI provider ships in the current release.
 
 Vinext is still in beta and the React Compiler integration is experimental. CI verifies local setup, browser behavior, a fresh template snapshot and the production container topology.
@@ -21,6 +23,12 @@ bun run dev
 ```
 
 Open `http://localhost:13000`, register a User and use Mailpit at `http://localhost:18025` to verify the email. The Tasks page demonstrates queued processing and private realtime updates.
+
+Stable releases are also available through the Laravel installer:
+
+```bash
+laravel new my-app --using=frndchagas/vinext-ai-starter --phpunit --bun --no-boost
+```
 
 See [Getting started](docs/getting-started.md) for the expected services, shutdown steps and first validation.
 
@@ -44,6 +52,7 @@ See [Getting started](docs/getting-started.md) for the expected services, shutdo
 - [Customize the starter](docs/customizing.md)
 - [Architecture](docs/architecture.md)
 - [Deployment](docs/deployment.md)
+- [Laravel and Packagist distribution](docs/distribution.md)
 - [Troubleshooting](docs/troubleshooting.md)
 - [Contributing](CONTRIBUTING.md)
 - [Security policy](SECURITY.md)
