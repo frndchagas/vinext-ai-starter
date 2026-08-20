@@ -1,0 +1,15 @@
+{
+  "name": "api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "php artisan dev --inline",
+    "format": "vendor/bin/pint",
+    "format:check": "vendor/bin/pint --test",
+    "lint": "vendor/bin/phpstan analyse --no-progress --memory-limit=512M",
+    "test": "php artisan test"
+  },
+  "devDependencies": {
+    "@laravel/multiplex": "0.4.3"
+  }
+}
