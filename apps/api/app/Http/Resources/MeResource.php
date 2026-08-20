@@ -21,6 +21,8 @@ class MeResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'email_verified' => $this->hasVerifiedEmail(),
+            'two_factor_enabled' => $this->two_factor_secret !== null,
+            'two_factor_confirmed' => $this->two_factor_confirmed_at !== null,
             'roles' => $this->getRoleNames()->values()->all(),
             'permissions' => $this->getAllPermissions()->pluck('name')->sort()->values()->all(),
         ];

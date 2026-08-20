@@ -11,18 +11,35 @@ import {
   getCreateTaskResponseMock,
   getForgotPasswordResponseMock,
   getGetMeResponseMock,
+  getGetPasswordConfirmationStatusResponseMock,
+  getGetRecoveryCodesResponseMock,
   getGetTaskResponseMock,
+  getGetTwoFactorQrCodeResponseMock,
+  getGetTwoFactorSecretKeyResponseMock,
   getListTasksResponseMock,
   getLoginResponseMock,
   getResetPasswordResponseMock,
 } from "./endpoints.faker";
 
-import type { LoginResult, Me, StatusMessage, Task, TaskPage } from "./models";
+import type {
+  GetTwoFactorSecretKey200,
+  LoginResult,
+  Me,
+  PasswordConfirmationStatus,
+  StatusMessage,
+  Task,
+  TaskPage,
+  TwoFactorQrCode,
+} from "./models";
 
 export {
   getForgotPasswordResponseMock,
   getLoginResponseMock,
   getResetPasswordResponseMock,
+  getGetPasswordConfirmationStatusResponseMock,
+  getGetTwoFactorQrCodeResponseMock,
+  getGetRecoveryCodesResponseMock,
+  getGetTwoFactorSecretKeyResponseMock,
   getGetMeResponseMock,
   getCreateTaskResponseMock,
   getListTasksResponseMock,
@@ -177,6 +194,252 @@ export const getResetPasswordMockHandler = (
   );
 };
 
+export const getCompleteTwoFactorChallengeMockHandler = (
+  overrideResponse?:
+    | void
+    | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<void> | void),
+  options?: RequestHandlerOptions,
+) => {
+  return http.post(
+    "*/api/v1/auth/two-factor-challenge",
+    async (info: Parameters<Parameters<typeof http.post>[1]>[0]) => {
+      if (typeof overrideResponse === "function") {
+        await overrideResponse(info);
+      }
+
+      return new HttpResponse(null, { status: 204 });
+    },
+    options,
+  );
+};
+
+export const getConfirmPasswordMockHandler = (
+  overrideResponse?:
+    | void
+    | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<void> | void),
+  options?: RequestHandlerOptions,
+) => {
+  return http.post(
+    "*/api/v1/auth/user/confirm-password",
+    async (info: Parameters<Parameters<typeof http.post>[1]>[0]) => {
+      if (typeof overrideResponse === "function") {
+        await overrideResponse(info);
+      }
+
+      return new HttpResponse(null, { status: 201 });
+    },
+    options,
+  );
+};
+
+export const getGetPasswordConfirmationStatusMockHandler = (
+  overrideResponse?:
+    | PasswordConfirmationStatus
+    | ((
+        info: Parameters<Parameters<typeof http.get>[1]>[0],
+      ) => Promise<PasswordConfirmationStatus> | PasswordConfirmationStatus),
+  options?: RequestHandlerOptions,
+) => {
+  return http.get(
+    "*/api/v1/auth/user/confirmed-password-status",
+    async (info: Parameters<Parameters<typeof http.get>[1]>[0]) => {
+      return HttpResponse.json(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getGetPasswordConfirmationStatusResponseMock(),
+        { status: 200 },
+      );
+    },
+    options,
+  );
+};
+
+export const getConfirmTwoFactorMockHandler = (
+  overrideResponse?:
+    | void
+    | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<void> | void),
+  options?: RequestHandlerOptions,
+) => {
+  return http.post(
+    "*/api/v1/auth/user/confirmed-two-factor-authentication",
+    async (info: Parameters<Parameters<typeof http.post>[1]>[0]) => {
+      if (typeof overrideResponse === "function") {
+        await overrideResponse(info);
+      }
+
+      return new HttpResponse(null, { status: 200 });
+    },
+    options,
+  );
+};
+
+export const getUpdatePasswordMockHandler = (
+  overrideResponse?:
+    | void
+    | ((info: Parameters<Parameters<typeof http.put>[1]>[0]) => Promise<void> | void),
+  options?: RequestHandlerOptions,
+) => {
+  return http.put(
+    "*/api/v1/auth/user/password",
+    async (info: Parameters<Parameters<typeof http.put>[1]>[0]) => {
+      if (typeof overrideResponse === "function") {
+        await overrideResponse(info);
+      }
+
+      return new HttpResponse(null, { status: 200 });
+    },
+    options,
+  );
+};
+
+export const getUpdateProfileMockHandler = (
+  overrideResponse?:
+    | void
+    | ((info: Parameters<Parameters<typeof http.put>[1]>[0]) => Promise<void> | void),
+  options?: RequestHandlerOptions,
+) => {
+  return http.put(
+    "*/api/v1/auth/user/profile-information",
+    async (info: Parameters<Parameters<typeof http.put>[1]>[0]) => {
+      if (typeof overrideResponse === "function") {
+        await overrideResponse(info);
+      }
+
+      return new HttpResponse(null, { status: 200 });
+    },
+    options,
+  );
+};
+
+export const getEnableTwoFactorMockHandler = (
+  overrideResponse?:
+    | void
+    | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<void> | void),
+  options?: RequestHandlerOptions,
+) => {
+  return http.post(
+    "*/api/v1/auth/user/two-factor-authentication",
+    async (info: Parameters<Parameters<typeof http.post>[1]>[0]) => {
+      if (typeof overrideResponse === "function") {
+        await overrideResponse(info);
+      }
+
+      return new HttpResponse(null, { status: 200 });
+    },
+    options,
+  );
+};
+
+export const getDisableTwoFactorMockHandler = (
+  overrideResponse?:
+    | void
+    | ((info: Parameters<Parameters<typeof http.delete>[1]>[0]) => Promise<void> | void),
+  options?: RequestHandlerOptions,
+) => {
+  return http.delete(
+    "*/api/v1/auth/user/two-factor-authentication",
+    async (info: Parameters<Parameters<typeof http.delete>[1]>[0]) => {
+      if (typeof overrideResponse === "function") {
+        await overrideResponse(info);
+      }
+
+      return new HttpResponse(null, { status: 200 });
+    },
+    options,
+  );
+};
+
+export const getGetTwoFactorQrCodeMockHandler = (
+  overrideResponse?:
+    | TwoFactorQrCode
+    | ((
+        info: Parameters<Parameters<typeof http.get>[1]>[0],
+      ) => Promise<TwoFactorQrCode> | TwoFactorQrCode),
+  options?: RequestHandlerOptions,
+) => {
+  return http.get(
+    "*/api/v1/auth/user/two-factor-qr-code",
+    async (info: Parameters<Parameters<typeof http.get>[1]>[0]) => {
+      return HttpResponse.json(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getGetTwoFactorQrCodeResponseMock(),
+        { status: 200 },
+      );
+    },
+    options,
+  );
+};
+
+export const getGetRecoveryCodesMockHandler = (
+  overrideResponse?:
+    | string[]
+    | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<string[]> | string[]),
+  options?: RequestHandlerOptions,
+) => {
+  return http.get(
+    "*/api/v1/auth/user/two-factor-recovery-codes",
+    async (info: Parameters<Parameters<typeof http.get>[1]>[0]) => {
+      return HttpResponse.json(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getGetRecoveryCodesResponseMock(),
+        { status: 200 },
+      );
+    },
+    options,
+  );
+};
+
+export const getRegenerateRecoveryCodesMockHandler = (
+  overrideResponse?:
+    | void
+    | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<void> | void),
+  options?: RequestHandlerOptions,
+) => {
+  return http.post(
+    "*/api/v1/auth/user/two-factor-recovery-codes",
+    async (info: Parameters<Parameters<typeof http.post>[1]>[0]) => {
+      if (typeof overrideResponse === "function") {
+        await overrideResponse(info);
+      }
+
+      return new HttpResponse(null, { status: 200 });
+    },
+    options,
+  );
+};
+
+export const getGetTwoFactorSecretKeyMockHandler = (
+  overrideResponse?:
+    | GetTwoFactorSecretKey200
+    | ((
+        info: Parameters<Parameters<typeof http.get>[1]>[0],
+      ) => Promise<GetTwoFactorSecretKey200> | GetTwoFactorSecretKey200),
+  options?: RequestHandlerOptions,
+) => {
+  return http.get(
+    "*/api/v1/auth/user/two-factor-secret-key",
+    async (info: Parameters<Parameters<typeof http.get>[1]>[0]) => {
+      return HttpResponse.json(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getGetTwoFactorSecretKeyResponseMock(),
+        { status: 200 },
+      );
+    },
+    options,
+  );
+};
+
 export const getGetMeMockHandler = (
   overrideResponse?:
     | Me
@@ -291,6 +554,18 @@ export const getVinextAIStarterAPIMock = () => [
   getLogoutMockHandler(),
   getRegisterMockHandler(),
   getResetPasswordMockHandler(),
+  getCompleteTwoFactorChallengeMockHandler(),
+  getConfirmPasswordMockHandler(),
+  getGetPasswordConfirmationStatusMockHandler(),
+  getConfirmTwoFactorMockHandler(),
+  getUpdatePasswordMockHandler(),
+  getUpdateProfileMockHandler(),
+  getEnableTwoFactorMockHandler(),
+  getDisableTwoFactorMockHandler(),
+  getGetTwoFactorQrCodeMockHandler(),
+  getGetRecoveryCodesMockHandler(),
+  getRegenerateRecoveryCodesMockHandler(),
+  getGetTwoFactorSecretKeyMockHandler(),
   getGetMeMockHandler(),
   getCreateTaskMockHandler(),
   getListTasksMockHandler(),

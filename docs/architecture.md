@@ -32,7 +32,7 @@ See [Authentication](authentication.md), [API conventions](api-conventions.md) a
 
 ## Current limits
 
-The starter has no AI provider, billing, teams, passkeys or TOTP UI today. Vinext is still in beta and the React Compiler integration is experimental.
+The starter has no AI provider, billing, teams or passkeys today. Vinext is still in beta and the React Compiler integration is experimental.
 
 The production reference is a regular Docker Compose deployment. It is health checked and suitable for Coolify, but it does not provide zero-downtime traffic switching.
 

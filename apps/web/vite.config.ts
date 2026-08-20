@@ -7,6 +7,7 @@ export default defineConfig({
   },
   optimizeDeps: {
     exclude: ["@base-ui/react", "lucide-react"],
+    include: ["use-sync-external-store/shim", "use-sync-external-store/shim/with-selector"],
   },
   plugins: [vinext({ react: { compiler: true } })],
 });

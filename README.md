@@ -4,7 +4,7 @@
 
 A Laravel and Vinext foundation for coding agents.
 
-The starter provides same-origin sessions, explicit HTTP and realtime contracts, a generated TypeScript client, role and permission storage, Redis queues, Reverb and one idempotent asynchronous flow. "AI-first" refers to repository instructions and executable gates; no AI provider ships in the current release.
+The starter provides same-origin sessions, profile and password settings, optional TOTP, explicit HTTP and realtime contracts, a generated TypeScript client, role and permission storage, Redis queues, Reverb and one idempotent asynchronous flow. "AI-first" refers to repository instructions and executable gates; no AI provider ships in the current release.
 
 Vinext is still in beta and the React Compiler integration is experimental. CI verifies local setup, browser behavior, a fresh template snapshot and the production container topology.
 

@@ -21,20 +21,28 @@ import type {
 } from "@tanstack/react-query";
 
 import type {
+  ConfirmPasswordBody,
+  ConfirmTwoFactorBody,
   CreateTask409,
   CreateTaskHeaders,
   CreateTaskRequest,
   ForgotPasswordBody,
+  GetTwoFactorSecretKey200,
   ListTasksParams,
   LoginRequest,
   LoginResult,
   Me,
+  PasswordConfirmationStatus,
   Problem,
   RegisterRequest,
   ResetPasswordBody,
   StatusMessage,
   Task,
   TaskPage,
+  TwoFactorChallengeRequest,
+  TwoFactorQrCode,
+  UpdatePasswordRequest,
+  UpdateProfileRequest,
   ValidationProblem,
   VerifyEmailParams,
 } from "./models";
@@ -769,6 +777,1380 @@ export const useResetPassword = <TError = ValidationProblem, TContext = unknown>
 > => {
   return useMutation(getResetPasswordMutationOptions(options), queryClient);
 };
+
+export type completeTwoFactorChallengeResponse204 = {
+  data: void;
+  status: 204;
+};
+
+export type completeTwoFactorChallengeResponse422 = {
+  data: ValidationProblem;
+  status: 422;
+};
+
+export type completeTwoFactorChallengeResponseSuccess = completeTwoFactorChallengeResponse204 & {
+  headers: Headers;
+};
+export type completeTwoFactorChallengeResponseError = completeTwoFactorChallengeResponse422 & {
+  headers: Headers;
+};
+
+export type completeTwoFactorChallengeResponse =
+  | completeTwoFactorChallengeResponseSuccess
+  | completeTwoFactorChallengeResponseError;
+
+export const getCompleteTwoFactorChallengeUrl = () => {
+  return `/api/v1/auth/two-factor-challenge`;
+};
+
+export const completeTwoFactorChallenge = async (
+  twoFactorChallengeRequest: TwoFactorChallengeRequest,
+  options?: Parameters<typeof apiFetch>[1],
+): Promise<completeTwoFactorChallengeResponse> => {
+  return apiFetch<completeTwoFactorChallengeResponse>(getCompleteTwoFactorChallengeUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(twoFactorChallengeRequest),
+  });
+};
+
+export const getCompleteTwoFactorChallengeMutationOptions = <
+  TError = ValidationProblem,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof completeTwoFactorChallenge>>,
+    TError,
+    { data: TwoFactorChallengeRequest },
+    TContext
+  >;
+  request?: SecondParameter<typeof apiFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof completeTwoFactorChallenge>>,
+  TError,
+  { data: TwoFactorChallengeRequest },
+  TContext
+> => {
+  const mutationKey = ["completeTwoFactorChallenge"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && "mutationKey" in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof completeTwoFactorChallenge>>,
+    { data: TwoFactorChallengeRequest }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return completeTwoFactorChallenge(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CompleteTwoFactorChallengeMutationResult = NonNullable<
+  Awaited<ReturnType<typeof completeTwoFactorChallenge>>
+>;
+export type CompleteTwoFactorChallengeMutationBody = TwoFactorChallengeRequest;
+export type CompleteTwoFactorChallengeMutationError = ValidationProblem;
+
+export const useCompleteTwoFactorChallenge = <TError = ValidationProblem, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof completeTwoFactorChallenge>>,
+      TError,
+      { data: TwoFactorChallengeRequest },
+      TContext
+    >;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof completeTwoFactorChallenge>>,
+  TError,
+  { data: TwoFactorChallengeRequest },
+  TContext
+> => {
+  return useMutation(getCompleteTwoFactorChallengeMutationOptions(options), queryClient);
+};
+
+export type confirmPasswordResponse201 = {
+  data: void;
+  status: 201;
+};
+
+export type confirmPasswordResponse401 = {
+  data: Problem;
+  status: 401;
+};
+
+export type confirmPasswordResponse422 = {
+  data: ValidationProblem;
+  status: 422;
+};
+
+export type confirmPasswordResponseSuccess = confirmPasswordResponse201 & {
+  headers: Headers;
+};
+export type confirmPasswordResponseError = (
+  | confirmPasswordResponse401
+  | confirmPasswordResponse422
+) & {
+  headers: Headers;
+};
+
+export type confirmPasswordResponse = confirmPasswordResponseSuccess | confirmPasswordResponseError;
+
+export const getConfirmPasswordUrl = () => {
+  return `/api/v1/auth/user/confirm-password`;
+};
+
+export const confirmPassword = async (
+  confirmPasswordBody: ConfirmPasswordBody,
+  options?: Parameters<typeof apiFetch>[1],
+): Promise<confirmPasswordResponse> => {
+  return apiFetch<confirmPasswordResponse>(getConfirmPasswordUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(confirmPasswordBody),
+  });
+};
+
+export const getConfirmPasswordMutationOptions = <
+  TError = Problem | ValidationProblem,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof confirmPassword>>,
+    TError,
+    { data: ConfirmPasswordBody },
+    TContext
+  >;
+  request?: SecondParameter<typeof apiFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof confirmPassword>>,
+  TError,
+  { data: ConfirmPasswordBody },
+  TContext
+> => {
+  const mutationKey = ["confirmPassword"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && "mutationKey" in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof confirmPassword>>,
+    { data: ConfirmPasswordBody }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return confirmPassword(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ConfirmPasswordMutationResult = NonNullable<
+  Awaited<ReturnType<typeof confirmPassword>>
+>;
+export type ConfirmPasswordMutationBody = ConfirmPasswordBody;
+export type ConfirmPasswordMutationError = Problem | ValidationProblem;
+
+export const useConfirmPassword = <TError = Problem | ValidationProblem, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof confirmPassword>>,
+      TError,
+      { data: ConfirmPasswordBody },
+      TContext
+    >;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof confirmPassword>>,
+  TError,
+  { data: ConfirmPasswordBody },
+  TContext
+> => {
+  return useMutation(getConfirmPasswordMutationOptions(options), queryClient);
+};
+
+export type getPasswordConfirmationStatusResponse200 = {
+  data: PasswordConfirmationStatus;
+  status: 200;
+};
+
+export type getPasswordConfirmationStatusResponse401 = {
+  data: Problem;
+  status: 401;
+};
+
+export type getPasswordConfirmationStatusResponseSuccess =
+  getPasswordConfirmationStatusResponse200 & {
+    headers: Headers;
+  };
+export type getPasswordConfirmationStatusResponseError =
+  getPasswordConfirmationStatusResponse401 & {
+    headers: Headers;
+  };
+
+export type getPasswordConfirmationStatusResponse =
+  | getPasswordConfirmationStatusResponseSuccess
+  | getPasswordConfirmationStatusResponseError;
+
+export const getGetPasswordConfirmationStatusUrl = () => {
+  return `/api/v1/auth/user/confirmed-password-status`;
+};
+
+export const getPasswordConfirmationStatus = async (
+  options?: Parameters<typeof apiFetch>[1],
+): Promise<getPasswordConfirmationStatusResponse> => {
+  return apiFetch<getPasswordConfirmationStatusResponse>(getGetPasswordConfirmationStatusUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetPasswordConfirmationStatusQueryKey = () => {
+  return [`/api/v1/auth/user/confirmed-password-status`] as const;
+};
+
+export const getGetPasswordConfirmationStatusQueryOptions = <
+  TData = Awaited<ReturnType<typeof getPasswordConfirmationStatus>>,
+  TError = Problem,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getPasswordConfirmationStatus>>, TError, TData>
+  >;
+  request?: SecondParameter<typeof apiFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetPasswordConfirmationStatusQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getPasswordConfirmationStatus>>> = ({
+    signal,
+  }) => getPasswordConfirmationStatus({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getPasswordConfirmationStatus>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetPasswordConfirmationStatusQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getPasswordConfirmationStatus>>
+>;
+export type GetPasswordConfirmationStatusQueryError = Problem;
+
+export function useGetPasswordConfirmationStatus<
+  TData = Awaited<ReturnType<typeof getPasswordConfirmationStatus>>,
+  TError = Problem,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getPasswordConfirmationStatus>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPasswordConfirmationStatus>>,
+          TError,
+          Awaited<ReturnType<typeof getPasswordConfirmationStatus>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useGetPasswordConfirmationStatus<
+  TData = Awaited<ReturnType<typeof getPasswordConfirmationStatus>>,
+  TError = Problem,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getPasswordConfirmationStatus>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPasswordConfirmationStatus>>,
+          TError,
+          Awaited<ReturnType<typeof getPasswordConfirmationStatus>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useGetPasswordConfirmationStatus<
+  TData = Awaited<ReturnType<typeof getPasswordConfirmationStatus>>,
+  TError = Problem,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getPasswordConfirmationStatus>>, TError, TData>
+    >;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+export function useGetPasswordConfirmationStatus<
+  TData = Awaited<ReturnType<typeof getPasswordConfirmationStatus>>,
+  TError = Problem,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getPasswordConfirmationStatus>>, TError, TData>
+    >;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetPasswordConfirmationStatusQueryOptions(options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+export type confirmTwoFactorResponse200 = {
+  data: void;
+  status: 200;
+};
+
+export type confirmTwoFactorResponse401 = {
+  data: Problem;
+  status: 401;
+};
+
+export type confirmTwoFactorResponse422 = {
+  data: ValidationProblem;
+  status: 422;
+};
+
+export type confirmTwoFactorResponse423 = {
+  data: StatusMessage;
+  status: 423;
+};
+
+export type confirmTwoFactorResponseSuccess = confirmTwoFactorResponse200 & {
+  headers: Headers;
+};
+export type confirmTwoFactorResponseError = (
+  | confirmTwoFactorResponse401
+  | confirmTwoFactorResponse422
+  | confirmTwoFactorResponse423
+) & {
+  headers: Headers;
+};
+
+export type confirmTwoFactorResponse =
+  | confirmTwoFactorResponseSuccess
+  | confirmTwoFactorResponseError;
+
+export const getConfirmTwoFactorUrl = () => {
+  return `/api/v1/auth/user/confirmed-two-factor-authentication`;
+};
+
+export const confirmTwoFactor = async (
+  confirmTwoFactorBody: ConfirmTwoFactorBody,
+  options?: Parameters<typeof apiFetch>[1],
+): Promise<confirmTwoFactorResponse> => {
+  return apiFetch<confirmTwoFactorResponse>(getConfirmTwoFactorUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(confirmTwoFactorBody),
+  });
+};
+
+export const getConfirmTwoFactorMutationOptions = <
+  TError = Problem | ValidationProblem | StatusMessage,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof confirmTwoFactor>>,
+    TError,
+    { data: ConfirmTwoFactorBody },
+    TContext
+  >;
+  request?: SecondParameter<typeof apiFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof confirmTwoFactor>>,
+  TError,
+  { data: ConfirmTwoFactorBody },
+  TContext
+> => {
+  const mutationKey = ["confirmTwoFactor"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && "mutationKey" in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof confirmTwoFactor>>,
+    { data: ConfirmTwoFactorBody }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return confirmTwoFactor(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ConfirmTwoFactorMutationResult = NonNullable<
+  Awaited<ReturnType<typeof confirmTwoFactor>>
+>;
+export type ConfirmTwoFactorMutationBody = ConfirmTwoFactorBody;
+export type ConfirmTwoFactorMutationError = Problem | ValidationProblem | StatusMessage;
+
+export const useConfirmTwoFactor = <
+  TError = Problem | ValidationProblem | StatusMessage,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof confirmTwoFactor>>,
+      TError,
+      { data: ConfirmTwoFactorBody },
+      TContext
+    >;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof confirmTwoFactor>>,
+  TError,
+  { data: ConfirmTwoFactorBody },
+  TContext
+> => {
+  return useMutation(getConfirmTwoFactorMutationOptions(options), queryClient);
+};
+
+export type updatePasswordResponse200 = {
+  data: void;
+  status: 200;
+};
+
+export type updatePasswordResponse401 = {
+  data: Problem;
+  status: 401;
+};
+
+export type updatePasswordResponse422 = {
+  data: ValidationProblem;
+  status: 422;
+};
+
+export type updatePasswordResponseSuccess = updatePasswordResponse200 & {
+  headers: Headers;
+};
+export type updatePasswordResponseError = (
+  | updatePasswordResponse401
+  | updatePasswordResponse422
+) & {
+  headers: Headers;
+};
+
+export type updatePasswordResponse = updatePasswordResponseSuccess | updatePasswordResponseError;
+
+export const getUpdatePasswordUrl = () => {
+  return `/api/v1/auth/user/password`;
+};
+
+export const updatePassword = async (
+  updatePasswordRequest: UpdatePasswordRequest,
+  options?: Parameters<typeof apiFetch>[1],
+): Promise<updatePasswordResponse> => {
+  return apiFetch<updatePasswordResponse>(getUpdatePasswordUrl(), {
+    ...options,
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(updatePasswordRequest),
+  });
+};
+
+export const getUpdatePasswordMutationOptions = <
+  TError = Problem | ValidationProblem,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updatePassword>>,
+    TError,
+    { data: UpdatePasswordRequest },
+    TContext
+  >;
+  request?: SecondParameter<typeof apiFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updatePassword>>,
+  TError,
+  { data: UpdatePasswordRequest },
+  TContext
+> => {
+  const mutationKey = ["updatePassword"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && "mutationKey" in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updatePassword>>,
+    { data: UpdatePasswordRequest }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return updatePassword(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdatePasswordMutationResult = NonNullable<Awaited<ReturnType<typeof updatePassword>>>;
+export type UpdatePasswordMutationBody = UpdatePasswordRequest;
+export type UpdatePasswordMutationError = Problem | ValidationProblem;
+
+export const useUpdatePassword = <TError = Problem | ValidationProblem, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof updatePassword>>,
+      TError,
+      { data: UpdatePasswordRequest },
+      TContext
+    >;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof updatePassword>>,
+  TError,
+  { data: UpdatePasswordRequest },
+  TContext
+> => {
+  return useMutation(getUpdatePasswordMutationOptions(options), queryClient);
+};
+
+export type updateProfileResponse200 = {
+  data: void;
+  status: 200;
+};
+
+export type updateProfileResponse401 = {
+  data: Problem;
+  status: 401;
+};
+
+export type updateProfileResponse422 = {
+  data: ValidationProblem;
+  status: 422;
+};
+
+export type updateProfileResponseSuccess = updateProfileResponse200 & {
+  headers: Headers;
+};
+export type updateProfileResponseError = (updateProfileResponse401 | updateProfileResponse422) & {
+  headers: Headers;
+};
+
+export type updateProfileResponse = updateProfileResponseSuccess | updateProfileResponseError;
+
+export const getUpdateProfileUrl = () => {
+  return `/api/v1/auth/user/profile-information`;
+};
+
+export const updateProfile = async (
+  updateProfileRequest: UpdateProfileRequest,
+  options?: Parameters<typeof apiFetch>[1],
+): Promise<updateProfileResponse> => {
+  return apiFetch<updateProfileResponse>(getUpdateProfileUrl(), {
+    ...options,
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(updateProfileRequest),
+  });
+};
+
+export const getUpdateProfileMutationOptions = <
+  TError = Problem | ValidationProblem,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateProfile>>,
+    TError,
+    { data: UpdateProfileRequest },
+    TContext
+  >;
+  request?: SecondParameter<typeof apiFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateProfile>>,
+  TError,
+  { data: UpdateProfileRequest },
+  TContext
+> => {
+  const mutationKey = ["updateProfile"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && "mutationKey" in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateProfile>>,
+    { data: UpdateProfileRequest }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return updateProfile(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateProfileMutationResult = NonNullable<Awaited<ReturnType<typeof updateProfile>>>;
+export type UpdateProfileMutationBody = UpdateProfileRequest;
+export type UpdateProfileMutationError = Problem | ValidationProblem;
+
+export const useUpdateProfile = <TError = Problem | ValidationProblem, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof updateProfile>>,
+      TError,
+      { data: UpdateProfileRequest },
+      TContext
+    >;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof updateProfile>>,
+  TError,
+  { data: UpdateProfileRequest },
+  TContext
+> => {
+  return useMutation(getUpdateProfileMutationOptions(options), queryClient);
+};
+
+export type enableTwoFactorResponse200 = {
+  data: void;
+  status: 200;
+};
+
+export type enableTwoFactorResponse401 = {
+  data: Problem;
+  status: 401;
+};
+
+export type enableTwoFactorResponse423 = {
+  data: StatusMessage;
+  status: 423;
+};
+
+export type enableTwoFactorResponseSuccess = enableTwoFactorResponse200 & {
+  headers: Headers;
+};
+export type enableTwoFactorResponseError = (
+  | enableTwoFactorResponse401
+  | enableTwoFactorResponse423
+) & {
+  headers: Headers;
+};
+
+export type enableTwoFactorResponse = enableTwoFactorResponseSuccess | enableTwoFactorResponseError;
+
+export const getEnableTwoFactorUrl = () => {
+  return `/api/v1/auth/user/two-factor-authentication`;
+};
+
+export const enableTwoFactor = async (
+  options?: Parameters<typeof apiFetch>[1],
+): Promise<enableTwoFactorResponse> => {
+  return apiFetch<enableTwoFactorResponse>(getEnableTwoFactorUrl(), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getEnableTwoFactorMutationOptions = <
+  TError = Problem | StatusMessage,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof enableTwoFactor>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof apiFetch>;
+}): UseMutationOptions<Awaited<ReturnType<typeof enableTwoFactor>>, TError, void, TContext> => {
+  const mutationKey = ["enableTwoFactor"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && "mutationKey" in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<Awaited<ReturnType<typeof enableTwoFactor>>, void> = () => {
+    return enableTwoFactor(requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type EnableTwoFactorMutationResult = NonNullable<
+  Awaited<ReturnType<typeof enableTwoFactor>>
+>;
+
+export type EnableTwoFactorMutationError = Problem | StatusMessage;
+
+export const useEnableTwoFactor = <TError = Problem | StatusMessage, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof enableTwoFactor>>,
+      TError,
+      void,
+      TContext
+    >;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<Awaited<ReturnType<typeof enableTwoFactor>>, TError, void, TContext> => {
+  return useMutation(getEnableTwoFactorMutationOptions(options), queryClient);
+};
+
+export type disableTwoFactorResponse200 = {
+  data: void;
+  status: 200;
+};
+
+export type disableTwoFactorResponse401 = {
+  data: Problem;
+  status: 401;
+};
+
+export type disableTwoFactorResponse423 = {
+  data: StatusMessage;
+  status: 423;
+};
+
+export type disableTwoFactorResponseSuccess = disableTwoFactorResponse200 & {
+  headers: Headers;
+};
+export type disableTwoFactorResponseError = (
+  | disableTwoFactorResponse401
+  | disableTwoFactorResponse423
+) & {
+  headers: Headers;
+};
+
+export type disableTwoFactorResponse =
+  | disableTwoFactorResponseSuccess
+  | disableTwoFactorResponseError;
+
+export const getDisableTwoFactorUrl = () => {
+  return `/api/v1/auth/user/two-factor-authentication`;
+};
+
+export const disableTwoFactor = async (
+  options?: Parameters<typeof apiFetch>[1],
+): Promise<disableTwoFactorResponse> => {
+  return apiFetch<disableTwoFactorResponse>(getDisableTwoFactorUrl(), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDisableTwoFactorMutationOptions = <
+  TError = Problem | StatusMessage,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof disableTwoFactor>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof apiFetch>;
+}): UseMutationOptions<Awaited<ReturnType<typeof disableTwoFactor>>, TError, void, TContext> => {
+  const mutationKey = ["disableTwoFactor"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && "mutationKey" in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<Awaited<ReturnType<typeof disableTwoFactor>>, void> = () => {
+    return disableTwoFactor(requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DisableTwoFactorMutationResult = NonNullable<
+  Awaited<ReturnType<typeof disableTwoFactor>>
+>;
+
+export type DisableTwoFactorMutationError = Problem | StatusMessage;
+
+export const useDisableTwoFactor = <TError = Problem | StatusMessage, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof disableTwoFactor>>,
+      TError,
+      void,
+      TContext
+    >;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<Awaited<ReturnType<typeof disableTwoFactor>>, TError, void, TContext> => {
+  return useMutation(getDisableTwoFactorMutationOptions(options), queryClient);
+};
+
+export type getTwoFactorQrCodeResponse200 = {
+  data: TwoFactorQrCode;
+  status: 200;
+};
+
+export type getTwoFactorQrCodeResponse401 = {
+  data: Problem;
+  status: 401;
+};
+
+export type getTwoFactorQrCodeResponse423 = {
+  data: StatusMessage;
+  status: 423;
+};
+
+export type getTwoFactorQrCodeResponseSuccess = getTwoFactorQrCodeResponse200 & {
+  headers: Headers;
+};
+export type getTwoFactorQrCodeResponseError = (
+  | getTwoFactorQrCodeResponse401
+  | getTwoFactorQrCodeResponse423
+) & {
+  headers: Headers;
+};
+
+export type getTwoFactorQrCodeResponse =
+  | getTwoFactorQrCodeResponseSuccess
+  | getTwoFactorQrCodeResponseError;
+
+export const getGetTwoFactorQrCodeUrl = () => {
+  return `/api/v1/auth/user/two-factor-qr-code`;
+};
+
+export const getTwoFactorQrCode = async (
+  options?: Parameters<typeof apiFetch>[1],
+): Promise<getTwoFactorQrCodeResponse> => {
+  return apiFetch<getTwoFactorQrCodeResponse>(getGetTwoFactorQrCodeUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetTwoFactorQrCodeQueryKey = () => {
+  return [`/api/v1/auth/user/two-factor-qr-code`] as const;
+};
+
+export const getGetTwoFactorQrCodeQueryOptions = <
+  TData = Awaited<ReturnType<typeof getTwoFactorQrCode>>,
+  TError = Problem | StatusMessage,
+>(options?: {
+  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getTwoFactorQrCode>>, TError, TData>>;
+  request?: SecondParameter<typeof apiFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetTwoFactorQrCodeQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getTwoFactorQrCode>>> = ({ signal }) =>
+    getTwoFactorQrCode({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getTwoFactorQrCode>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetTwoFactorQrCodeQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getTwoFactorQrCode>>
+>;
+export type GetTwoFactorQrCodeQueryError = Problem | StatusMessage;
+
+export function useGetTwoFactorQrCode<
+  TData = Awaited<ReturnType<typeof getTwoFactorQrCode>>,
+  TError = Problem | StatusMessage,
+>(
+  options: {
+    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getTwoFactorQrCode>>, TError, TData>> &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getTwoFactorQrCode>>,
+          TError,
+          Awaited<ReturnType<typeof getTwoFactorQrCode>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useGetTwoFactorQrCode<
+  TData = Awaited<ReturnType<typeof getTwoFactorQrCode>>,
+  TError = Problem | StatusMessage,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getTwoFactorQrCode>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getTwoFactorQrCode>>,
+          TError,
+          Awaited<ReturnType<typeof getTwoFactorQrCode>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useGetTwoFactorQrCode<
+  TData = Awaited<ReturnType<typeof getTwoFactorQrCode>>,
+  TError = Problem | StatusMessage,
+>(
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getTwoFactorQrCode>>, TError, TData>>;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+export function useGetTwoFactorQrCode<
+  TData = Awaited<ReturnType<typeof getTwoFactorQrCode>>,
+  TError = Problem | StatusMessage,
+>(
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getTwoFactorQrCode>>, TError, TData>>;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetTwoFactorQrCodeQueryOptions(options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+export type getRecoveryCodesResponse200 = {
+  data: string[];
+  status: 200;
+};
+
+export type getRecoveryCodesResponse401 = {
+  data: Problem;
+  status: 401;
+};
+
+export type getRecoveryCodesResponse423 = {
+  data: StatusMessage;
+  status: 423;
+};
+
+export type getRecoveryCodesResponseSuccess = getRecoveryCodesResponse200 & {
+  headers: Headers;
+};
+export type getRecoveryCodesResponseError = (
+  | getRecoveryCodesResponse401
+  | getRecoveryCodesResponse423
+) & {
+  headers: Headers;
+};
+
+export type getRecoveryCodesResponse =
+  | getRecoveryCodesResponseSuccess
+  | getRecoveryCodesResponseError;
+
+export const getGetRecoveryCodesUrl = () => {
+  return `/api/v1/auth/user/two-factor-recovery-codes`;
+};
+
+export const getRecoveryCodes = async (
+  options?: Parameters<typeof apiFetch>[1],
+): Promise<getRecoveryCodesResponse> => {
+  return apiFetch<getRecoveryCodesResponse>(getGetRecoveryCodesUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetRecoveryCodesQueryKey = () => {
+  return [`/api/v1/auth/user/two-factor-recovery-codes`] as const;
+};
+
+export const getGetRecoveryCodesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getRecoveryCodes>>,
+  TError = Problem | StatusMessage,
+>(options?: {
+  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getRecoveryCodes>>, TError, TData>>;
+  request?: SecondParameter<typeof apiFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetRecoveryCodesQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getRecoveryCodes>>> = ({ signal }) =>
+    getRecoveryCodes({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getRecoveryCodes>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetRecoveryCodesQueryResult = NonNullable<Awaited<ReturnType<typeof getRecoveryCodes>>>;
+export type GetRecoveryCodesQueryError = Problem | StatusMessage;
+
+export function useGetRecoveryCodes<
+  TData = Awaited<ReturnType<typeof getRecoveryCodes>>,
+  TError = Problem | StatusMessage,
+>(
+  options: {
+    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getRecoveryCodes>>, TError, TData>> &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getRecoveryCodes>>,
+          TError,
+          Awaited<ReturnType<typeof getRecoveryCodes>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useGetRecoveryCodes<
+  TData = Awaited<ReturnType<typeof getRecoveryCodes>>,
+  TError = Problem | StatusMessage,
+>(
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getRecoveryCodes>>, TError, TData>> &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getRecoveryCodes>>,
+          TError,
+          Awaited<ReturnType<typeof getRecoveryCodes>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useGetRecoveryCodes<
+  TData = Awaited<ReturnType<typeof getRecoveryCodes>>,
+  TError = Problem | StatusMessage,
+>(
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getRecoveryCodes>>, TError, TData>>;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+export function useGetRecoveryCodes<
+  TData = Awaited<ReturnType<typeof getRecoveryCodes>>,
+  TError = Problem | StatusMessage,
+>(
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getRecoveryCodes>>, TError, TData>>;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetRecoveryCodesQueryOptions(options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+export type regenerateRecoveryCodesResponse200 = {
+  data: void;
+  status: 200;
+};
+
+export type regenerateRecoveryCodesResponse401 = {
+  data: Problem;
+  status: 401;
+};
+
+export type regenerateRecoveryCodesResponse423 = {
+  data: StatusMessage;
+  status: 423;
+};
+
+export type regenerateRecoveryCodesResponseSuccess = regenerateRecoveryCodesResponse200 & {
+  headers: Headers;
+};
+export type regenerateRecoveryCodesResponseError = (
+  | regenerateRecoveryCodesResponse401
+  | regenerateRecoveryCodesResponse423
+) & {
+  headers: Headers;
+};
+
+export type regenerateRecoveryCodesResponse =
+  | regenerateRecoveryCodesResponseSuccess
+  | regenerateRecoveryCodesResponseError;
+
+export const getRegenerateRecoveryCodesUrl = () => {
+  return `/api/v1/auth/user/two-factor-recovery-codes`;
+};
+
+export const regenerateRecoveryCodes = async (
+  options?: Parameters<typeof apiFetch>[1],
+): Promise<regenerateRecoveryCodesResponse> => {
+  return apiFetch<regenerateRecoveryCodesResponse>(getRegenerateRecoveryCodesUrl(), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getRegenerateRecoveryCodesMutationOptions = <
+  TError = Problem | StatusMessage,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof regenerateRecoveryCodes>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof apiFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof regenerateRecoveryCodes>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationKey = ["regenerateRecoveryCodes"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && "mutationKey" in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof regenerateRecoveryCodes>>,
+    void
+  > = () => {
+    return regenerateRecoveryCodes(requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type RegenerateRecoveryCodesMutationResult = NonNullable<
+  Awaited<ReturnType<typeof regenerateRecoveryCodes>>
+>;
+
+export type RegenerateRecoveryCodesMutationError = Problem | StatusMessage;
+
+export const useRegenerateRecoveryCodes = <TError = Problem | StatusMessage, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof regenerateRecoveryCodes>>,
+      TError,
+      void,
+      TContext
+    >;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof regenerateRecoveryCodes>>,
+  TError,
+  void,
+  TContext
+> => {
+  return useMutation(getRegenerateRecoveryCodesMutationOptions(options), queryClient);
+};
+
+export type getTwoFactorSecretKeyResponse200 = {
+  data: GetTwoFactorSecretKey200;
+  status: 200;
+};
+
+export type getTwoFactorSecretKeyResponse401 = {
+  data: Problem;
+  status: 401;
+};
+
+export type getTwoFactorSecretKeyResponse404 = {
+  data: Problem;
+  status: 404;
+};
+
+export type getTwoFactorSecretKeyResponse423 = {
+  data: StatusMessage;
+  status: 423;
+};
+
+export type getTwoFactorSecretKeyResponseSuccess = getTwoFactorSecretKeyResponse200 & {
+  headers: Headers;
+};
+export type getTwoFactorSecretKeyResponseError = (
+  | getTwoFactorSecretKeyResponse401
+  | getTwoFactorSecretKeyResponse404
+  | getTwoFactorSecretKeyResponse423
+) & {
+  headers: Headers;
+};
+
+export type getTwoFactorSecretKeyResponse =
+  | getTwoFactorSecretKeyResponseSuccess
+  | getTwoFactorSecretKeyResponseError;
+
+export const getGetTwoFactorSecretKeyUrl = () => {
+  return `/api/v1/auth/user/two-factor-secret-key`;
+};
+
+export const getTwoFactorSecretKey = async (
+  options?: Parameters<typeof apiFetch>[1],
+): Promise<getTwoFactorSecretKeyResponse> => {
+  return apiFetch<getTwoFactorSecretKeyResponse>(getGetTwoFactorSecretKeyUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetTwoFactorSecretKeyQueryKey = () => {
+  return [`/api/v1/auth/user/two-factor-secret-key`] as const;
+};
+
+export const getGetTwoFactorSecretKeyQueryOptions = <
+  TData = Awaited<ReturnType<typeof getTwoFactorSecretKey>>,
+  TError = Problem | StatusMessage,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getTwoFactorSecretKey>>, TError, TData>
+  >;
+  request?: SecondParameter<typeof apiFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetTwoFactorSecretKeyQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getTwoFactorSecretKey>>> = ({ signal }) =>
+    getTwoFactorSecretKey({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getTwoFactorSecretKey>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetTwoFactorSecretKeyQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getTwoFactorSecretKey>>
+>;
+export type GetTwoFactorSecretKeyQueryError = Problem | StatusMessage;
+
+export function useGetTwoFactorSecretKey<
+  TData = Awaited<ReturnType<typeof getTwoFactorSecretKey>>,
+  TError = Problem | StatusMessage,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getTwoFactorSecretKey>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getTwoFactorSecretKey>>,
+          TError,
+          Awaited<ReturnType<typeof getTwoFactorSecretKey>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useGetTwoFactorSecretKey<
+  TData = Awaited<ReturnType<typeof getTwoFactorSecretKey>>,
+  TError = Problem | StatusMessage,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getTwoFactorSecretKey>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getTwoFactorSecretKey>>,
+          TError,
+          Awaited<ReturnType<typeof getTwoFactorSecretKey>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useGetTwoFactorSecretKey<
+  TData = Awaited<ReturnType<typeof getTwoFactorSecretKey>>,
+  TError = Problem | StatusMessage,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getTwoFactorSecretKey>>, TError, TData>
+    >;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+export function useGetTwoFactorSecretKey<
+  TData = Awaited<ReturnType<typeof getTwoFactorSecretKey>>,
+  TError = Problem | StatusMessage,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getTwoFactorSecretKey>>, TError, TData>
+    >;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetTwoFactorSecretKeyQueryOptions(options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
 
 export type getMeResponse200 = {
   data: Me;

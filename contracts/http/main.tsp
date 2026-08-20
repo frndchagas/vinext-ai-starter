@@ -57,6 +57,8 @@ model Me {
   name: string;
   email: string;
   email_verified: boolean;
+  two_factor_enabled: boolean;
+  two_factor_confirmed: boolean;
   roles: string[];
   permissions: string[];
 }
@@ -76,6 +78,37 @@ model LoginRequest {
 
 model LoginResult {
   two_factor: boolean;
+}
+
+model UpdateProfileRequest {
+  name: string;
+  email: string;
+}
+
+model UpdatePasswordRequest {
+  current_password: string;
+  password: string;
+  password_confirmation: string;
+}
+
+model TwoFactorChallengeRequest {
+  code?: string;
+  recovery_code?: string;
+}
+
+model TwoFactorQrCode {
+  svg: string;
+  url: string;
+}
+
+model PasswordConfirmationStatus {
+  confirmed: boolean;
+}
+
+@error
+model PasswordConfirmationRequiredResponse {
+  @statusCode statusCode: 423;
+  @body body: StatusMessage;
 }
 
 model StatusMessage {
@@ -149,6 +182,100 @@ namespace Auth {
     @statusCode statusCode: 302;
     @header location: string;
   } | UnauthorizedResponse | ForbiddenResponse;
+
+  @operationId("updateProfile")
+  @route("/user/profile-information")
+  @put
+  op updateProfile(@body body: UpdateProfileRequest): {
+    @statusCode statusCode: 200;
+  } | ValidationErrorResponse | UnauthorizedResponse;
+
+  @operationId("updatePassword")
+  @route("/user/password")
+  @put
+  op updatePassword(@body body: UpdatePasswordRequest): {
+    @statusCode statusCode: 200;
+  } | ValidationErrorResponse | UnauthorizedResponse;
+
+  @operationId("confirmPassword")
+  @route("/user/confirm-password")
+  @post
+  op confirmPassword(@body body: {
+    password: string;
+  }): {
+    @statusCode statusCode: 201;
+  } | ValidationErrorResponse | UnauthorizedResponse;
+
+  @operationId("getPasswordConfirmationStatus")
+  @route("/user/confirmed-password-status")
+  @get
+  op getPasswordConfirmationStatus(): {
+    @statusCode statusCode: 200;
+    @body body: PasswordConfirmationStatus;
+  } | UnauthorizedResponse;
+
+  @operationId("enableTwoFactor")
+  @route("/user/two-factor-authentication")
+  @post
+  op enableTwoFactor(): {
+    @statusCode statusCode: 200;
+  } | PasswordConfirmationRequiredResponse | UnauthorizedResponse;
+
+  @operationId("confirmTwoFactor")
+  @route("/user/confirmed-two-factor-authentication")
+  @post
+  op confirmTwoFactor(@body body: {
+    code: string;
+  }): {
+    @statusCode statusCode: 200;
+  } | ValidationErrorResponse | PasswordConfirmationRequiredResponse | UnauthorizedResponse;
+
+  @operationId("disableTwoFactor")
+  @route("/user/two-factor-authentication")
+  @delete
+  op disableTwoFactor(): {
+    @statusCode statusCode: 200;
+  } | PasswordConfirmationRequiredResponse | UnauthorizedResponse;
+
+  @operationId("getTwoFactorQrCode")
+  @route("/user/two-factor-qr-code")
+  @get
+  op getTwoFactorQrCode(): {
+    @statusCode statusCode: 200;
+    @body body: TwoFactorQrCode;
+  } | PasswordConfirmationRequiredResponse | UnauthorizedResponse;
+
+  @operationId("getTwoFactorSecretKey")
+  @route("/user/two-factor-secret-key")
+  @get
+  op getTwoFactorSecretKey(): {
+    @statusCode statusCode: 200;
+    @body body: {
+      secretKey: string;
+    };
+  } | PasswordConfirmationRequiredResponse | UnauthorizedResponse | NotFoundResponse;
+
+  @operationId("getRecoveryCodes")
+  @route("/user/two-factor-recovery-codes")
+  @get
+  op getRecoveryCodes(): {
+    @statusCode statusCode: 200;
+    @body body: string[];
+  } | PasswordConfirmationRequiredResponse | UnauthorizedResponse;
+
+  @operationId("regenerateRecoveryCodes")
+  @route("/user/two-factor-recovery-codes")
+  @post
+  op regenerateRecoveryCodes(): {
+    @statusCode statusCode: 200;
+  } | PasswordConfirmationRequiredResponse | UnauthorizedResponse;
+
+  @operationId("completeTwoFactorChallenge")
+  @route("/two-factor-challenge")
+  @post
+  op completeTwoFactorChallenge(@body body: TwoFactorChallengeRequest):
+    | NoContentResponse
+    | ValidationErrorResponse;
 }
 
 @tag("Identity")

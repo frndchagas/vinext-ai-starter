@@ -7,7 +7,16 @@
 import { faker } from "@faker-js/faker";
 
 import { TaskState } from "./models";
-import type { LoginResult, Me, StatusMessage, Task, TaskPage } from "./models";
+import type {
+  GetTwoFactorSecretKey200,
+  LoginResult,
+  Me,
+  PasswordConfirmationStatus,
+  StatusMessage,
+  Task,
+  TaskPage,
+  TwoFactorQrCode,
+} from "./models";
 
 export const getForgotPasswordResponseMock = (
   overrideResponse: Partial<Extract<StatusMessage, object>> = {},
@@ -27,11 +36,35 @@ export const getResetPasswordResponseMock = (
   ...overrideResponse,
 });
 
+export const getGetPasswordConfirmationStatusResponseMock = (
+  overrideResponse: Partial<Extract<PasswordConfirmationStatus, object>> = {},
+): PasswordConfirmationStatus => ({ confirmed: faker.datatype.boolean(), ...overrideResponse });
+
+export const getGetTwoFactorQrCodeResponseMock = (
+  overrideResponse: Partial<Extract<TwoFactorQrCode, object>> = {},
+): TwoFactorQrCode => ({
+  svg: faker.string.alpha({ length: { min: 10, max: 20 } }),
+  url: faker.string.alpha({ length: { min: 10, max: 20 } }),
+  ...overrideResponse,
+});
+
+export const getGetRecoveryCodesResponseMock = (): string[] =>
+  Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => faker.word.sample());
+
+export const getGetTwoFactorSecretKeyResponseMock = (
+  overrideResponse: Partial<Extract<GetTwoFactorSecretKey200, object>> = {},
+): GetTwoFactorSecretKey200 => ({
+  secretKey: faker.string.alpha({ length: { min: 10, max: 20 } }),
+  ...overrideResponse,
+});
+
 export const getGetMeResponseMock = (overrideResponse: Partial<Extract<Me, object>> = {}): Me => ({
   id: faker.string.alpha({ length: { min: 10, max: 20 } }),
   name: faker.string.alpha({ length: { min: 10, max: 20 } }),
   email: faker.string.alpha({ length: { min: 10, max: 20 } }),
   email_verified: faker.datatype.boolean(),
+  two_factor_enabled: faker.datatype.boolean(),
+  two_factor_confirmed: faker.datatype.boolean(),
   roles: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
     faker.string.alpha({ length: { min: 10, max: 20 } }),
   ),

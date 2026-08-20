@@ -5,14 +5,18 @@
  * OpenAPI spec version: 0.0.0
  */
 
+export * from "./confirmPasswordBody";
+export * from "./confirmTwoFactorBody";
 export * from "./createTask409";
 export * from "./createTaskHeaders";
 export * from "./createTaskRequest";
 export * from "./forgotPasswordBody";
+export * from "./getTwoFactorSecretKey200";
 export * from "./listTasksParams";
 export * from "./loginRequest";
 export * from "./loginResult";
 export * from "./me";
+export * from "./passwordConfirmationStatus";
 export * from "./problem";
 export * from "./registerRequest";
 export * from "./resetPasswordBody";
@@ -22,6 +26,10 @@ export * from "./taskOutput";
 export * from "./taskPage";
 export * from "./taskPageMeta";
 export * from "./taskState";
+export * from "./twoFactorChallengeRequest";
+export * from "./twoFactorQrCode";
+export * from "./updatePasswordRequest";
+export * from "./updateProfileRequest";
 export * from "./validationProblem";
 export * from "./validationProblemErrors";
 export * from "./verifyEmailParams";

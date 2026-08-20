@@ -1,5 +1,6 @@
 interface ProblemLike {
   detail?: string;
+  message?: string;
   errors?: Record<string, string[]>;
 }
 
@@ -16,5 +17,7 @@ export function validationErrors(data: unknown): Record<string, string[]> {
 }
 
 export function problemDetail(data: unknown, fallback: string): string {
-  return asProblem(data)?.detail ?? fallback;
+  const problem = asProblem(data);
+
+  return problem?.detail ?? problem?.message ?? fallback;
 }

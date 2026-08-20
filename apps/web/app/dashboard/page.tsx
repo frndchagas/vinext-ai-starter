@@ -81,6 +81,9 @@ export default function DashboardPage() {
           <Link href="/tasks" className="text-sm text-primary hover:underline">
             Tasks
           </Link>
+          <Link href="/settings" className="text-sm text-primary hover:underline">
+            Settings
+          </Link>
           <Button variant="outline" disabled={logoutMutation.isPending} onClick={signOut}>
             Sign out
           </Button>
