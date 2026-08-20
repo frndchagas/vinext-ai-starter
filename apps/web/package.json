@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vinext dev --port ${WEB_PORT:-13000}",
+    "dev": "vinext dev --hostname ${WEB_HOST:-127.0.0.1} --port ${WEB_PORT:-13000}",
     "build": "vinext check && vinext build",
     "start": "vinext start --port ${WEB_PORT:-13000}",
     "format": "oxfmt --write .",
