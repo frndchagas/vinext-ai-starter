@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureCorrelationId;
 use App\Support\ProblemDetails;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -20,6 +21,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->statefulApi();
         $middleware->redirectGuestsTo('/login');
+        $middleware->api(append: EnsureCorrelationId::class);
+        $middleware->web(append: EnsureCorrelationId::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

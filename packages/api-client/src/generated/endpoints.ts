@@ -24,7 +24,11 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  CreateTask409,
+  CreateTaskHeaders,
+  CreateTaskRequest,
   ForgotPasswordBody,
+  ListTasksParams,
   LoginRequest,
   LoginResult,
   Me,
@@ -32,6 +36,8 @@ import type {
   RegisterRequest,
   ResetPasswordBody,
   StatusMessage,
+  Task,
+  TaskPage,
   ValidationProblem
 } from './models';
 
@@ -666,6 +672,358 @@ export function useGetMe<TData = Awaited<ReturnType<typeof getMe>>, TError = Pro
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetMeQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+
+/**
+ * Create a Task and queue its processing. Requires a verified email and an Idempotency-Key header; repeating the key with the same payload replays the first response, and a different payload returns 409 with code idempotency_key_reused.
+ */
+export type createTaskResponse202 = {
+  data: Task
+  status: 202
+}
+
+export type createTaskResponse401 = {
+  data: Problem
+  status: 401
+}
+
+export type createTaskResponse403 = {
+  data: Problem
+  status: 403
+}
+
+export type createTaskResponse409 = {
+  data: CreateTask409
+  status: 409
+}
+
+export type createTaskResponse422 = {
+  data: ValidationProblem
+  status: 422
+}
+    
+export type createTaskResponseSuccess = (createTaskResponse202) & {
+  headers: Headers;
+};
+export type createTaskResponseError = (createTaskResponse401 | createTaskResponse403 | createTaskResponse409 | createTaskResponse422) & {
+  headers: Headers;
+};
+
+export type createTaskResponse = (createTaskResponseSuccess | createTaskResponseError)
+
+export const getCreateTaskUrl = () => {
+
+
+  
+
+  return `/api/v1/tasks`
+}
+
+export const createTask = async (createTaskRequest: CreateTaskRequest,
+    headers: CreateTaskHeaders, options?: RequestInit): Promise<createTaskResponse> => {
+  
+  return apiFetch<createTaskResponse>(getCreateTaskUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json',...headers, ...options?.headers },
+    body: JSON.stringify(
+      createTaskRequest,)
+  }
+);}
+
+
+
+
+export const getCreateTaskMutationOptions = <TError = Problem | CreateTask409 | ValidationProblem,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createTask>>, TError,{data: CreateTaskRequest;headers: CreateTaskHeaders}, TContext>, request?: SecondParameter<typeof apiFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createTask>>, TError,{data: CreateTaskRequest;headers: CreateTaskHeaders}, TContext> => {
+
+const mutationKey = ['createTask'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createTask>>, {data: CreateTaskRequest;headers: CreateTaskHeaders}> = (props) => {
+          const {data,headers} = props ?? {};
+
+          return  createTask(data,headers,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateTaskMutationResult = NonNullable<Awaited<ReturnType<typeof createTask>>>
+    export type CreateTaskMutationBody = CreateTaskRequest
+    export type CreateTaskMutationError = Problem | CreateTask409 | ValidationProblem
+
+    export const useCreateTask = <TError = Problem | CreateTask409 | ValidationProblem,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createTask>>, TError,{data: CreateTaskRequest;headers: CreateTaskHeaders}, TContext>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createTask>>,
+        TError,
+        {data: CreateTaskRequest;headers: CreateTaskHeaders},
+        TContext
+      > => {
+
+      const mutationOptions = getCreateTaskMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    
+/**
+ * Cursor-paginated list of the authenticated user's Tasks, newest first.
+ */
+export type listTasksResponse200 = {
+  data: TaskPage
+  status: 200
+}
+
+export type listTasksResponse401 = {
+  data: Problem
+  status: 401
+}
+
+export type listTasksResponse403 = {
+  data: Problem
+  status: 403
+}
+    
+export type listTasksResponseSuccess = (listTasksResponse200) & {
+  headers: Headers;
+};
+export type listTasksResponseError = (listTasksResponse401 | listTasksResponse403) & {
+  headers: Headers;
+};
+
+export type listTasksResponse = (listTasksResponseSuccess | listTasksResponseError)
+
+export const getListTasksUrl = (params?: ListTasksParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/tasks?${stringifiedParams}` : `/api/v1/tasks`
+}
+
+export const listTasks = async (params?: ListTasksParams, options?: RequestInit): Promise<listTasksResponse> => {
+  
+  return apiFetch<listTasksResponse>(getListTasksUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getListTasksQueryKey = (params?: ListTasksParams,) => {
+    return [
+    `/api/v1/tasks`, ...(params ? [params]: [])
+    ] as const;
+    }
+
+    
+export const getListTasksQueryOptions = <TData = Awaited<ReturnType<typeof listTasks>>, TError = Problem>(params?: ListTasksParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTasks>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListTasksQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listTasks>>> = ({ signal }) => listTasks(params, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listTasks>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListTasksQueryResult = NonNullable<Awaited<ReturnType<typeof listTasks>>>
+export type ListTasksQueryError = Problem
+
+
+export function useListTasks<TData = Awaited<ReturnType<typeof listTasks>>, TError = Problem>(
+ params: undefined |  ListTasksParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTasks>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listTasks>>,
+          TError,
+          Awaited<ReturnType<typeof listTasks>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListTasks<TData = Awaited<ReturnType<typeof listTasks>>, TError = Problem>(
+ params?: ListTasksParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTasks>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listTasks>>,
+          TError,
+          Awaited<ReturnType<typeof listTasks>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListTasks<TData = Awaited<ReturnType<typeof listTasks>>, TError = Problem>(
+ params?: ListTasksParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTasks>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useListTasks<TData = Awaited<ReturnType<typeof listTasks>>, TError = Problem>(
+ params?: ListTasksParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listTasks>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListTasksQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+
+export type getTaskResponse200 = {
+  data: Task
+  status: 200
+}
+
+export type getTaskResponse401 = {
+  data: Problem
+  status: 401
+}
+
+export type getTaskResponse403 = {
+  data: Problem
+  status: 403
+}
+    
+export type getTaskResponseSuccess = (getTaskResponse200) & {
+  headers: Headers;
+};
+export type getTaskResponseError = (getTaskResponse401 | getTaskResponse403) & {
+  headers: Headers;
+};
+
+export type getTaskResponse = (getTaskResponseSuccess | getTaskResponseError)
+
+export const getGetTaskUrl = (id: string,) => {
+
+
+  
+
+  return `/api/v1/tasks/${id}`
+}
+
+export const getTask = async (id: string, options?: RequestInit): Promise<getTaskResponse> => {
+  
+  return apiFetch<getTaskResponse>(getGetTaskUrl(id),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getGetTaskQueryKey = (id?: string,) => {
+    return [
+    `/api/v1/tasks/${id}`
+    ] as const;
+    }
+
+    
+export const getGetTaskQueryOptions = <TData = Awaited<ReturnType<typeof getTask>>, TError = Problem>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTask>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetTaskQueryKey(id);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getTask>>> = ({ signal }) => getTask(id, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getTask>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetTaskQueryResult = NonNullable<Awaited<ReturnType<typeof getTask>>>
+export type GetTaskQueryError = Problem
+
+
+export function useGetTask<TData = Awaited<ReturnType<typeof getTask>>, TError = Problem>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTask>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getTask>>,
+          TError,
+          Awaited<ReturnType<typeof getTask>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetTask<TData = Awaited<ReturnType<typeof getTask>>, TError = Problem>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTask>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getTask>>,
+          TError,
+          Awaited<ReturnType<typeof getTask>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetTask<TData = Awaited<ReturnType<typeof getTask>>, TError = Problem>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTask>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetTask<TData = Awaited<ReturnType<typeof getTask>>, TError = Problem>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTask>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetTaskQueryOptions(id,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

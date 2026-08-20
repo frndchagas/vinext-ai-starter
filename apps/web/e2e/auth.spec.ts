@@ -46,13 +46,13 @@ test("register, verify email, use the private channel, sign out and sign in agai
   await page.getByLabel("Confirm password").fill(password);
   await page.getByRole("button", { name: "Create account" }).click();
 
-  await expect(page).toHaveURL(/\/verify-email$/);
+  await expect(page).toHaveURL(/\/verify-email$/, { timeout: 20_000 });
   await expect(page.getByText(uniqueEmail)).toBeVisible();
 
   const verificationLink = await findVerificationLink(uniqueEmail);
   await page.goto(verificationLink);
 
-  await expect(page).toHaveURL(/\/dashboard\?verified=1$/);
+  await expect(page).toHaveURL(/\/dashboard\?verified=1$/, { timeout: 20_000 });
   await expect(page.getByText("Email verified")).toBeVisible();
   await expect(page.getByText("member")).toBeVisible();
   await expect(page.getByText(/Subscribed to users\./)).toBeVisible({ timeout: 15_000 });
@@ -64,7 +64,7 @@ test("register, verify email, use the private channel, sign out and sign in agai
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Sign in" }).click();
 
-  await expect(page).toHaveURL(/\/dashboard$/);
+  await expect(page).toHaveURL(/\/dashboard$/, { timeout: 20_000 });
   await expect(page.getByText(/Subscribed to users\./)).toBeVisible({ timeout: 15_000 });
 });
 

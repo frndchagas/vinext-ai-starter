@@ -60,3 +60,71 @@ export const getMeResponse = zod.object({
   "roles": zod.array(zod.string()),
   "permissions": zod.array(zod.string())
 }).describe('The authenticated identity, its roles and permissions.')
+
+
+/**
+ * Create a Task and queue its processing. Requires a verified email and an Idempotency-Key header; repeating the key with the same payload replays the first response, and a different payload returns 409 with code idempotency_key_reused.
+ */
+export const createTaskHeader = zod.object({
+  "Idempotency-Key": zod.string()
+})
+
+export const createTaskBodyInputMax = 10000;
+
+
+
+export const createTaskBody = zod.object({
+  "input": zod.string().max(createTaskBodyInputMax)
+})
+
+
+/**
+ * Cursor-paginated list of the authenticated user's Tasks, newest first.
+ */
+export const listTasksQueryParams = zod.object({
+  "cursor": zod.string().optional(),
+  "per_page": zod.number().optional()
+})
+
+export const listTasksResponse = zod.object({
+  "data": zod.array(zod.object({
+  "id": zod.string().describe('Opaque identifier. Clients must not infer meaning from its value.'),
+  "input": zod.string(),
+  "output": zod.union([zod.object({
+  "word_count": zod.number(),
+  "reversed": zod.string()
+}),zod.null()]),
+  "state": zod.enum(['queued', 'processing', 'completed', 'failed']),
+  "version": zod.number(),
+  "error_code": zod.union([zod.string(),zod.null()]),
+  "correlation_id": zod.string(),
+  "started_at": zod.union([zod.iso.datetime({}),zod.null()]),
+  "finished_at": zod.union([zod.iso.datetime({}),zod.null()]),
+  "created_at": zod.iso.datetime({})
+}).describe('Reference asynchronous resource. The persisted state is the source of truth.')),
+  "meta": zod.object({
+  "next_cursor": zod.union([zod.string(),zod.null()]),
+  "prev_cursor": zod.union([zod.string(),zod.null()])
+})
+})
+
+
+export const getTaskParams = zod.object({
+  "id": zod.string()
+})
+
+export const getTaskResponse = zod.object({
+  "id": zod.string().describe('Opaque identifier. Clients must not infer meaning from its value.'),
+  "input": zod.string(),
+  "output": zod.union([zod.object({
+  "word_count": zod.number(),
+  "reversed": zod.string()
+}),zod.null()]),
+  "state": zod.enum(['queued', 'processing', 'completed', 'failed']),
+  "version": zod.number(),
+  "error_code": zod.union([zod.string(),zod.null()]),
+  "correlation_id": zod.string(),
+  "started_at": zod.union([zod.iso.datetime({}),zod.null()]),
+  "finished_at": zod.union([zod.iso.datetime({}),zod.null()]),
+  "created_at": zod.iso.datetime({})
+}).describe('Reference asynchronous resource. The persisted state is the source of truth.')

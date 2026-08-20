@@ -48,6 +48,10 @@ final class ProblemDetails
             'status' => $status,
         ];
 
+        if ($exception instanceof ProvidesProblemCode) {
+            $problem['code'] = $exception->problemCode();
+        }
+
         if ($detail !== null) {
             $problem['detail'] = $detail;
         }

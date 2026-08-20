@@ -2,6 +2,7 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { getGetMeQueryKey, useGetMe, useLogout } from "@vinext-ai-starter/api-client";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -76,9 +77,14 @@ export default function DashboardPage() {
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">{me.email}</p>
         </div>
-        <Button variant="outline" disabled={logoutMutation.isPending} onClick={signOut}>
-          Sign out
-        </Button>
+        <div className="flex items-center gap-4">
+          <Link href="/tasks" className="text-sm text-primary hover:underline">
+            Tasks
+          </Link>
+          <Button variant="outline" disabled={logoutMutation.isPending} onClick={signOut}>
+            Sign out
+          </Button>
+        </div>
       </header>
 
       <section className="grid gap-6 sm:grid-cols-2">

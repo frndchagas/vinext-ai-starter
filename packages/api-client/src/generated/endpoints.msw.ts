@@ -17,10 +17,15 @@ import type {
   RequestHandlerOptions
 } from 'msw';
 
+import {
+  TaskState
+} from './models';
 import type {
   LoginResult,
   Me,
-  StatusMessage
+  StatusMessage,
+  Task,
+  TaskPage
 } from './models';
 
 
@@ -31,6 +36,12 @@ export const getLoginResponseMock = (overrideResponse: Partial< LoginResult > = 
 export const getResetPasswordResponseMock = (overrideResponse: Partial< StatusMessage > = {}): StatusMessage => ({message: faker.string.alpha({length: {min: 10, max: 20}}), ...overrideResponse})
 
 export const getGetMeResponseMock = (overrideResponse: Partial< Me > = {}): Me => ({id: faker.string.alpha({length: {min: 10, max: 20}}), name: faker.string.alpha({length: {min: 10, max: 20}}), email: faker.string.alpha({length: {min: 10, max: 20}}), email_verified: faker.datatype.boolean(), roles: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (faker.string.alpha({length: {min: 10, max: 20}}))), permissions: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (faker.string.alpha({length: {min: 10, max: 20}}))), ...overrideResponse})
+
+export const getCreateTaskResponseMock = (overrideResponse: Partial< Task > = {}): Task => ({id: faker.string.alpha({length: {min: 10, max: 20}}), input: faker.string.alpha({length: {min: 10, max: 20}}), output: faker.helpers.arrayElement([{word_count: faker.number.int(undefined), reversed: faker.string.alpha({length: {min: 10, max: 20}})},null,]), state: faker.helpers.arrayElement(Object.values(TaskState)), version: faker.number.int(undefined), error_code: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}),null,]), correlation_id: faker.string.alpha({length: {min: 10, max: 20}}), started_at: faker.helpers.arrayElement([`${faker.date.past().toISOString().split('.')[0]}Z`,null,]), finished_at: faker.helpers.arrayElement([`${faker.date.past().toISOString().split('.')[0]}Z`,null,]), created_at: `${faker.date.past().toISOString().split('.')[0]}Z`, ...overrideResponse})
+
+export const getListTasksResponseMock = (overrideResponse: Partial< TaskPage > = {}): TaskPage => ({data: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({id: faker.string.alpha({length: {min: 10, max: 20}}), input: faker.string.alpha({length: {min: 10, max: 20}}), output: faker.helpers.arrayElement([{word_count: faker.number.int(undefined), reversed: faker.string.alpha({length: {min: 10, max: 20}})},null,]), state: faker.helpers.arrayElement(Object.values(TaskState)), version: faker.number.int(undefined), error_code: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}),null,]), correlation_id: faker.string.alpha({length: {min: 10, max: 20}}), started_at: faker.helpers.arrayElement([`${faker.date.past().toISOString().split('.')[0]}Z`,null,]), finished_at: faker.helpers.arrayElement([`${faker.date.past().toISOString().split('.')[0]}Z`,null,]), created_at: `${faker.date.past().toISOString().split('.')[0]}Z`})), meta: {next_cursor: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}),null,]), prev_cursor: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}),null,])}, ...overrideResponse})
+
+export const getGetTaskResponseMock = (overrideResponse: Partial< Task > = {}): Task => ({id: faker.string.alpha({length: {min: 10, max: 20}}), input: faker.string.alpha({length: {min: 10, max: 20}}), output: faker.helpers.arrayElement([{word_count: faker.number.int(undefined), reversed: faker.string.alpha({length: {min: 10, max: 20}})},null,]), state: faker.helpers.arrayElement(Object.values(TaskState)), version: faker.number.int(undefined), error_code: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}),null,]), correlation_id: faker.string.alpha({length: {min: 10, max: 20}}), started_at: faker.helpers.arrayElement([`${faker.date.past().toISOString().split('.')[0]}Z`,null,]), finished_at: faker.helpers.arrayElement([`${faker.date.past().toISOString().split('.')[0]}Z`,null,]), created_at: `${faker.date.past().toISOString().split('.')[0]}Z`, ...overrideResponse})
 
 
 export const getResendEmailVerificationMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<void> | void), options?: RequestHandlerOptions) => {
@@ -111,6 +122,42 @@ export const getGetMeMockHandler = (overrideResponse?: Me | ((info: Parameters<P
   }, options)
 }
 
+export const getCreateTaskMockHandler = (overrideResponse?: Task | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<Task> | Task), options?: RequestHandlerOptions) => {
+  return http.post('*/api/v1/tasks', async (info) => {await delay(1000);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined
+    ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
+    : getCreateTaskResponseMock()),
+      { status: 202,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  }, options)
+}
+
+export const getListTasksMockHandler = (overrideResponse?: TaskPage | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<TaskPage> | TaskPage), options?: RequestHandlerOptions) => {
+  return http.get('*/api/v1/tasks', async (info) => {await delay(1000);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined
+    ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
+    : getListTasksResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  }, options)
+}
+
+export const getGetTaskMockHandler = (overrideResponse?: Task | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<Task> | Task), options?: RequestHandlerOptions) => {
+  return http.get('*/api/v1/tasks/:id', async (info) => {await delay(1000);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined
+    ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
+    : getGetTaskResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  }, options)
+}
+
 export const getGetCsrfCookieMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<void> | void), options?: RequestHandlerOptions) => {
   return http.get('*/sanctum/csrf-cookie', async (info) => {await delay(1000);
   if (typeof overrideResponse === 'function') {await overrideResponse(info); }
@@ -128,5 +175,8 @@ export const getVinextAIStarterAPIMock = () => [
   getRegisterMockHandler(),
   getResetPasswordMockHandler(),
   getGetMeMockHandler(),
+  getCreateTaskMockHandler(),
+  getListTasksMockHandler(),
+  getGetTaskMockHandler(),
   getGetCsrfCookieMockHandler()
 ]
