@@ -18,6 +18,8 @@ Vinext owns presentation routes and user experience. Laravel owns identity, auth
 
 Local development runs Caddy, PostgreSQL, Redis and Mailpit in Docker. Vinext, Laravel, Horizon and Reverb run as host processes through `bun run dev`.
 
+Production builds separate images for Caddy, Vinext, Nginx and PHP-FPM. The PHP image is reused by the API, Horizon, scheduler, migration and Reverb services. PostgreSQL and Redis use named volumes. CI starts the complete topology and sends a Task through Horizon before accepting a change.
+
 ## Boundaries
 
 - TypeSpec is the source for application HTTP consumed through the generated client.
@@ -30,9 +32,9 @@ See [Authentication](authentication.md), [API conventions](api-conventions.md) a
 
 ## Current limits
 
-The starter has no production Dockerfiles, production Compose file, AI provider, billing, teams, passkeys or TOTP UI today. Vinext is still in beta and the React Compiler integration is experimental.
+The starter has no AI provider, billing, teams, passkeys or TOTP UI today. Vinext is still in beta and the React Compiler integration is experimental.
 
-The accepted production topology is recorded in ADR 0007, but its implementation is pending. Until its containers and smoke tests exist, this repository is a development-ready foundation rather than a verified deployment recipe.
+The production reference is a regular Docker Compose deployment. It is health checked and suitable for Coolify, but it does not provide zero-downtime traffic switching.
 
 ## Positioning
 

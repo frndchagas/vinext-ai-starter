@@ -6,7 +6,7 @@ A Laravel and Vinext foundation for coding agents.
 
 The starter provides same-origin sessions, explicit HTTP and realtime contracts, a generated TypeScript client, role and permission storage, Redis queues, Reverb and one idempotent asynchronous flow. "AI-first" refers to repository instructions and executable gates; no AI provider ships in the current release.
 
-Vinext is still in beta and the React Compiler integration is experimental. The repository proves local development and browser behavior, but production containers are not implemented yet.
+Vinext is still in beta and the React Compiler integration is experimental. CI verifies local setup, browser behavior, a fresh template snapshot and the production container topology.
 
 ## Quickstart
 
@@ -34,6 +34,7 @@ See [Getting started](docs/getting-started.md) for the expected services, shutdo
 | `bun run contracts:check` | Validate AsyncAPI and detect generated HTTP drift |
 | `bun run audit` | Check dependency deduplication and advisories |
 | `bun run test:e2e` | Run the Playwright browser journeys |
+| `bun run test:production` | Build and exercise the production containers |
 | `bun run test:template` | Create and verify a fresh template snapshot |
 | `bun run infra:down` | Stop local Docker infrastructure without deleting volumes |
 
@@ -42,6 +43,7 @@ See [Getting started](docs/getting-started.md) for the expected services, shutdo
 - [Documentation index](docs/README.md)
 - [Customize the starter](docs/customizing.md)
 - [Architecture](docs/architecture.md)
+- [Deployment](docs/deployment.md)
 - [Troubleshooting](docs/troubleshooting.md)
 - [Contributing](CONTRIBUTING.md)
 - [Security policy](SECURITY.md)

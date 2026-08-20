@@ -222,6 +222,20 @@ jobs:
       - name: Fresh template
         run: bun run test:template
 
+  production-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: "8.3"
+          coverage: none
+
+      - name: Production topology
+        run: bash scripts/production-smoke.sh
+
   gitleaks:
     runs-on: ubuntu-latest
     steps:
