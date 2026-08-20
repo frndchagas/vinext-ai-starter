@@ -186,7 +186,6 @@ try {
         "COPY database ./database",
         "COPY public ./public",
         "COPY routes ./routes",
-        "COPY storage ./storage",
       ].join("\n"),
     ],
   ]);
