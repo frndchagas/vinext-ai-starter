@@ -26,7 +26,7 @@ The script uses a separate Compose project and deletes its containers and volume
 
 ## Coolify
 
-Create a Docker Compose application from the public repository and select `compose.coolify.yaml`. Coolify generates a domain for the `proxy` service on port `8080`; replace it with your public domain when needed. Keep PostgreSQL and Redis private. The Coolify-specific file also excludes the one-time migration container from aggregate health checks.
+Create a Docker Compose application from the public repository and select `compose.coolify.yaml`. Assign a domain to the `proxy` service on port `8080`. Keep PostgreSQL and Redis private. The Coolify-specific file excludes the one-time migration container from aggregate health checks and is generated from the production Compose file with `bun run coolify:build`.
 
 Add every variable from `.env.production.example`. Do not expose the internal API, Reverb, PostgreSQL or Redis ports. Configure the service health path as `/up` with expected status `200`.
 
