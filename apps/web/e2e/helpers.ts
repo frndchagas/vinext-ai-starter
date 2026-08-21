@@ -1,4 +1,6 @@
+import { execFileSync } from "node:child_process";
 import { createHmac } from "node:crypto";
+import { fileURLToPath } from "node:url";
 
 import { expect, type Page } from "@playwright/test";
 
@@ -58,6 +60,13 @@ export async function registerVerifiedUser(
   await page.goto(verificationLink);
   await expect(page).toHaveURL(/\/dashboard\?verified=1$/, { timeout: 20_000 });
   await expect(page.getByRole("link", { name: "Settings" })).toBeVisible({ timeout: 20_000 });
+}
+
+export function grantAdmin(email: string): void {
+  execFileSync("php", ["artisan", "app:grant-admin", email], {
+    cwd: fileURLToPath(new URL("../../api/", import.meta.url)),
+    stdio: "pipe",
+  });
 }
 
 export function generateTotp(secret: string, now = Date.now()): string {

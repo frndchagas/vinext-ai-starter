@@ -4,6 +4,7 @@ import {
   findPasswordResetLink,
   findVerificationLink,
   generateTotp,
+  grantAdmin,
   registerVerifiedUser,
 } from "./helpers";
 
@@ -146,7 +147,7 @@ test("update account settings and complete the two-factor recovery flow", async 
   const recoveryCode = await twoFactorSection.locator("li").first().textContent();
   expect(recoveryCode).toBeTruthy();
 
-  await page.getByRole("link", { name: "Back to dashboard" }).click();
+  await page.getByRole("link", { name: "Dashboard", exact: true }).click();
   await page.getByRole("button", { name: "Sign out" }).click();
   await page.getByLabel("Email").fill(uniqueEmail);
   await page.getByLabel("Password").fill(newPassword);
@@ -194,4 +195,37 @@ test("permanently delete the current account", async ({ page }) => {
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page.getByRole("alert")).toContainText(/credentials/i);
+});
+
+test("manage users through the permission-gated administration surface", async ({ page }) => {
+  test.setTimeout(120_000);
+
+  const suffix = Date.now();
+  const targetEmail = `e2e-managed-${suffix}@example.com`;
+  const adminEmail = `e2e-admin-${suffix}@example.com`;
+  const password = "admin-e2e-password";
+
+  await registerVerifiedUser(page, targetEmail, password);
+  await page.getByRole("button", { name: "Sign out" }).click();
+  await registerVerifiedUser(page, adminEmail, password);
+
+  await expect(page.getByRole("link", { name: "Users" })).toHaveCount(0);
+  grantAdmin(adminEmail);
+  await page.reload();
+  await expect(page.getByRole("link", { name: "Users" })).toBeVisible();
+  await page.getByRole("link", { name: "Users" }).click();
+
+  await page.getByLabel("Search users").fill(targetEmail);
+  await page.getByRole("button", { name: "Search" }).click();
+  const targetRow = page.getByRole("row", { name: new RegExp(targetEmail) });
+  await expect(targetRow).toBeVisible();
+  await targetRow.getByLabel(/Role for/).selectOption("admin");
+  await expect(page.getByText(/is now admin/)).toBeVisible();
+  await expect(targetRow.getByLabel(/Role for/)).toHaveValue("admin");
+
+  await page.getByLabel("Search users").fill(adminEmail);
+  await page.getByRole("button", { name: "Search" }).click();
+  const ownRow = page.getByRole("row", { name: new RegExp(adminEmail) });
+  await expect(ownRow.getByText("Current account")).toBeVisible();
+  await expect(ownRow.getByLabel(/Role for/)).toBeDisabled();
 });
