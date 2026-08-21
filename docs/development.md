@@ -42,12 +42,15 @@ GitHub Actions always runs the fast verification, dependency and secret checks o
 - serial Chromium E2E for auth, mail, queues and reconnection;
 - a fresh template snapshot with isolated ports, migrations, contracts, build and proxy smoke tests;
 - production image builds followed by migrations, readiness, security-header checks, a session flow, queued Task processing and a PostgreSQL restore round-trip;
+- Trivy scans fixable high and critical vulnerabilities in each production runtime image when Docker inputs change and on every complete run;
 - Gitleaks, dependency review and OpenAPI breaking-change detection;
 - GitHub CodeQL default setup outside the repository workflow.
 
 Lefthook is intentionally smaller. Pre-commit runs format checks and uses Gitleaks when installed; pre-push runs `bun run check`. Contracts, audit and E2E remain explicit local commands and CI gates.
 
 Tests never call a real external provider. The starter has no AI provider in the current release.
+
+Dependabot checks Bun, Composer, GitHub Actions and every Dockerfile or Compose manifest each week. Docker updates remain grouped by dependency and must pass the affected production gate.
 
 ## Frontend baseline
 

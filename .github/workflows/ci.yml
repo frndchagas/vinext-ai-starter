@@ -26,6 +26,7 @@ jobs:
       distribution: ${{ steps.classify.outputs.distribution }}
       production: ${{ steps.classify.outputs.production }}
       breaking: ${{ steps.classify.outputs.breaking }}
+      docker: ${{ steps.classify.outputs.docker }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -297,6 +298,49 @@ jobs:
 
       - name: Production topology
         run: bash scripts/production-smoke.sh
+
+      - name: Scan PHP runtime image
+        if: needs.changes.outputs.docker == 'true'
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: vinext-laravel-starter-api:smoke-${{ github.run_id }}-${{ github.run_attempt }}
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "1"
+          vuln-type: os,library
+
+      - name: Scan Nginx runtime image
+        if: needs.changes.outputs.docker == 'true'
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: vinext-laravel-starter-api-nginx:smoke-${{ github.run_id }}-${{ github.run_attempt }}
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "1"
+          vuln-type: os,library
+          skip-setup-trivy: true
+
+      - name: Scan Caddy runtime image
+        if: needs.changes.outputs.docker == 'true'
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: vinext-laravel-starter-proxy:smoke-${{ github.run_id }}-${{ github.run_attempt }}
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "1"
+          vuln-type: os,library
+          skip-setup-trivy: true
+
+      - name: Scan Node runtime image
+        if: needs.changes.outputs.docker == 'true'
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: vinext-laravel-starter-web:smoke-${{ github.run_id }}-${{ github.run_attempt }}
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "1"
+          vuln-type: os,library
+          skip-setup-trivy: true
 
   gitleaks:
     runs-on: ubuntu-latest
