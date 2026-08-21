@@ -18,4 +18,14 @@ Each distribution tag contains `.source-tag` and `.source-commit`. They identify
 
 Source CI creates a local Composer repository and invokes the current pinned Laravel Installer with the documented `--using`, `--phpunit`, `--bun` and `--no-boost` flags. The installed application migrates SQLite, checks contract drift, runs the PHP and TypeScript gates, builds Vinext and exercises the production topology.
 
-Maintainers publish only through a stable GitHub release. The release workflow generates the flattened tree and pushes the same immutable tag to the distribution repository, which Packagist indexes.
+Maintainers publish only through a stable GitHub release. The release workflow generates the flattened tree and pushes the matching release tag to the distribution repository, which Packagist indexes.
+
+## Release preflight
+
+Run the preflight from a clean, synchronized `main` checkout after its complete CI succeeds:
+
+```bash
+bun run release:check -- v1.0.0
+```
+
+The command rejects reused or non-SemVer tags and prints the annotated-tag and GitHub Release commands. The publisher independently requires the exact tagged SHA to have one successful full `main` push workflow. It serializes all releases and pushes the distribution commit and tag atomically.
