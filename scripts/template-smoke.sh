@@ -5,9 +5,35 @@ set -euo pipefail
 source_root=$(git rev-parse --show-toplevel)
 template_root=$(mktemp -d)
 project_name="vinext-template-smoke-${GITHUB_RUN_ID:-$$}-${GITHUB_RUN_ATTEMPT:-1}"
-port_base=${SMOKE_PORT_BASE:-34000}
 dev_pid=""
 dev_process_group=false
+
+if [[ -n "${SMOKE_PORT_BASE:-}" ]]; then
+    port_base=$SMOKE_PORT_BASE
+else
+    port_base=""
+
+    for _ in {1..20}; do
+        candidate=$((30000 + RANDOM % 20000))
+
+        if php -r '
+            $base = (int) $argv[1];
+            for ($port = $base; $port < $base + 8; $port++) {
+                $socket = @stream_socket_server("tcp://127.0.0.1:{$port}");
+                if ($socket === false) exit(1);
+                fclose($socket);
+            }
+        ' "$candidate"; then
+            port_base=$candidate
+            break
+        fi
+    done
+
+    if [[ -z "$port_base" ]]; then
+        echo "Could not find eight free ports for the template smoke." >&2
+        exit 1
+    fi
+fi
 
 cleanup() {
     set +e

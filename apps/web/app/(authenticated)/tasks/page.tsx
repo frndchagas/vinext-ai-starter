@@ -7,6 +7,7 @@ import {
   useListTasks,
   type Task,
 } from "@vinext-laravel-starter/api-client";
+import type { TaskStatusChangedPayload } from "@vinext-laravel-starter/realtime-contract";
 import { useEffect, useRef } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -50,9 +51,13 @@ export default function TasksPage() {
     });
 
     for (const id of ids) {
-      echo.private(`tasks.${id}`).listen(".TaskStatusChanged", () => {
-        void queryClient.invalidateQueries({ queryKey: getListTasksQueryKey() });
-      });
+      echo
+        .private(`tasks.${id}`)
+        .listen(".TaskStatusChanged", (event: TaskStatusChangedPayload) => {
+          if (event.id === id) {
+            void queryClient.invalidateQueries({ queryKey: getListTasksQueryKey() });
+          }
+        });
     }
 
     return () => {

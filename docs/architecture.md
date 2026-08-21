@@ -23,7 +23,7 @@ Production builds separate images for Caddy, Vinext, Nginx and PHP-FPM. The PHP 
 ## Boundaries
 
 - TypeSpec is the source for application HTTP consumed through the generated client.
-- AsyncAPI describes contracted realtime messages. It does not provide implementation drift detection.
+- AsyncAPI generates frontend message types and PHP conformance metadata from the same payload schema.
 - Sanctum CSRF and Echo broadcasting authorization are protocol infrastructure, not generated-client operations.
 - PostgreSQL state wins over any realtime notification.
 - Roles and permissions are stored and exposed, but the current Task authorization rule is ownership, not role membership.

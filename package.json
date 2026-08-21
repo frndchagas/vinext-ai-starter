@@ -34,9 +34,9 @@
     "coolify:check": "bun run scripts/coolify-compose.mjs --check",
     "audit": "bun dedupe --check && bun audit --audit-level=high && composer audit --working-dir apps/api --locked",
     "check": "bun run config:check && bun run --parallel --if-present --filter '*' format:check lint typecheck test build",
-    "contracts:build": "bun run --filter @vinext-laravel-starter/http-contract build && bun run --filter @vinext-laravel-starter/api-client generate",
+    "contracts:build": "bun run --filter @vinext-laravel-starter/http-contract build && bun run --filter @vinext-laravel-starter/api-client generate && bun run --filter @vinext-laravel-starter/realtime-contract generate",
     "contracts:validate": "bun run --filter @vinext-laravel-starter/realtime-contract validate",
-    "contracts:check": "bun run contracts:validate && bun run contracts:build && git diff --exit-code -- contracts/http/openapi packages/api-client/src/generated || (echo 'HTTP contract artifacts drifted: run bun run contracts:build and commit.' && exit 1)"
+    "contracts:check": "bun run contracts:validate && bun run contracts:build && git diff --exit-code -- contracts/http/openapi contracts/realtime/generated packages/api-client/src/generated || (echo 'Contract artifacts drifted: run bun run contracts:build and commit.' && exit 1)"
   },
   "devDependencies": {
     "lefthook": "2.1.10"

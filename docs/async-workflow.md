@@ -28,7 +28,7 @@ WebSocket delivery has no end-to-end guarantee. A client may miss or receive dup
 
 ## Contracts and proofs
 
-TypeSpec defines the HTTP resource and errors. AsyncAPI defines the observable Task channel and message. CI validates both documents but only the HTTP pipeline has generated drift detection.
+TypeSpec defines the HTTP resource and errors. AsyncAPI defines the observable Task channel and message. CI detects generated drift in both pipelines, and PHP tests compare the broadcast event with generated AsyncAPI metadata.
 
 Tests currently prove:
 

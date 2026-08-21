@@ -23,6 +23,7 @@
         "@icons-pack/react-simple-icons": "13.15.1",
         "@tanstack/react-query": "5.101.4",
         "@vinext-laravel-starter/api-client": "workspace:*",
+        "@vinext-laravel-starter/realtime-contract": "workspace:*",
         "class-variance-authority": "0.7.1",
         "clsx": "2.1.1",
         "laravel-echo": "2.4.0",
@@ -77,6 +78,8 @@
       "version": "0.0.0",
       "devDependencies": {
         "@asyncapi/parser": "3.6.3",
+        "oxfmt": "0.64.0",
+        "typescript": "7.0.2",
       },
     },
     "packages/api-client": {
@@ -88,10 +91,13 @@
       "devDependencies": {
         "@faker-js/faker": "10.6.0",
         "@tanstack/react-query": "5.101.4",
+        "@types/node": "26.2.0",
         "msw": "2.15.0",
         "orval": "8.24.0",
         "oxfmt": "0.64.0",
         "typescript": "7.0.2",
+        "vitest": "4.1.11",
+        "yaml": "2.9.0",
       },
       "peerDependencies": {
         "@tanstack/react-query": "^5.90.0",
