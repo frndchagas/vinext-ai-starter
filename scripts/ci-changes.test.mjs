@@ -12,6 +12,7 @@ describe("classifyChanges", () => {
         distribution: false,
         production: false,
         breaking: false,
+        docker: false,
       });
   });
 
@@ -23,6 +24,7 @@ describe("classifyChanges", () => {
       distribution: false,
       production: true,
       breaking: false,
+      docker: false,
     });
   });
 
@@ -34,6 +36,19 @@ describe("classifyChanges", () => {
       distribution: false,
       production: true,
       breaking: true,
+      docker: false,
+    });
+  });
+
+  test("scans production images when Docker automation changes", () => {
+    expect(classifyChanges([".github/dependabot.yml"])).toEqual({
+      integration: false,
+      e2e: false,
+      template: false,
+      distribution: false,
+      production: true,
+      breaking: false,
+      docker: true,
     });
   });
 
@@ -45,6 +60,7 @@ describe("classifyChanges", () => {
       distribution: true,
       production: true,
       breaking: true,
+      docker: true,
     };
 
     expect(classifyChanges(["bun.lock"])).toEqual(expected);

@@ -1,6 +1,14 @@
 import { appendFileSync } from "node:fs";
 
-const ALL_GATES = ["integration", "e2e", "template", "distribution", "production", "breaking"];
+const ALL_GATES = [
+  "integration",
+  "e2e",
+  "template",
+  "distribution",
+  "production",
+  "breaking",
+  "docker",
+];
 
 const patterns = {
   integration: [
@@ -31,6 +39,7 @@ const patterns = {
     /^scripts\/(build-distribution\.mjs|distribution-smoke\.sh)$/,
   ],
   production: [
+    /^\.github\/dependabot\.yml$/,
     /^\.env\.production\.example$/,
     /^apps\/api\/(app|bootstrap|config|database|routes)\//,
     /^apps\/api\/composer\.(json|lock)$/,
@@ -42,6 +51,12 @@ const patterns = {
     /^scripts\/(postgres-|production-smoke|coolify-compose)/,
   ],
   breaking: [/^contracts\/http\//],
+  docker: [
+    /^\.github\/dependabot\.yml$/,
+    /^\.env\.production\.example$/,
+    /^compose\.(production|coolify)(\.local)?\.yaml$/,
+    /^infra\/docker\//,
+  ],
 };
 
 const globalPaths = [/^bun\.lock$/, /^package\.json$/];
