@@ -21,6 +21,8 @@ import type {
 } from "@tanstack/react-query";
 
 import type {
+  AdminUser,
+  AdminUserPage,
   ConfirmPasswordBody,
   ConfirmTwoFactorBody,
   CreateTask409,
@@ -29,6 +31,7 @@ import type {
   DeleteCurrentUserRequest,
   ForgotPasswordBody,
   GetTwoFactorSecretKey200,
+  ListAdminUsersParams,
   ListTasksParams,
   LoginRequest,
   LoginResult,
@@ -42,6 +45,8 @@ import type {
   TaskPage,
   TwoFactorChallengeRequest,
   TwoFactorQrCode,
+  UpdateAdminUserRole409,
+  UpdateAdminUserRoleRequest,
   UpdatePasswordRequest,
   UpdateProfileRequest,
   ValidationProblem,
@@ -65,6 +70,295 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
     });
   }
   return result;
+};
+
+export type listAdminUsersResponse200 = {
+  data: AdminUserPage;
+  status: 200;
+};
+
+export type listAdminUsersResponse401 = {
+  data: Problem;
+  status: 401;
+};
+
+export type listAdminUsersResponse403 = {
+  data: Problem;
+  status: 403;
+};
+
+export type listAdminUsersResponseSuccess = listAdminUsersResponse200 & {
+  headers: Headers;
+};
+export type listAdminUsersResponseError = (
+  | listAdminUsersResponse401
+  | listAdminUsersResponse403
+) & {
+  headers: Headers;
+};
+
+export type listAdminUsersResponse = listAdminUsersResponseSuccess | listAdminUsersResponseError;
+
+export const getListAdminUsersUrl = (params?: ListAdminUsersParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : String(value));
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/v1/admin/users?${stringifiedParams}`
+    : `/api/v1/admin/users`;
+};
+
+/**
+ * Search and cursor-page through safe User identity and role metadata. Requires users.view.
+ */
+export const listAdminUsers = async (
+  params?: ListAdminUsersParams,
+  options?: Parameters<typeof apiFetch>[1],
+): Promise<listAdminUsersResponse> => {
+  return apiFetch<listAdminUsersResponse>(getListAdminUsersUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListAdminUsersQueryKey = (params?: ListAdminUsersParams) => {
+  return [`/api/v1/admin/users`, ...(params ? [params] : [])] as const;
+};
+
+export const getListAdminUsersQueryOptions = <
+  TData = Awaited<ReturnType<typeof listAdminUsers>>,
+  TError = Problem,
+>(
+  params?: ListAdminUsersParams,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof listAdminUsers>>, TError, TData>>;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListAdminUsersQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listAdminUsers>>> = ({ signal }) =>
+    listAdminUsers(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listAdminUsers>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type ListAdminUsersQueryResult = NonNullable<Awaited<ReturnType<typeof listAdminUsers>>>;
+export type ListAdminUsersQueryError = Problem;
+
+export function useListAdminUsers<
+  TData = Awaited<ReturnType<typeof listAdminUsers>>,
+  TError = Problem,
+>(
+  params: undefined | ListAdminUsersParams,
+  options: {
+    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof listAdminUsers>>, TError, TData>> &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listAdminUsers>>,
+          TError,
+          Awaited<ReturnType<typeof listAdminUsers>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useListAdminUsers<
+  TData = Awaited<ReturnType<typeof listAdminUsers>>,
+  TError = Problem,
+>(
+  params?: ListAdminUsersParams,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof listAdminUsers>>, TError, TData>> &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listAdminUsers>>,
+          TError,
+          Awaited<ReturnType<typeof listAdminUsers>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useListAdminUsers<
+  TData = Awaited<ReturnType<typeof listAdminUsers>>,
+  TError = Problem,
+>(
+  params?: ListAdminUsersParams,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof listAdminUsers>>, TError, TData>>;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+export function useListAdminUsers<
+  TData = Awaited<ReturnType<typeof listAdminUsers>>,
+  TError = Problem,
+>(
+  params?: ListAdminUsersParams,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof listAdminUsers>>, TError, TData>>;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getListAdminUsersQueryOptions(params, options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+export type updateAdminUserRoleResponse200 = {
+  data: AdminUser;
+  status: 200;
+};
+
+export type updateAdminUserRoleResponse401 = {
+  data: Problem;
+  status: 401;
+};
+
+export type updateAdminUserRoleResponse403 = {
+  data: Problem;
+  status: 403;
+};
+
+export type updateAdminUserRoleResponse404 = {
+  data: Problem;
+  status: 404;
+};
+
+export type updateAdminUserRoleResponse409 = {
+  data: UpdateAdminUserRole409;
+  status: 409;
+};
+
+export type updateAdminUserRoleResponse422 = {
+  data: ValidationProblem;
+  status: 422;
+};
+
+export type updateAdminUserRoleResponseSuccess = updateAdminUserRoleResponse200 & {
+  headers: Headers;
+};
+export type updateAdminUserRoleResponseError = (
+  | updateAdminUserRoleResponse401
+  | updateAdminUserRoleResponse403
+  | updateAdminUserRoleResponse404
+  | updateAdminUserRoleResponse409
+  | updateAdminUserRoleResponse422
+) & {
+  headers: Headers;
+};
+
+export type updateAdminUserRoleResponse =
+  | updateAdminUserRoleResponseSuccess
+  | updateAdminUserRoleResponseError;
+
+export const getUpdateAdminUserRoleUrl = (id: string) => {
+  return `/api/v1/admin/users/${id}/role`;
+};
+
+/**
+ * Replace another User's canonical role. Requires users.manage.
+ */
+export const updateAdminUserRole = async (
+  id: string,
+  updateAdminUserRoleRequest: UpdateAdminUserRoleRequest,
+  options?: Parameters<typeof apiFetch>[1],
+): Promise<updateAdminUserRoleResponse> => {
+  return apiFetch<updateAdminUserRoleResponse>(getUpdateAdminUserRoleUrl(id), {
+    ...options,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(updateAdminUserRoleRequest),
+  });
+};
+
+export const getUpdateAdminUserRoleMutationOptions = <
+  TError = Problem | UpdateAdminUserRole409 | ValidationProblem,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateAdminUserRole>>,
+    TError,
+    { id: string; data: UpdateAdminUserRoleRequest },
+    TContext
+  >;
+  request?: SecondParameter<typeof apiFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateAdminUserRole>>,
+  TError,
+  { id: string; data: UpdateAdminUserRoleRequest },
+  TContext
+> => {
+  const mutationKey = ["updateAdminUserRole"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && "mutationKey" in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateAdminUserRole>>,
+    { id: string; data: UpdateAdminUserRoleRequest }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return updateAdminUserRole(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateAdminUserRoleMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateAdminUserRole>>
+>;
+export type UpdateAdminUserRoleMutationBody = UpdateAdminUserRoleRequest;
+export type UpdateAdminUserRoleMutationError = Problem | UpdateAdminUserRole409 | ValidationProblem;
+
+export const useUpdateAdminUserRole = <
+  TError = Problem | UpdateAdminUserRole409 | ValidationProblem,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof updateAdminUserRole>>,
+      TError,
+      { id: string; data: UpdateAdminUserRoleRequest },
+      TContext
+    >;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof updateAdminUserRole>>,
+  TError,
+  { id: string; data: UpdateAdminUserRoleRequest },
+  TContext
+> => {
+  return useMutation(getUpdateAdminUserRoleMutationOptions(options), queryClient);
 };
 
 export type resendEmailVerificationResponse202 = {

@@ -19,7 +19,7 @@ The application consumes these versioned routes:
 
 Registration is controlled by `FEATURE_REGISTRATION`. A newly registered User receives the `member` role and must verify their email before accessing Tasks or private channels.
 
-The `admin` and `member` roles and example permissions are persisted by an idempotent seeder and returned by `/api/v1/me`. They provide an authorization foundation. Current Task access is enforced by ownership Policy; no product operation is gated by role or permission yet.
+The `admin` and `member` roles are persisted by an idempotent seeder and returned by `/api/v1/me`. The `users.view` and `users.manage` permissions protect the versioned User administration API. Task access remains enforced by ownership Policy.
 
 The first admin is promoted explicitly:
 
@@ -27,6 +27,8 @@ The first admin is promoted explicitly:
 cd apps/api
 php artisan app:grant-admin user@example.com
 ```
+
+An authorized admin can search and cursor-page through User identity and role metadata, then promote or demote another User. Admins cannot change their own role or demote the Last admin. The API does not expose TOTP details or allow one User to delete another.
 
 ## Sessions and realtime
 

@@ -16,12 +16,16 @@ import {
   getGetTaskResponseMock,
   getGetTwoFactorQrCodeResponseMock,
   getGetTwoFactorSecretKeyResponseMock,
+  getListAdminUsersResponseMock,
   getListTasksResponseMock,
   getLoginResponseMock,
   getResetPasswordResponseMock,
+  getUpdateAdminUserRoleResponseMock,
 } from "./endpoints.faker";
 
 import type {
+  AdminUser,
+  AdminUserPage,
   GetTwoFactorSecretKey200,
   LoginResult,
   Me,
@@ -33,6 +37,8 @@ import type {
 } from "./models";
 
 export {
+  getListAdminUsersResponseMock,
+  getUpdateAdminUserRoleResponseMock,
   getForgotPasswordResponseMock,
   getLoginResponseMock,
   getResetPasswordResponseMock,
@@ -45,6 +51,52 @@ export {
   getListTasksResponseMock,
   getGetTaskResponseMock,
 } from "./endpoints.faker";
+
+export const getListAdminUsersMockHandler = (
+  overrideResponse?:
+    | AdminUserPage
+    | ((
+        info: Parameters<Parameters<typeof http.get>[1]>[0],
+      ) => Promise<AdminUserPage> | AdminUserPage),
+  options?: RequestHandlerOptions,
+) => {
+  return http.get(
+    "*/api/v1/admin/users",
+    async (info: Parameters<Parameters<typeof http.get>[1]>[0]) => {
+      return HttpResponse.json(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getListAdminUsersResponseMock(),
+        { status: 200 },
+      );
+    },
+    options,
+  );
+};
+
+export const getUpdateAdminUserRoleMockHandler = (
+  overrideResponse?:
+    | AdminUser
+    | ((info: Parameters<Parameters<typeof http.patch>[1]>[0]) => Promise<AdminUser> | AdminUser),
+  options?: RequestHandlerOptions,
+) => {
+  return http.patch(
+    "*/api/v1/admin/users/:id/role",
+    async (info: Parameters<Parameters<typeof http.patch>[1]>[0]) => {
+      return HttpResponse.json(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getUpdateAdminUserRoleResponseMock(),
+        { status: 200 },
+      );
+    },
+    options,
+  );
+};
 
 export const getResendEmailVerificationMockHandler = (
   overrideResponse?:
@@ -566,6 +618,8 @@ export const getGetCsrfCookieMockHandler = (
   );
 };
 export const getVinextAIStarterAPIMock = () => [
+  getListAdminUsersMockHandler(),
+  getUpdateAdminUserRoleMockHandler(),
   getResendEmailVerificationMockHandler(),
   getVerifyEmailMockHandler(),
   getForgotPasswordMockHandler(),

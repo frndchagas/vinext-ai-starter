@@ -303,6 +303,62 @@ namespace Identity {
   } | UnauthorizedResponse;
 }
 
+union AdminUserRole {
+  "member",
+  "admin",
+}
+
+model AdminUser {
+  @doc("Opaque identifier. Clients must not infer meaning from its value.")
+  id: string;
+
+  name: string;
+  email: string;
+  email_verified: boolean;
+  roles: AdminUserRole[];
+  created_at: utcDateTime;
+}
+
+model AdminUserPage {
+  data: AdminUser[];
+  meta: {
+    next_cursor: string | null;
+    prev_cursor: string | null;
+  };
+}
+
+model UpdateAdminUserRoleRequest {
+  role: AdminUserRole;
+}
+
+@tag("Administration")
+@route("/api/v1/admin/users")
+namespace Administration {
+  @operationId("listAdminUsers")
+  @doc("Search and cursor-page through safe User identity and role metadata. Requires users.view.")
+  @get
+  op listAdminUsers(
+    @query search?: string,
+    @query cursor?: string,
+    @query per_page?: int32,
+  ): {
+    @statusCode statusCode: 200;
+    @body body: AdminUserPage;
+  } | UnauthorizedResponse | ForbiddenResponse;
+
+  @operationId("updateAdminUserRole")
+  @doc("Replace another User's canonical role. Requires users.manage.")
+  @route("/{id}/role")
+  @patch
+  op updateAdminUserRole(
+    @path id: string,
+    @body body: UpdateAdminUserRoleRequest,
+  ): {
+    @statusCode statusCode: 200;
+    @body body: AdminUser;
+  } | ConflictResponse | ValidationErrorResponse | UnauthorizedResponse | ForbiddenResponse | NotFoundResponse;
+}
+
 @tag("Infrastructure")
 namespace Infrastructure {
   @operationId("getCsrfCookie")

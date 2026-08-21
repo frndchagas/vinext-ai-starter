@@ -6,8 +6,10 @@
  */
 import { faker } from "@faker-js/faker";
 
-import { TaskState } from "./models";
+import { AdminUserRole, TaskState } from "./models";
 import type {
+  AdminUser,
+  AdminUserPage,
   GetTwoFactorSecretKey200,
   LoginResult,
   Me,
@@ -17,6 +19,42 @@ import type {
   TaskPage,
   TwoFactorQrCode,
 } from "./models";
+
+export const getListAdminUsersResponseMock = (
+  overrideResponse: Partial<Extract<AdminUserPage, object>> = {},
+): AdminUserPage => ({
+  data: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
+    id: faker.string.alpha({ length: { min: 10, max: 20 } }),
+    name: faker.string.alpha({ length: { min: 10, max: 20 } }),
+    email: faker.string.alpha({ length: { min: 10, max: 20 } }),
+    email_verified: faker.datatype.boolean(),
+    roles: faker.helpers.arrayElements(Object.values(AdminUserRole)),
+    created_at: faker.date.past().toISOString().slice(0, 19) + "Z",
+  })),
+  meta: {
+    next_cursor: faker.helpers.arrayElement([
+      faker.string.alpha({ length: { min: 10, max: 20 } }),
+      null,
+    ]),
+    prev_cursor: faker.helpers.arrayElement([
+      faker.string.alpha({ length: { min: 10, max: 20 } }),
+      null,
+    ]),
+  },
+  ...overrideResponse,
+});
+
+export const getUpdateAdminUserRoleResponseMock = (
+  overrideResponse: Partial<Extract<AdminUser, object>> = {},
+): AdminUser => ({
+  id: faker.string.alpha({ length: { min: 10, max: 20 } }),
+  name: faker.string.alpha({ length: { min: 10, max: 20 } }),
+  email: faker.string.alpha({ length: { min: 10, max: 20 } }),
+  email_verified: faker.datatype.boolean(),
+  roles: faker.helpers.arrayElements(Object.values(AdminUserRole)),
+  created_at: faker.date.past().toISOString().slice(0, 19) + "Z",
+  ...overrideResponse,
+});
 
 export const getForgotPasswordResponseMock = (
   overrideResponse: Partial<Extract<StatusMessage, object>> = {},
