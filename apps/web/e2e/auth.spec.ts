@@ -128,9 +128,10 @@ test("update account settings and complete the two-factor recovery flow", async 
   await twoFactorSection.getByLabel("Current password").fill(newPassword);
   await twoFactorSection.getByRole("button", { name: "Enable two-factor authentication" }).click();
 
-  const secret = await twoFactorSection.locator("code").textContent();
-  expect(secret).toBeTruthy();
-  await twoFactorSection.getByLabel("Authentication code").fill(generateTotp(secret!));
+  const secretElement = twoFactorSection.getByTestId("two-factor-secret");
+  await expect(secretElement).toHaveText(/^[A-Z2-7]{16,}$/);
+  const secret = await secretElement.innerText();
+  await twoFactorSection.getByLabel("Authentication code").fill(generateTotp(secret));
   await twoFactorSection.getByRole("button", { name: "Confirm setup" }).click();
 
   await expect(twoFactorSection.getByText("Active", { exact: true })).toBeVisible();

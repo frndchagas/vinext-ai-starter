@@ -371,7 +371,10 @@ export default function SettingsPage() {
               <p className="text-sm text-pretty text-muted-foreground">
                 Scan the QR code, or enter this key manually:
               </p>
-              <code className="mt-2 block rounded-lg bg-muted p-3 text-sm break-all">
+              <code
+                className="mt-2 block rounded-lg bg-muted p-3 text-sm break-all"
+                data-testid="two-factor-secret"
+              >
                 {secret ?? "Loading…"}
               </code>
               <form className="mt-4 flex max-w-xs flex-col gap-3" onSubmit={confirmTwoFactor}>

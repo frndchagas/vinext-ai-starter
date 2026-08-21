@@ -200,10 +200,7 @@ try {
   replace("scripts/template-smoke.sh", [["apps/api/database/migrations", "database/migrations"]]);
   replace("scripts/production-smoke.sh", [["apps/api/database/migrations", "database/migrations"]]);
 
-  rmSync(join(outputRoot, ".github/workflows"), { recursive: true, force: true });
-  if (existsSync(join(outputRoot, ".github/dependabot.yml"))) {
-    replace(".github/dependabot.yml", [["/apps/api", "/"]]);
-  }
+  rmSync(join(outputRoot, ".github"), { recursive: true, force: true });
 
   for (const path of ["AGENTS.md", "CONTRIBUTING.md", "README.md"]) {
     rewriteMarkdown(path);
