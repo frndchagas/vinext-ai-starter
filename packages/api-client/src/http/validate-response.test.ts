@@ -40,4 +40,35 @@ describe("validateContractResponse", () => {
       /getMe returned undocumented status 418/,
     );
   });
+
+  it("validates every field in a validation error map", () => {
+    expect(() =>
+      validateContractResponse("POST", "/api/v1/auth/register", 422, {
+        type: "about:blank",
+        title: "Unprocessable Content",
+        status: 422,
+        errors: { email: "not-an-array" },
+      }),
+    ).toThrow(/register returned an invalid 422 response.*errors.email/);
+
+    expect(() =>
+      validateContractResponse("POST", "/api/v1/auth/register", 422, {
+        type: "about:blank",
+        title: "Unprocessable Content",
+        status: 422,
+        errors: { email: ["The email field is invalid."] },
+      }),
+    ).not.toThrow();
+  });
+
+  it("accepts a documented rate-limit response", () => {
+    expect(() =>
+      validateContractResponse("POST", "/api/v1/auth/login", 429, {
+        type: "about:blank",
+        title: "Too Many Requests",
+        status: 429,
+        detail: "Too Many Attempts.",
+      }),
+    ).not.toThrow();
+  });
 });

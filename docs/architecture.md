@@ -24,7 +24,7 @@ Production builds separate images for Caddy, Vinext, Nginx and PHP-FPM. The PHP 
 
 - TypeSpec is the source for application HTTP consumed through the generated client.
 - AsyncAPI generates frontend message types and PHP conformance metadata from the same payload schema.
-- Sanctum CSRF and Echo broadcasting authorization are protocol infrastructure, not generated-client operations.
+- Sanctum CSRF and Echo broadcasting authorization remain protocol infrastructure. The session fetcher invokes the contracted CSRF endpoint, while Echo owns broadcasting authorization.
 - PostgreSQL state wins over any realtime notification.
 - Roles and permissions are stored and exposed, but the current Task authorization rule is ownership, not role membership.
 

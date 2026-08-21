@@ -126,6 +126,20 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/UpdateAdminUserRoleRequest'
+  /api/v1/auth/capabilities:
+    get:
+      operationId: getAuthCapabilities
+      description: Public authentication capabilities controlled by Laravel deployment configuration.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthCapabilities'
+      tags:
+        - Auth
   /api/v1/auth/email/verification-notification:
     post:
       operationId: resendEmailVerification
@@ -136,6 +150,17 @@ paths:
           description: The request has been accepted for processing, but processing has not yet completed.
         '401':
           description: Access is unauthorized.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '429':
+          description: Client error
+          headers:
+            Retry-After:
+              required: false
+              schema:
+                type: string
           content:
             application/problem+json:
               schema:
@@ -190,6 +215,17 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+        '429':
+          description: Client error
+          headers:
+            Retry-After:
+              required: false
+              schema:
+                type: string
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
       tags:
         - Auth
   /api/v1/auth/forgot-password:
@@ -239,6 +275,17 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/ValidationProblem'
+        '429':
+          description: Client error
+          headers:
+            Retry-After:
+              required: false
+              schema:
+                type: string
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
       tags:
         - Auth
       requestBody:
@@ -282,6 +329,17 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/ValidationProblem'
+        '429':
+          description: Client error
+          headers:
+            Retry-After:
+              required: false
+              schema:
+                type: string
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
       tags:
         - Auth
       requestBody:
@@ -342,6 +400,17 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/ValidationProblem'
+        '429':
+          description: Client error
+          headers:
+            Retry-After:
+              required: false
+              schema:
+                type: string
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
       tags:
         - Auth
       requestBody:
@@ -364,6 +433,29 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+        '409':
+          description: The request conflicts with the current state of the server.
+          content:
+            application/problem+json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                  title:
+                    type: string
+                  status:
+                    type: integer
+                    format: int32
+                  detail:
+                    type: string
+                  code:
+                    type: string
+                required:
+                  - type
+                  - title
+                  - status
+                  - code
         '422':
           description: Client error
           content:
@@ -902,6 +994,13 @@ components:
       enum:
         - member
         - admin
+    AuthCapabilities:
+      type: object
+      required:
+        - registration
+      properties:
+        registration:
+          type: boolean
     CreateTaskRequest:
       type: object
       required:

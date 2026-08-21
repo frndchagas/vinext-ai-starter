@@ -11,7 +11,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { formValue } from "@/lib/form";
-import { validationErrors } from "@/lib/problem";
+import { problemDetail, validationErrors } from "@/lib/problem";
 
 export default function TwoFactorChallengePage() {
   const router = useRouter();
@@ -20,6 +20,10 @@ export default function TwoFactorChallengePage() {
   const [useRecoveryCode, setUseRecoveryCode] = useState(false);
   const errors =
     challengeMutation.data?.status === 422 ? validationErrors(challengeMutation.data.data) : {};
+  const rateLimitMessage =
+    challengeMutation.data?.status === 429
+      ? problemDetail(challengeMutation.data.data, "Too many attempts. Try again shortly.")
+      : undefined;
 
   function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -53,6 +57,12 @@ export default function TwoFactorChallengePage() {
             : "Enter the current code from your authenticator application."}
         </p>
       </div>
+
+      {rateLimitMessage ? (
+        <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          {rateLimitMessage}
+        </p>
+      ) : null}
 
       {useRecoveryCode ? (
         <Field

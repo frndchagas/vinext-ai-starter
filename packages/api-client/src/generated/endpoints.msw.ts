@@ -10,6 +10,7 @@ import type { RequestHandlerOptions } from "msw";
 import {
   getCreateTaskResponseMock,
   getForgotPasswordResponseMock,
+  getGetAuthCapabilitiesResponseMock,
   getGetMeResponseMock,
   getGetPasswordConfirmationStatusResponseMock,
   getGetRecoveryCodesResponseMock,
@@ -26,6 +27,7 @@ import {
 import type {
   AdminUser,
   AdminUserPage,
+  AuthCapabilities,
   GetTwoFactorSecretKey200,
   LoginResult,
   Me,
@@ -39,6 +41,7 @@ import type {
 export {
   getListAdminUsersResponseMock,
   getUpdateAdminUserRoleResponseMock,
+  getGetAuthCapabilitiesResponseMock,
   getForgotPasswordResponseMock,
   getLoginResponseMock,
   getResetPasswordResponseMock,
@@ -91,6 +94,30 @@ export const getUpdateAdminUserRoleMockHandler = (
             ? await overrideResponse(info)
             : overrideResponse
           : getUpdateAdminUserRoleResponseMock(),
+        { status: 200 },
+      );
+    },
+    options,
+  );
+};
+
+export const getGetAuthCapabilitiesMockHandler = (
+  overrideResponse?:
+    | AuthCapabilities
+    | ((
+        info: Parameters<Parameters<typeof http.get>[1]>[0],
+      ) => Promise<AuthCapabilities> | AuthCapabilities),
+  options?: RequestHandlerOptions,
+) => {
+  return http.get(
+    "*/api/v1/auth/capabilities",
+    async (info: Parameters<Parameters<typeof http.get>[1]>[0]) => {
+      return HttpResponse.json(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getGetAuthCapabilitiesResponseMock(),
         { status: 200 },
       );
     },
@@ -620,6 +647,7 @@ export const getGetCsrfCookieMockHandler = (
 export const getVinextLaravelStarterAPIMock = () => [
   getListAdminUsersMockHandler(),
   getUpdateAdminUserRoleMockHandler(),
+  getGetAuthCapabilitiesMockHandler(),
   getResendEmailVerificationMockHandler(),
   getVerifyEmailMockHandler(),
   getForgotPasswordMockHandler(),
