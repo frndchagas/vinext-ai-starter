@@ -21,7 +21,7 @@ RUN CGO_ENABLED=0 go build \
     -o /usr/bin/caddy \
     .
 
-FROM alpine:3.23.5
+FROM alpine:3.24.1
 
 COPY infra/docker/proxy/Caddyfile /etc/caddy/Caddyfile
 
