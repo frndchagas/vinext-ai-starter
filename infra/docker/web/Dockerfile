@@ -18,7 +18,7 @@ ENV NEXT_PUBLIC_REVERB_APP_KEY=$NEXT_PUBLIC_REVERB_APP_KEY
 
 RUN bun run --filter web build
 
-FROM node:24.13.0-alpine3.23 AS runtime
+FROM node:26.7.0-alpine3.23 AS runtime
 
 RUN apk upgrade --no-cache \
     && rm -r \
