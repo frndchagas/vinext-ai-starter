@@ -111,10 +111,11 @@ export function AuthenticatedShell({ children }: { children: ReactNode }) {
                     aria-current={active ? "page" : undefined}
                     className={cn(
                       "rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
-                      active && "bg-muted text-foreground",
+                      active && "bg-muted",
                     )}
                     href={item.href}
                     key={item.href}
+                    style={active ? { color: "#000000" } : undefined}
                   >
                     {item.label}
                   </Link>
