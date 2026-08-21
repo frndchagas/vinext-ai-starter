@@ -38,4 +38,4 @@ The production reference is a regular Docker Compose deployment. It is health ch
 
 ## Positioning
 
-This project is a Laravel and Vinext foundation for coding agents. "AI-first" refers to discoverable instructions, executable contracts and objective gates. It does not mean the starter contains product-specific AI behavior.
+This project is a Laravel and Vinext foundation for coding agents. Agent-ready means discoverable instructions, executable contracts and objective gates; it does not imply product-specific AI behavior.

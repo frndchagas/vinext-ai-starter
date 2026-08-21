@@ -39,23 +39,23 @@ trap cleanup EXIT INT TERM
 
 docker build \
     --file infra/docker/api/Dockerfile \
-    --tag "vinext-ai-starter-api:$image_tag" \
+    --tag "vinext-laravel-starter-api:$image_tag" \
     .
 
 docker build \
     --file infra/docker/api-nginx/Dockerfile \
-    --tag "vinext-ai-starter-api-nginx:$image_tag" \
+    --tag "vinext-laravel-starter-api-nginx:$image_tag" \
     .
 
 docker build \
     --file infra/docker/proxy/Dockerfile \
-    --tag "vinext-ai-starter-proxy:$image_tag" \
+    --tag "vinext-laravel-starter-proxy:$image_tag" \
     .
 
 docker build \
     --build-arg "NEXT_PUBLIC_REVERB_APP_KEY=$REVERB_APP_KEY" \
     --file infra/docker/web/Dockerfile \
-    --tag "vinext-ai-starter-web:$image_tag" \
+    --tag "vinext-laravel-starter-web:$image_tag" \
     .
 
 "${compose[@]}" up --detach --no-build --wait

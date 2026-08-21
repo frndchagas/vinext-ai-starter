@@ -1,16 +1,16 @@
-name: vinext-ai-starter-production
+name: vinext-laravel-starter-production
 
 x-api-image: &api-image
   build:
     context: .
     dockerfile: infra/docker/api/Dockerfile
-  image: vinext-ai-starter-api:${IMAGE_TAG:-local}
+  image: vinext-laravel-starter-api:${IMAGE_TAG:-local}
 
 x-api-environment: &api-environment
   APP_DEBUG: "false"
   APP_ENV: production
   APP_KEY: ${APP_KEY:?Set APP_KEY}
-  APP_NAME: ${APP_NAME:-Vinext AI Starter}
+  APP_NAME: ${APP_NAME:-Vinext Laravel Starter}
   APP_URL: ${APP_URL:?Set APP_URL}
   BROADCAST_CONNECTION: reverb
   CACHE_STORE: redis
@@ -24,7 +24,7 @@ x-api-environment: &api-environment
   LOG_LEVEL: ${LOG_LEVEL:-info}
   MAIL_ENCRYPTION: ${MAIL_ENCRYPTION:-null}
   MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-hello@example.com}
-  MAIL_FROM_NAME: ${MAIL_FROM_NAME:-Vinext AI Starter}
+  MAIL_FROM_NAME: ${MAIL_FROM_NAME:-Vinext Laravel Starter}
   MAIL_HOST: ${MAIL_HOST:-localhost}
   MAIL_MAILER: ${MAIL_MAILER:-log}
   MAIL_PASSWORD: ${MAIL_PASSWORD:-null}
@@ -62,7 +62,7 @@ services:
     build:
       context: .
       dockerfile: infra/docker/proxy/Dockerfile
-    image: vinext-ai-starter-proxy:${IMAGE_TAG:-local}
+    image: vinext-laravel-starter-proxy:${IMAGE_TAG:-local}
     depends_on:
       api:
         condition: service_healthy
@@ -83,7 +83,7 @@ services:
       dockerfile: infra/docker/web/Dockerfile
       args:
         NEXT_PUBLIC_REVERB_APP_KEY: ${REVERB_APP_KEY:?Set REVERB_APP_KEY}
-    image: vinext-ai-starter-web:${IMAGE_TAG:-local}
+    image: vinext-laravel-starter-web:${IMAGE_TAG:-local}
     environment:
       HOST: 0.0.0.0
       NODE_ENV: production
@@ -99,7 +99,7 @@ services:
     build:
       context: .
       dockerfile: infra/docker/api-nginx/Dockerfile
-    image: vinext-ai-starter-api-nginx:${IMAGE_TAG:-local}
+    image: vinext-laravel-starter-api-nginx:${IMAGE_TAG:-local}
     depends_on:
       api-php:
         condition: service_healthy

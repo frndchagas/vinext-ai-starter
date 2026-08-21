@@ -16,7 +16,7 @@ import {
   useGetTwoFactorSecretKey,
   useUpdatePassword,
   useUpdateProfile,
-} from "@vinext-ai-starter/api-client";
+} from "@vinext-laravel-starter/api-client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 

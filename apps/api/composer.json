@@ -1,8 +1,8 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "vinext-ai-starter/api",
+    "name": "vinext-laravel-starter/api",
     "type": "project",
-    "description": "Laravel API for Vinext AI Starter for Laravel.",
+    "description": "Laravel API for Vinext Laravel Starter.",
     "keywords": ["laravel", "api", "starter"],
     "license": "MIT",
     "require": {

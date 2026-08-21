@@ -19,7 +19,7 @@ bun run bootstrap
 bun run dev
 ```
 
-`bootstrap` installs locked JavaScript and PHP dependencies, starts local infrastructure, creates the Laravel application key and runs every migration. It is safe to run again.
+`bootstrap` installs locked JavaScript and PHP dependencies, starts local infrastructure, creates the Laravel application key, runs every migration and synchronizes the canonical roles and permissions. It is safe to run again.
 
 Open these URLs after `dev` reports that Vinext and Laravel are ready:
 
