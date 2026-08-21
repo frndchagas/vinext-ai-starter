@@ -2,6 +2,7 @@ import { execFileSync } from "node:child_process";
 import { createHmac } from "node:crypto";
 import { fileURLToPath } from "node:url";
 
+import { AxeBuilder } from "@axe-core/playwright";
 import { expect, type Page } from "@playwright/test";
 
 const MAILPIT_URL = process.env.E2E_MAILPIT_URL ?? "http://localhost:18025";
@@ -67,6 +68,21 @@ export function grantAdmin(email: string): void {
     cwd: fileURLToPath(new URL("../../api/", import.meta.url)),
     stdio: "pipe",
   });
+}
+
+export async function expectNoAccessibilityViolations(page: Page): Promise<void> {
+  const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze();
+  const summary = results.violations.map((violation) => ({
+    help: violation.help,
+    impact: violation.impact,
+    nodes: violation.nodes.map((node) => ({
+      details: node.any.map((check) => check.message),
+      target: node.target,
+    })),
+    rule: violation.id,
+  }));
+
+  expect(summary, "Expected no WCAG A or AA violations").toEqual([]);
 }
 
 export function generateTotp(secret: string, now = Date.now()): string {

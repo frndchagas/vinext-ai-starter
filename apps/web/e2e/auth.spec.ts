@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 import {
+  expectNoAccessibilityViolations,
   findPasswordResetLink,
   findVerificationLink,
   generateTotp,
@@ -33,6 +34,7 @@ test("register, verify email, use the private channel, sign out and sign in agai
   await expect(page.getByText("Email verified")).toBeVisible();
   await expect(page.getByText("member")).toBeVisible();
   await expect(page.getByText(/Subscribed to users\./)).toBeVisible({ timeout: 15_000 });
+  await expectNoAccessibilityViolations(page);
 
   await page.getByRole("button", { name: "Sign out" }).click();
   await expect(page).toHaveURL(/\/login$/);
@@ -107,6 +109,8 @@ test("update account settings and complete the two-factor recovery flow", async 
   await expect(page.getByRole("button", { name: "Dark" })).toHaveAttribute("aria-pressed", "true");
   await page.getByRole("button", { name: "Light" }).click();
   await expect(page.locator("html")).not.toHaveClass(/dark/);
+  await expect(page.getByRole("button", { name: "Save profile" })).toBeEnabled();
+  await expectNoAccessibilityViolations(page);
 
   const profileSection = page.locator("section").filter({
     has: page.getByRole("heading", { name: "Profile" }),
