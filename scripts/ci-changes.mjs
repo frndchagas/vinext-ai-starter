@@ -12,13 +12,13 @@ const ALL_GATES = [
 
 const patterns = {
   integration: [
-    /^apps\/api\/(app|bootstrap|config|database|routes|tests)\//,
+    /^apps\/api\/(app|bootstrap|config|database|public|routes|tests)\//,
     /^apps\/api\/composer\.(json|lock)$/,
     /^contracts\//,
   ],
   e2e: [
     /^apps\/web\//,
-    /^apps\/api\/(app|bootstrap|config|database|routes)\//,
+    /^apps\/api\/(app|bootstrap|config|database|public|routes)\//,
     /^apps\/api\/composer\.(json|lock)$/,
     /^contracts\//,
     /^packages\/api-client\//,
@@ -27,6 +27,7 @@ const patterns = {
   ],
   template: [
     /^\.env\.example$/,
+    /^\.gitignore$/,
     /^apps\/api\/\.env\.example$/,
     /^apps\/api\/composer\.(json|lock)$/,
     /^compose\.yaml$/,
@@ -34,14 +35,21 @@ const patterns = {
     /^scripts\/template-smoke\.sh$/,
   ],
   distribution: [
+    /^\.dockerignore$/,
+    /^\.github\/dependabot\.yml$/,
+    /^\.gitignore$/,
+    /^apps\/api\/(\.env\.example|\.gitignore|AGENTS\.md)$/,
     /^apps\/api\/composer\.(json|lock)$/,
+    /^apps\/api\/public\//,
+    /^apps\/web\/e2e\/helpers\.ts$/,
     /^infra\/docker\//,
     /^scripts\/(build-distribution\.mjs|distribution-smoke\.sh|distribution\/)/,
   ],
   production: [
+    /^\.dockerignore$/,
     /^\.github\/dependabot\.yml$/,
     /^\.env\.production\.example$/,
-    /^apps\/api\/(app|bootstrap|config|database|routes)\//,
+    /^apps\/api\/(app|bootstrap|config|database|public|routes)\//,
     /^apps\/api\/composer\.(json|lock)$/,
     /^apps\/web\//,
     /^compose\.(production|coolify)(\.local)?\.yaml$/,
@@ -52,6 +60,7 @@ const patterns = {
   ],
   breaking: [/^contracts\/http\//],
   docker: [
+    /^\.dockerignore$/,
     /^\.github\/dependabot\.yml$/,
     /^\.env\.production\.example$/,
     /^compose\.(production|coolify)(\.local)?\.yaml$/,

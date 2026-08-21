@@ -72,6 +72,20 @@ jobs:
       - run: bun ci
       - run: composer install --working-dir apps/api --no-interaction --prefer-dist
 
+      - name: Lint workflows
+        run: >-
+          docker run --rm
+          --volume "$PWD:/repo"
+          --workdir /repo
+          rhysd/actionlint:1.7.12@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667
+          -color
+          .github/workflows/ci.yml
+          .github/workflows/publish-distribution.yml
+          scripts/distribution/ci.yml
+
+      - name: Lint shell scripts
+        run: shellcheck --severity=warning scripts/*.sh
+
       - name: Dependency audit
         run: bun run audit
 
@@ -340,6 +354,40 @@ jobs:
           ignore-unfixed: true
           exit-code: "1"
           vuln-type: os,library
+          skip-setup-trivy: true
+
+      - name: Scan Redis image
+        if: needs.changes.outputs.docker == 'true'
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: vinext-laravel-starter-redis:smoke-${{ github.run_id }}-${{ github.run_attempt }}
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "1"
+          vuln-type: os,library
+          skip-setup-trivy: true
+
+      - name: Scan PostgreSQL OS packages
+        if: needs.changes.outputs.docker == 'true'
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: vinext-laravel-starter-postgres:smoke-${{ github.run_id }}-${{ github.run_attempt }}
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "1"
+          vuln-type: os
+          skip-setup-trivy: true
+
+      - name: Report PostgreSQL bundled binary findings
+        if: needs.changes.outputs.docker == 'true'
+        continue-on-error: true
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: vinext-laravel-starter-postgres:smoke-${{ github.run_id }}-${{ github.run_attempt }}
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "1"
+          vuln-type: library
           skip-setup-trivy: true
 
   gitleaks:

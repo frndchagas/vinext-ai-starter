@@ -68,6 +68,11 @@ docker build \
 
 "${compose[@]}" up --detach --no-build --wait
 
+postgres_image_id=$(docker inspect --format '{{.Image}}' "$("${compose[@]}" ps --quiet postgres)")
+redis_image_id=$(docker inspect --format '{{.Image}}' "$("${compose[@]}" ps --quiet redis)")
+docker tag "$postgres_image_id" "vinext-laravel-starter-postgres:$image_tag"
+docker tag "$redis_image_id" "vinext-laravel-starter-redis:$image_tag"
+
 curl --fail --silent --show-error --dump-header "$headers_file" "$APP_URL/" >/dev/null
 curl --fail --silent --show-error "$APP_URL/up" >/dev/null
 curl --fail --silent --show-error "$APP_URL/ready" >/dev/null
@@ -170,6 +175,12 @@ task_response=$(
 )
 
 task_id=$(php -r "\$data=json_decode(stream_get_contents(STDIN), true, flags: JSON_THROW_ON_ERROR); echo \$data['id'];" <<<"$task_response")
+
+if [[ ! "$task_id" =~ ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$ ]]; then
+    echo "Task API returned an invalid identifier: $task_id" >&2
+    exit 1
+fi
+
 task_completed=false
 
 for _ in {1..30}; do
@@ -215,6 +226,16 @@ restored_task_count=$(
         psql --username starter --dbname starter_restore --tuples-only --no-align \
         --command 'select count(*) from tasks;'
 )
+restored_task_state=$(
+    "${compose[@]}" exec -T postgres \
+        psql --username starter --dbname starter_restore --tuples-only --no-align \
+        --command "select state from tasks where id = '$task_id';"
+)
+restored_user_count=$(
+    "${compose[@]}" exec -T postgres \
+        psql --username starter --dbname starter_restore --tuples-only --no-align \
+        --command "select count(*) from users where email = 'smoke@example.invalid';"
+)
 
 if [[ "$restored_migrations" != "$applied_migrations" ]]; then
     echo "Restore has $restored_migrations migrations; expected $applied_migrations." >&2
@@ -223,6 +244,16 @@ fi
 
 if [[ "$restored_task_count" != "$source_task_count" ]]; then
     echo "Restore has $restored_task_count Tasks; expected $source_task_count." >&2
+    exit 1
+fi
+
+if [[ "$restored_task_state" != completed ]]; then
+    echo "Restored Task $task_id is $restored_task_state; expected completed." >&2
+    exit 1
+fi
+
+if [[ "$restored_user_count" != 1 ]]; then
+    echo "Restore did not preserve the smoke User." >&2
     exit 1
 fi
 
