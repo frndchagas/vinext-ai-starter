@@ -2,14 +2,14 @@
 
 ## Current behavior
 
-Laravel is the only identity source. Fortify handles registration, login, logout, password reset, email verification, profile settings, password changes and TOTP. Sanctum authenticates the first-party SPA with a session cookie and CSRF protection.
+Laravel is the only identity source. Fortify handles registration, login, logout, password reset, email verification, profile settings, password changes and TOTP. Sanctum authenticates the first-party SPA with a session cookie and CSRF protection. The interface also stores a per-browser appearance preference.
 
 The application consumes these versioned routes:
 
 - registration, login and logout;
 - forgot-password and reset-password;
 - signed email verification and verification resend;
-- profile, password confirmation and password update;
+- profile, password confirmation, password update and Account deletion;
 - TOTP setup, confirmation, recovery codes, disablement and login challenge;
 - `GET /api/v1/me` for the current User.
 
@@ -33,6 +33,12 @@ php artisan app:grant-admin user@example.com
 Echo authorizes every private subscription through the same Laravel session. Logout disconnects Echo. Reconnection requires fresh channel authorization and then refetches persisted state.
 
 Changing the account password invalidates the current Sanctum session. The interface returns the User to login with a confirmation message.
+
+Account deletion requires the current password. It permanently removes the User, active sessions, tokens, roles, Tasks, idempotency records and pending password-reset record. The interface returns to login after completion.
+
+## Appearance
+
+The interface supports system, light and dark appearance. The preference is stored in localStorage for the browser and in a cookie for server rendering. It is not persisted as User or domain state.
 
 ## Two-factor authentication
 

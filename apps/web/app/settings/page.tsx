@@ -3,6 +3,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import {
   confirmPassword,
+  deleteCurrentUser,
   disableTwoFactor,
   getGetMeQueryKey,
   getGetRecoveryCodesQueryKey,
@@ -20,6 +21,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
+import { AppearanceSelector } from "@/components/appearance-selector";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { PasswordActionDialog } from "@/components/ui/password-action-dialog";
@@ -199,6 +201,22 @@ export default function SettingsPage() {
     return undefined;
   }
 
+  async function deleteAccount(password: string): Promise<string | undefined> {
+    const response = await deleteCurrentUser({ password });
+
+    if (response.status === 204) {
+      queryClient.clear();
+      router.replace("/login?account_deleted=1");
+      return undefined;
+    }
+
+    if (response.status === 422) {
+      return validationErrors(response.data)["password"]?.[0] ?? "Check your password.";
+    }
+
+    return problemDetail(response.data, "The account could not be deleted.");
+  }
+
   if (me === undefined) {
     return (
       <main className="flex min-h-dvh items-center justify-center bg-background">
@@ -270,6 +288,18 @@ export default function SettingsPage() {
             ) : null}
           </div>
         </form>
+      </section>
+
+      <section aria-labelledby="appearance-heading" className="rounded-xl border border-border p-6">
+        <h2 id="appearance-heading" className="text-xl font-semibold text-balance">
+          Appearance
+        </h2>
+        <p className="mt-1 text-sm text-pretty text-muted-foreground">
+          Use the system preference or choose a theme for this browser.
+        </p>
+        <div className="mt-5">
+          <AppearanceSelector />
+        </div>
       </section>
 
       <section aria-labelledby="password-heading" className="rounded-xl border border-border p-6">
@@ -451,6 +481,32 @@ export default function SettingsPage() {
             </div>
           </div>
         ) : null}
+      </section>
+
+      <section
+        aria-labelledby="delete-account-heading"
+        className="rounded-xl border border-destructive/30 p-6"
+      >
+        <h2
+          id="delete-account-heading"
+          className="text-xl font-semibold text-balance text-destructive"
+        >
+          Delete account
+        </h2>
+        <p className="mt-1 max-w-xl text-sm text-pretty text-muted-foreground">
+          Permanently delete your identity, Tasks and account data. This action cannot be undone.
+        </p>
+        <div className="mt-5">
+          <PasswordActionDialog
+            destructive
+            actionLabel="Delete account"
+            description="Your identity, Tasks and account data will be permanently deleted. This cannot be undone."
+            onConfirm={deleteAccount}
+            passwordId="delete-account-password"
+            title="Delete your account?"
+            triggerLabel="Delete account"
+          />
+        </div>
       </section>
     </main>
   );

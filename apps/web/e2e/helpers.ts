@@ -57,6 +57,7 @@ export async function registerVerifiedUser(
   const verificationLink = await findVerificationLink(email);
   await page.goto(verificationLink);
   await expect(page).toHaveURL(/\/dashboard\?verified=1$/, { timeout: 20_000 });
+  await expect(page.getByRole("link", { name: "Settings" })).toBeVisible({ timeout: 20_000 });
 }
 
 export function generateTotp(secret: string, now = Date.now()): string {

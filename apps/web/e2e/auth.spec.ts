@@ -97,8 +97,15 @@ test("update account settings and complete the two-factor recovery flow", async 
   const newPassword = "settings-updated-password";
 
   await registerVerifiedUser(page, uniqueEmail, originalPassword);
-  await page.getByRole("link", { name: "Settings" }).click();
+  await page.goto("/settings");
   await expect(page).toHaveURL(/\/settings$/);
+
+  await page.getByRole("button", { name: "Dark" }).click();
+  await expect(page.locator("html")).toHaveClass(/dark/);
+  await page.reload();
+  await expect(page.getByRole("button", { name: "Dark" })).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: "Light" }).click();
+  await expect(page.locator("html")).not.toHaveClass(/dark/);
 
   const profileSection = page.locator("section").filter({
     has: page.getByRole("heading", { name: "Profile" }),
@@ -163,4 +170,28 @@ test("update account settings and complete the two-factor recovery flow", async 
   await disableDialog.getByLabel("Current password").fill(newPassword);
   await disableDialog.getByRole("button", { name: "Disable two-factor authentication" }).click();
   await expect(activeTwoFactorSection.getByText("Disabled", { exact: true })).toBeVisible();
+});
+
+test("permanently delete the current account", async ({ page }) => {
+  const uniqueEmail = `e2e-delete-${Date.now()}@example.com`;
+  const password = "delete-account-password";
+
+  await registerVerifiedUser(page, uniqueEmail, password);
+  await page.goto("/settings");
+  await page.getByRole("button", { name: "Delete account" }).click();
+
+  const dialog = page.getByRole("alertdialog");
+  await dialog.getByLabel("Current password").fill("wrong-password");
+  await dialog.getByRole("button", { name: "Delete account" }).click();
+  await expect(dialog.getByText("The password is incorrect.")).toBeVisible();
+
+  await dialog.getByLabel("Current password").fill(password);
+  await dialog.getByRole("button", { name: "Delete account" }).click();
+  await expect(page).toHaveURL(/\/login\?account_deleted=1$/);
+  await expect(page.getByText("Account deleted.")).toBeVisible();
+
+  await page.getByLabel("Email").fill(uniqueEmail);
+  await page.getByLabel("Password").fill(password);
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await expect(page.getByRole("alert")).toContainText(/credentials/i);
 });

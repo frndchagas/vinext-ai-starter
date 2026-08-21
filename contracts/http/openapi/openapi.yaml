@@ -232,6 +232,34 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/TwoFactorChallengeRequest'
+  /api/v1/auth/user:
+    delete:
+      operationId: deleteCurrentUser
+      description: Permanently delete the authenticated User and resources owned only by that identity.
+      parameters: []
+      responses:
+        '204':
+          description: There is no content to send for this request, but the headers may be useful.
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '422':
+          description: Client error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidationProblem'
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteCurrentUserRequest'
   /api/v1/auth/user/confirm-password:
     post:
       operationId: confirmPassword
@@ -709,6 +737,13 @@ components:
         input:
           type: string
           maxLength: 10000
+    DeleteCurrentUserRequest:
+      type: object
+      required:
+        - password
+      properties:
+        password:
+          type: string
     LoginRequest:
       type: object
       required:
