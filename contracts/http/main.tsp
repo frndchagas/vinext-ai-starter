@@ -4,8 +4,8 @@ import "@typespec/openapi";
 using Http;
 using OpenAPI;
 
-@service(#{ title: "Vinext AI Starter API" })
-namespace VinextAiStarter;
+@service(#{ title: "Vinext Laravel Starter API" })
+namespace VinextLaravelStarter;
 
 @doc("RFC 9457 problem details.")
 model Problem {

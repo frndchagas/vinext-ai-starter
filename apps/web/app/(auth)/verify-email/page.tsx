@@ -1,6 +1,10 @@
 "use client";
 
-import { useGetMe, useLogout, useResendEmailVerification } from "@vinext-ai-starter/api-client";
+import {
+  useGetMe,
+  useLogout,
+  useResendEmailVerification,
+} from "@vinext-laravel-starter/api-client";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 

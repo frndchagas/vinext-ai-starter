@@ -6,7 +6,7 @@ import {
   useCreateTask,
   useListTasks,
   type Task,
-} from "@vinext-ai-starter/api-client";
+} from "@vinext-laravel-starter/api-client";
 import { useEffect, useRef } from "react";
 
 import { Button } from "@/components/ui/button";

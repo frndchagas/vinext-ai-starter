@@ -1,5 +1,5 @@
 {
-  "name": "@vinext-ai-starter/realtime-contract",
+  "name": "@vinext-laravel-starter/realtime-contract",
   "version": "0.0.0",
   "private": true,
   "type": "module",

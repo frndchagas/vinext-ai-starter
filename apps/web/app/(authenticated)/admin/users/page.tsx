@@ -7,7 +7,7 @@ import {
   type AdminUserRole,
   useListAdminUsers,
   useUpdateAdminUserRole,
-} from "@vinext-ai-starter/api-client";
+} from "@vinext-laravel-starter/api-client";
 import { useState } from "react";
 
 import { useAuthenticatedUser } from "@/components/authenticated-shell";

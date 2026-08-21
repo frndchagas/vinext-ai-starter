@@ -22,7 +22,7 @@
         "@base-ui/react": "1.7.0",
         "@icons-pack/react-simple-icons": "13.15.1",
         "@tanstack/react-query": "5.101.4",
-        "@vinext-ai-starter/api-client": "workspace:*",
+        "@vinext-laravel-starter/api-client": "workspace:*",
         "class-variance-authority": "0.7.1",
         "clsx": "2.1.1",
         "laravel-echo": "2.4.0",
@@ -62,7 +62,7 @@
       },
     },
     "contracts/http": {
-      "name": "@vinext-ai-starter/http-contract",
+      "name": "@vinext-laravel-starter/http-contract",
       "version": "0.0.0",
       "devDependencies": {
         "@typespec/compiler": "1.15.0",
@@ -72,14 +72,14 @@
       },
     },
     "contracts/realtime": {
-      "name": "@vinext-ai-starter/realtime-contract",
+      "name": "@vinext-laravel-starter/realtime-contract",
       "version": "0.0.0",
       "devDependencies": {
         "@asyncapi/parser": "3.6.3",
       },
     },
     "packages/api-client": {
-      "name": "@vinext-ai-starter/api-client",
+      "name": "@vinext-laravel-starter/api-client",
       "version": "0.0.0",
       "dependencies": {
         "zod": "4.4.3",
@@ -717,11 +717,11 @@
 
     "@vercel/og": ["@vercel/og@0.8.6", "", { "dependencies": { "@resvg/resvg-wasm": "2.4.0", "satori": "0.16.0" } }, "sha512-hBcWIOppZV14bi+eAmCZj8Elj8hVSUZJTpf1lgGBhVD85pervzQ1poM/qYfFUlPraYSZYP+ASg6To5BwYmUSGQ=="],
 
-    "@vinext-ai-starter/api-client": ["@vinext-ai-starter/api-client@workspace:packages/api-client"],
+    "@vinext-laravel-starter/api-client": ["@vinext-laravel-starter/api-client@workspace:packages/api-client"],
 
-    "@vinext-ai-starter/http-contract": ["@vinext-ai-starter/http-contract@workspace:contracts/http"],
+    "@vinext-laravel-starter/http-contract": ["@vinext-laravel-starter/http-contract@workspace:contracts/http"],
 
-    "@vinext-ai-starter/realtime-contract": ["@vinext-ai-starter/realtime-contract@workspace:contracts/realtime"],
+    "@vinext-laravel-starter/realtime-contract": ["@vinext-laravel-starter/realtime-contract@workspace:contracts/realtime"],
 
     "@vinext/types": ["@vinext/types@1.0.0-beta.2", "", {}, "sha512-kbKY/H1RWlf7yox4G6Vwk1JeM6x0Tv1EAv28f3tDYkK3brq+89vp5eZHbdw3L/pZMbAhG4oFyhT9C976y+jkhQ=="],
 

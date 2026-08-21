@@ -1,7 +1,10 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { getGetMeQueryKey, useCompleteTwoFactorChallenge } from "@vinext-ai-starter/api-client";
+import {
+  getGetMeQueryKey,
+  useCompleteTwoFactorChallenge,
+} from "@vinext-laravel-starter/api-client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
