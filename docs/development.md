@@ -12,7 +12,7 @@ Laravel owns identity, authorization, persisted domain state, queues and broadca
 
 | Command | Purpose |
 | --- | --- |
-| `bun run bootstrap` | Install locked dependencies, start infrastructure and migrate |
+| `bun run bootstrap` | Install locked dependencies, start infrastructure, migrate and seed canonical roles |
 | `bun run dev` | Start Caddy dependencies plus Vinext, Laravel, Horizon and Reverb |
 | `bun run check` | Format check, lint, types, unit tests and Vinext build |
 | `bun run contracts:check` | Validate AsyncAPI and detect generated HTTP drift |

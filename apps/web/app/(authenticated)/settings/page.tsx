@@ -7,21 +7,21 @@ import {
   disableTwoFactor,
   getGetMeQueryKey,
   getGetRecoveryCodesQueryKey,
+  logout,
   regenerateRecoveryCodes,
   useConfirmTwoFactor,
   useEnableTwoFactor,
-  useGetMe,
   useGetRecoveryCodes,
   useGetTwoFactorQrCode,
   useGetTwoFactorSecretKey,
   useUpdatePassword,
   useUpdateProfile,
 } from "@vinext-ai-starter/api-client";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 import { AppearanceSelector } from "@/components/appearance-selector";
+import { useAuthenticatedUser } from "@/components/authenticated-shell";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { PasswordActionDialog } from "@/components/ui/password-action-dialog";
@@ -41,15 +41,14 @@ async function confirmCurrentPassword(password: string): Promise<string | undefi
 }
 
 export default function SettingsPage() {
+  const me = useAuthenticatedUser();
   const router = useRouter();
   const queryClient = useQueryClient();
   const hydrated = useHydrated();
-  const meQuery = useGetMe();
   const profileMutation = useUpdateProfile();
   const passwordMutation = useUpdatePassword();
   const enableMutation = useEnableTwoFactor();
   const confirmTwoFactorMutation = useConfirmTwoFactor();
-  const redirectingAfterPasswordUpdate = useRef(false);
   const [profileMessage, setProfileMessage] = useState<string>();
   const [twoFactorMessage, setTwoFactorMessage] = useState<string>();
   const [twoFactorPasswordError, setTwoFactorPasswordError] = useState<string>();
@@ -57,17 +56,10 @@ export default function SettingsPage() {
   const [showSetup, setShowSetup] = useState(false);
   const [showRecoveryCodes, setShowRecoveryCodes] = useState(false);
 
-  const me = meQuery.data?.status === 200 ? meQuery.data.data : undefined;
-  const setupActive = showSetup && me?.two_factor_confirmed !== true;
+  const setupActive = showSetup && !me.two_factor_confirmed;
   const qrQuery = useGetTwoFactorQrCode({ query: { enabled: setupActive } });
   const secretQuery = useGetTwoFactorSecretKey({ query: { enabled: setupActive } });
   const recoveryQuery = useGetRecoveryCodes({ query: { enabled: showRecoveryCodes } });
-
-  useEffect(() => {
-    if (meQuery.data?.status === 401 && !redirectingAfterPasswordUpdate.current) {
-      router.replace("/login");
-    }
-  }, [meQuery.data?.status, router]);
 
   async function startTwoFactorSetup(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -125,11 +117,11 @@ export default function SettingsPage() {
         },
       },
       {
-        onSuccess: (response) => {
+        onSuccess: async (response) => {
           if (response.status === 200) {
-            redirectingAfterPasswordUpdate.current = true;
+            await logout();
             queryClient.removeQueries({ queryKey: getGetMeQueryKey() });
-            router.replace("/login?password_updated=1");
+            window.location.assign("/login?password_updated=1");
           }
         },
       },
@@ -206,7 +198,7 @@ export default function SettingsPage() {
 
     if (response.status === 204) {
       queryClient.clear();
-      router.replace("/login?account_deleted=1");
+      window.location.assign("/login?account_deleted=1");
       return undefined;
     }
 
@@ -215,14 +207,6 @@ export default function SettingsPage() {
     }
 
     return problemDetail(response.data, "The account could not be deleted.");
-  }
-
-  if (me === undefined) {
-    return (
-      <main className="flex min-h-dvh items-center justify-center bg-background">
-        <output className="text-sm text-muted-foreground">Loading settings…</output>
-      </main>
-    );
   }
 
   const profileErrors =
@@ -238,17 +222,14 @@ export default function SettingsPage() {
   const recoveryCodes = recoveryQuery.data?.status === 200 ? recoveryQuery.data.data : undefined;
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col gap-8 bg-background px-6 py-12">
-      <header className="flex items-start justify-between gap-4 border-b border-border pb-6">
+    <>
+      <header className="border-b border-border pb-6">
         <div>
           <p className="text-sm text-muted-foreground">Account</p>
           <h1 className="mt-1 font-[family-name:var(--font-app-display)] text-4xl text-balance">
             Settings
           </h1>
         </div>
-        <Link href="/dashboard" className="text-sm text-primary hover:underline">
-          Back to dashboard
-        </Link>
       </header>
 
       <section aria-labelledby="profile-heading" className="rounded-xl border border-border p-6">
@@ -508,6 +489,6 @@ export default function SettingsPage() {
           />
         </div>
       </section>
-    </main>
+    </>
   );
 }

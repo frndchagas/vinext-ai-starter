@@ -36,7 +36,7 @@ See [Getting started](docs/getting-started.md) for the expected services, shutdo
 
 | Command | Purpose |
 | --- | --- |
-| `bun run bootstrap` | Install locked dependencies, start infrastructure and migrate |
+| `bun run bootstrap` | Install locked dependencies, start infrastructure, migrate and seed canonical roles |
 | `bun run dev` | Start Caddy dependencies, Vinext, Laravel, Horizon and Reverb |
 | `bun run check` | Format check, lint, types, unit tests and Vinext build |
 | `bun run contracts:check` | Validate AsyncAPI and detect generated HTTP drift |
