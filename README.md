@@ -1,10 +1,10 @@
 # Vinext Laravel Starter
 
-[![CI](https://github.com/frndchagas/vinext-ai-starter/actions/workflows/ci.yml/badge.svg)](https://github.com/frndchagas/vinext-ai-starter/actions/workflows/ci.yml)
+[![CI](https://github.com/frndchagas/vinext-laravel-starter/actions/workflows/ci.yml/badge.svg)](https://github.com/frndchagas/vinext-laravel-starter/actions/workflows/ci.yml)
 
 A Laravel and Vinext foundation for coding agents.
 
-[Live demo](https://vinext-ai-starter.dev-0.fortetecnologias.com.br) · [Deployment guide](docs/deployment.md)
+[Live demo](https://vinext-laravel-starter.dev-0.fortetecnologias.com.br) · [Deployment guide](docs/deployment.md)
 
 The starter provides same-origin sessions, profile and password settings, optional TOTP, explicit HTTP and realtime contracts, a generated TypeScript client, working role-based administration, Redis queues, Reverb and one idempotent asynchronous flow. It is designed for agent-assisted development, but does not bundle an AI provider.
 
@@ -15,8 +15,8 @@ Vinext is still in beta and the React Compiler integration is experimental. CI v
 Requirements: Bun 1.4+, Node.js 24+, PHP 8.3+, Composer 2.10, Docker Compose and Git.
 
 ```bash
-git clone https://github.com/frndchagas/vinext-ai-starter.git
-cd vinext-ai-starter
+git clone https://github.com/frndchagas/vinext-laravel-starter.git
+cd vinext-laravel-starter
 cp .env.example .env
 bun run bootstrap
 bun run dev
@@ -27,7 +27,7 @@ Open `http://localhost:13000`, register a User and use Mailpit at `http://localh
 Stable releases are also available through the Laravel installer:
 
 ```bash
-laravel new my-app --using=frndchagas/vinext-ai-starter --phpunit --bun --no-boost
+laravel new my-app --using=frndchagas/vinext-laravel-starter --phpunit --bun --no-boost
 ```
 
 See [Getting started](docs/getting-started.md) for the expected services, shutdown steps and first validation.

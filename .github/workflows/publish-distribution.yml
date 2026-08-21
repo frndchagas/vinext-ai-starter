@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   packagist:
-    if: github.repository == 'frndchagas/vinext-ai-starter' && github.event.release.prerelease == false
+    if: github.repository == 'frndchagas/vinext-laravel-starter' && github.event.release.prerelease == false
     environment: distribution
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -72,9 +72,9 @@ jobs:
           SOURCE_COMMIT: ${{ steps.source.outputs.commit }}
           SOURCE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          git clone git@github.com:frndchagas/vinext-ai-starter-distribution.git "$RUNNER_TEMP/repository"
+          git clone git@github.com:frndchagas/vinext-laravel-starter-distribution.git "$RUNNER_TEMP/repository"
           cd "$RUNNER_TEMP/repository"
-          git config user.name "vinext-ai-starter release"
+          git config user.name "vinext-laravel-starter release"
           git config user.email "actions@users.noreply.github.com"
 
           if git rev-parse --verify --quiet "refs/tags/${SOURCE_TAG}"; then

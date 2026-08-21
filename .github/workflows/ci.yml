@@ -218,8 +218,8 @@ jobs:
 
       - name: Start the development stack
         run: |
-          TASK_SIMULATED_DELAY_MS=1500 bun run dev > "$RUNNER_TEMP/vinext-ai-starter-dev.log" 2>&1 &
-          echo $! > "$RUNNER_TEMP/vinext-ai-starter-dev.pid"
+          TASK_SIMULATED_DELAY_MS=1500 bun run dev > "$RUNNER_TEMP/vinext-laravel-starter-dev.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/vinext-laravel-starter-dev.pid"
 
           for _ in {1..60}; do
             if curl --fail --silent http://127.0.0.1:13000/up > /dev/null; then
@@ -228,7 +228,7 @@ jobs:
             sleep 2
           done
 
-          sed -n '1,240p' "$RUNNER_TEMP/vinext-ai-starter-dev.log"
+          sed -n '1,240p' "$RUNNER_TEMP/vinext-laravel-starter-dev.log"
           exit 1
 
       - name: Browser flows
@@ -236,13 +236,13 @@ jobs:
 
       - name: Show development logs on failure
         if: failure()
-        run: sed -n '1,320p' "$RUNNER_TEMP/vinext-ai-starter-dev.log"
+        run: sed -n '1,320p' "$RUNNER_TEMP/vinext-laravel-starter-dev.log"
 
       - name: Stop the development stack
         if: always()
         run: |
-          if test -f "$RUNNER_TEMP/vinext-ai-starter-dev.pid"; then
-            xargs kill < "$RUNNER_TEMP/vinext-ai-starter-dev.pid" || true
+          if test -f "$RUNNER_TEMP/vinext-laravel-starter-dev.pid"; then
+            xargs kill < "$RUNNER_TEMP/vinext-laravel-starter-dev.pid" || true
           fi
           docker compose down
 

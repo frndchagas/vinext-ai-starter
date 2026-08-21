@@ -139,13 +139,13 @@ try {
   );
 
   const composer = JSON.parse(read("composer.json"));
-  composer.name = "frndchagas/vinext-ai-starter";
+  composer.name = "frndchagas/vinext-laravel-starter";
   composer.description = "Laravel and Vinext foundation for coding agents.";
   composer.keywords = ["laravel", "vinext", "react", "starter-kit", "bun"];
-  composer.homepage = "https://github.com/frndchagas/vinext-ai-starter";
+  composer.homepage = "https://github.com/frndchagas/vinext-laravel-starter";
   composer.support = {
-    issues: "https://github.com/frndchagas/vinext-ai-starter/issues",
-    source: "https://github.com/frndchagas/vinext-ai-starter",
+    issues: "https://github.com/frndchagas/vinext-laravel-starter/issues",
+    source: "https://github.com/frndchagas/vinext-laravel-starter",
   };
   composer.scripts.dev = [
     "Composer\\Config::disableProcessTimeout",

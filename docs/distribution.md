@@ -1,12 +1,12 @@
 # Distribution
 
-The GitHub template is the source repository. Stable releases also publish a generated Laravel-root repository to Packagist as `frndchagas/vinext-ai-starter`.
+The GitHub template is the source repository. Stable releases also publish a generated Laravel-root repository to Packagist as `frndchagas/vinext-laravel-starter`.
 
 That package keeps the legacy identifier until the coordinated v1 rename described in ADR 0012. The source tree already uses the Vinext Laravel Starter product name.
 
 ```bash
 laravel new my-app \
-  --using=frndchagas/vinext-ai-starter \
+  --using=frndchagas/vinext-laravel-starter \
   --phpunit \
   --bun \
   --no-boost
