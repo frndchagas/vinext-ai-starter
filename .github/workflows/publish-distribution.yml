@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   packagist:
-    if: github.event.release.prerelease == false
+    if: github.repository == 'frndchagas/vinext-ai-starter' && github.event.release.prerelease == false
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
