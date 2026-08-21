@@ -23,11 +23,13 @@ import type {
 import type {
   AdminUser,
   AdminUserPage,
+  AuthCapabilities,
   ConfirmPasswordBody,
   ConfirmTwoFactorBody,
   CreateTask409,
   CreateTaskHeaders,
   CreateTaskRequest,
+  DeleteCurrentUser409,
   DeleteCurrentUserRequest,
   ForgotPasswordBody,
   GetTwoFactorSecretKey200,
@@ -361,6 +363,137 @@ export const useUpdateAdminUserRole = <
   return useMutation(getUpdateAdminUserRoleMutationOptions(options), queryClient);
 };
 
+export type getAuthCapabilitiesResponse200 = {
+  data: AuthCapabilities;
+  status: 200;
+};
+
+export type getAuthCapabilitiesResponseSuccess = getAuthCapabilitiesResponse200 & {
+  headers: Headers;
+};
+
+export type getAuthCapabilitiesResponse = getAuthCapabilitiesResponseSuccess;
+
+export const getGetAuthCapabilitiesUrl = () => {
+  return `/api/v1/auth/capabilities`;
+};
+
+/**
+ * Public authentication capabilities controlled by Laravel deployment configuration.
+ */
+export const getAuthCapabilities = async (
+  options?: Parameters<typeof apiFetch>[1],
+): Promise<getAuthCapabilitiesResponse> => {
+  return apiFetch<getAuthCapabilitiesResponse>(getGetAuthCapabilitiesUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetAuthCapabilitiesQueryKey = () => {
+  return [`/api/v1/auth/capabilities`] as const;
+};
+
+export const getGetAuthCapabilitiesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getAuthCapabilities>>,
+  TError = unknown,
+>(options?: {
+  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getAuthCapabilities>>, TError, TData>>;
+  request?: SecondParameter<typeof apiFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetAuthCapabilitiesQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getAuthCapabilities>>> = ({ signal }) =>
+    getAuthCapabilities({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getAuthCapabilities>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetAuthCapabilitiesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getAuthCapabilities>>
+>;
+export type GetAuthCapabilitiesQueryError = unknown;
+
+export function useGetAuthCapabilities<
+  TData = Awaited<ReturnType<typeof getAuthCapabilities>>,
+  TError = unknown,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getAuthCapabilities>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAuthCapabilities>>,
+          TError,
+          Awaited<ReturnType<typeof getAuthCapabilities>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useGetAuthCapabilities<
+  TData = Awaited<ReturnType<typeof getAuthCapabilities>>,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getAuthCapabilities>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAuthCapabilities>>,
+          TError,
+          Awaited<ReturnType<typeof getAuthCapabilities>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useGetAuthCapabilities<
+  TData = Awaited<ReturnType<typeof getAuthCapabilities>>,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getAuthCapabilities>>, TError, TData>
+    >;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+export function useGetAuthCapabilities<
+  TData = Awaited<ReturnType<typeof getAuthCapabilities>>,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getAuthCapabilities>>, TError, TData>
+    >;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetAuthCapabilitiesQueryOptions(options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
 export type resendEmailVerificationResponse202 = {
   data: void;
   status: 202;
@@ -371,10 +504,18 @@ export type resendEmailVerificationResponse401 = {
   status: 401;
 };
 
+export type resendEmailVerificationResponse429 = {
+  data: Problem;
+  status: 429;
+};
+
 export type resendEmailVerificationResponseSuccess = resendEmailVerificationResponse202 & {
   headers: Headers;
 };
-export type resendEmailVerificationResponseError = resendEmailVerificationResponse401 & {
+export type resendEmailVerificationResponseError = (
+  | resendEmailVerificationResponse401
+  | resendEmailVerificationResponse429
+) & {
   headers: Headers;
 };
 
@@ -472,10 +613,16 @@ export type verifyEmailResponse403 = {
   data: Problem;
   status: 403;
 };
+
+export type verifyEmailResponse429 = {
+  data: Problem;
+  status: 429;
+};
 export type verifyEmailResponseError = (
   | verifyEmailResponse302
   | verifyEmailResponse401
   | verifyEmailResponse403
+  | verifyEmailResponse429
 ) & {
   headers: Headers;
 };
@@ -732,10 +879,15 @@ export type loginResponse422 = {
   status: 422;
 };
 
+export type loginResponse429 = {
+  data: Problem;
+  status: 429;
+};
+
 export type loginResponseSuccess = loginResponse200 & {
   headers: Headers;
 };
-export type loginResponseError = loginResponse422 & {
+export type loginResponseError = (loginResponse422 | loginResponse429) & {
   headers: Headers;
 };
 
@@ -757,7 +909,10 @@ export const login = async (
   });
 };
 
-export const getLoginMutationOptions = <TError = ValidationProblem, TContext = unknown>(options?: {
+export const getLoginMutationOptions = <
+  TError = ValidationProblem | Problem,
+  TContext = unknown,
+>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof login>>,
     TError,
@@ -791,9 +946,9 @@ export const getLoginMutationOptions = <TError = ValidationProblem, TContext = u
 
 export type LoginMutationResult = NonNullable<Awaited<ReturnType<typeof login>>>;
 export type LoginMutationBody = LoginRequest;
-export type LoginMutationError = ValidationProblem;
+export type LoginMutationError = ValidationProblem | Problem;
 
-export const useLogin = <TError = ValidationProblem, TContext = unknown>(
+export const useLogin = <TError = ValidationProblem | Problem, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof login>>,
@@ -890,10 +1045,19 @@ export type registerResponse422 = {
   status: 422;
 };
 
+export type registerResponse429 = {
+  data: Problem;
+  status: 429;
+};
+
 export type registerResponseSuccess = registerResponse201 & {
   headers: Headers;
 };
-export type registerResponseError = (registerResponse403 | registerResponse422) & {
+export type registerResponseError = (
+  | registerResponse403
+  | registerResponse422
+  | registerResponse429
+) & {
   headers: Headers;
 };
 
@@ -1083,10 +1247,18 @@ export type completeTwoFactorChallengeResponse422 = {
   status: 422;
 };
 
+export type completeTwoFactorChallengeResponse429 = {
+  data: Problem;
+  status: 429;
+};
+
 export type completeTwoFactorChallengeResponseSuccess = completeTwoFactorChallengeResponse204 & {
   headers: Headers;
 };
-export type completeTwoFactorChallengeResponseError = completeTwoFactorChallengeResponse422 & {
+export type completeTwoFactorChallengeResponseError = (
+  | completeTwoFactorChallengeResponse422
+  | completeTwoFactorChallengeResponse429
+) & {
   headers: Headers;
 };
 
@@ -1111,7 +1283,7 @@ export const completeTwoFactorChallenge = async (
 };
 
 export const getCompleteTwoFactorChallengeMutationOptions = <
-  TError = ValidationProblem,
+  TError = ValidationProblem | Problem,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -1150,9 +1322,12 @@ export type CompleteTwoFactorChallengeMutationResult = NonNullable<
   Awaited<ReturnType<typeof completeTwoFactorChallenge>>
 >;
 export type CompleteTwoFactorChallengeMutationBody = TwoFactorChallengeRequest;
-export type CompleteTwoFactorChallengeMutationError = ValidationProblem;
+export type CompleteTwoFactorChallengeMutationError = ValidationProblem | Problem;
 
-export const useCompleteTwoFactorChallenge = <TError = ValidationProblem, TContext = unknown>(
+export const useCompleteTwoFactorChallenge = <
+  TError = ValidationProblem | Problem,
+  TContext = unknown,
+>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof completeTwoFactorChallenge>>,
@@ -1182,6 +1357,11 @@ export type deleteCurrentUserResponse401 = {
   status: 401;
 };
 
+export type deleteCurrentUserResponse409 = {
+  data: DeleteCurrentUser409;
+  status: 409;
+};
+
 export type deleteCurrentUserResponse422 = {
   data: ValidationProblem;
   status: 422;
@@ -1192,6 +1372,7 @@ export type deleteCurrentUserResponseSuccess = deleteCurrentUserResponse204 & {
 };
 export type deleteCurrentUserResponseError = (
   | deleteCurrentUserResponse401
+  | deleteCurrentUserResponse409
   | deleteCurrentUserResponse422
 ) & {
   headers: Headers;
@@ -1221,7 +1402,7 @@ export const deleteCurrentUser = async (
 };
 
 export const getDeleteCurrentUserMutationOptions = <
-  TError = Problem | ValidationProblem,
+  TError = Problem | DeleteCurrentUser409 | ValidationProblem,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -1260,9 +1441,12 @@ export type DeleteCurrentUserMutationResult = NonNullable<
   Awaited<ReturnType<typeof deleteCurrentUser>>
 >;
 export type DeleteCurrentUserMutationBody = DeleteCurrentUserRequest;
-export type DeleteCurrentUserMutationError = Problem | ValidationProblem;
+export type DeleteCurrentUserMutationError = Problem | DeleteCurrentUser409 | ValidationProblem;
 
-export const useDeleteCurrentUser = <TError = Problem | ValidationProblem, TContext = unknown>(
+export const useDeleteCurrentUser = <
+  TError = Problem | DeleteCurrentUser409 | ValidationProblem,
+  TContext = unknown,
+>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof deleteCurrentUser>>,

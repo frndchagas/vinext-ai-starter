@@ -10,6 +10,7 @@ import { AdminUserRole, TaskState } from "./models";
 import type {
   AdminUser,
   AdminUserPage,
+  AuthCapabilities,
   GetTwoFactorSecretKey200,
   LoginResult,
   Me,
@@ -55,6 +56,10 @@ export const getUpdateAdminUserRoleResponseMock = (
   created_at: faker.date.past().toISOString().slice(0, 19) + "Z",
   ...overrideResponse,
 });
+
+export const getGetAuthCapabilitiesResponseMock = (
+  overrideResponse: Partial<Extract<AuthCapabilities, object>> = {},
+): AuthCapabilities => ({ registration: faker.datatype.boolean(), ...overrideResponse });
 
 export const getForgotPasswordResponseMock = (
   overrideResponse: Partial<Extract<StatusMessage, object>> = {},

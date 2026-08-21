@@ -9,6 +9,22 @@ import {
   registerVerifiedUser,
 } from "./helpers";
 
+test("hide registration when the deployment disables it", async ({ page }) => {
+  await page.route("**/api/v1/auth/capabilities", async (route) => {
+    await route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({ registration: false }),
+    });
+  });
+
+  await page.goto("/login");
+  await expect(page.getByRole("link", { name: "Create account" })).toHaveCount(0);
+
+  await page.goto("/register");
+  await expect(page.getByRole("heading", { name: "Registration unavailable" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Sign in" })).toBeVisible();
+});
+
 test("register, verify email, use the private channel, sign out and sign in again", async ({
   page,
 }) => {

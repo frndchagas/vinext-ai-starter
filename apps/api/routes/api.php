@@ -1,12 +1,15 @@
 <?php
 
 use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\AuthCapabilitiesController;
 use App\Http\Controllers\DeleteCurrentUserController;
 use App\Http\Controllers\MeController;
 use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function (): void {
+    Route::get('/auth/capabilities', AuthCapabilitiesController::class)->name('auth.capabilities');
+
     Route::middleware('auth:sanctum')->group(function (): void {
         Route::get('/me', MeController::class)->name('me');
         Route::delete('/auth/user', DeleteCurrentUserController::class)->name('auth.user.destroy');

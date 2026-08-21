@@ -49,6 +49,14 @@ model NotFoundResponse {
   @body body: Problem;
 }
 
+@error
+model TooManyRequestsResponse {
+  @statusCode statusCode: 429;
+  @header contentType: "application/problem+json";
+  @header("Retry-After") retryAfter?: string;
+  @body body: Problem;
+}
+
 @doc("The authenticated identity, its roles and permissions.")
 model Me {
   @doc("Opaque identifier. Clients must not infer meaning from its value.")
@@ -78,6 +86,10 @@ model LoginRequest {
 
 model LoginResult {
   two_factor: boolean;
+}
+
+model AuthCapabilities {
+  registration: boolean;
 }
 
 model UpdateProfileRequest {
@@ -129,6 +141,7 @@ namespace Auth {
   op register(@body body: RegisterRequest):
     | CreatedResponse
     | ForbiddenResponse
+    | TooManyRequestsResponse
     | ValidationErrorResponse;
 
   @operationId("login")
@@ -137,7 +150,16 @@ namespace Auth {
   op login(@body body: LoginRequest): {
     @statusCode statusCode: 200;
     @body body: LoginResult;
-  } | ValidationErrorResponse;
+  } | ValidationErrorResponse | TooManyRequestsResponse;
+
+  @operationId("getAuthCapabilities")
+  @doc("Public authentication capabilities controlled by Laravel deployment configuration.")
+  @route("/capabilities")
+  @get
+  op getAuthCapabilities(): {
+    @statusCode statusCode: 200;
+    @body body: AuthCapabilities;
+  };
 
   @operationId("logout")
   @route("/logout")
@@ -171,7 +193,7 @@ namespace Auth {
   @doc("Resend the email verification notification to the authenticated user.")
   @route("/email/verification-notification")
   @post
-  op resendEmailVerification(): AcceptedResponse | UnauthorizedResponse;
+  op resendEmailVerification(): AcceptedResponse | UnauthorizedResponse | TooManyRequestsResponse;
 
   @operationId("verifyEmail")
   @doc("Verify the authenticated user's email through a temporary signed link and redirect to the SPA.")
@@ -185,7 +207,7 @@ namespace Auth {
   ): {
     @statusCode statusCode: 302;
     @header location: string;
-  } | UnauthorizedResponse | ForbiddenResponse;
+  } | UnauthorizedResponse | ForbiddenResponse | TooManyRequestsResponse;
 
   @operationId("updateProfile")
   @route("/user/profile-information")
@@ -207,6 +229,7 @@ namespace Auth {
   @delete
   op deleteCurrentUser(@body body: DeleteCurrentUserRequest):
     | NoContentResponse
+    | ConflictResponse
     | ValidationErrorResponse
     | UnauthorizedResponse;
 
@@ -288,7 +311,8 @@ namespace Auth {
   @post
   op completeTwoFactorChallenge(@body body: TwoFactorChallengeRequest):
     | NoContentResponse
-    | ValidationErrorResponse;
+    | ValidationErrorResponse
+    | TooManyRequestsResponse;
 }
 
 @tag("Identity")

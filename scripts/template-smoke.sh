@@ -110,6 +110,21 @@ export MAILPIT_SMTP_PORT=$((port_base + 6))
 export MAILPIT_HTTP_PORT=$((port_base + 7))
 
 bun run bootstrap
+app_key_before=$(sed -n 's/^APP_KEY=//p' apps/api/.env)
+
+if [[ -z "$app_key_before" ]]; then
+    echo 'Bootstrap did not generate APP_KEY.' >&2
+    exit 1
+fi
+
+bun run bootstrap
+app_key_after=$(sed -n 's/^APP_KEY=//p' apps/api/.env)
+
+if [[ "$app_key_after" != "$app_key_before" ]]; then
+    echo 'Bootstrap replaced the existing APP_KEY.' >&2
+    exit 1
+fi
+
 bun run contracts:check
 bun run check
 

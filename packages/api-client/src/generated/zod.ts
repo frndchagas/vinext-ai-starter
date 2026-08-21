@@ -55,6 +55,13 @@ export const UpdateAdminUserRoleResponse = zod.object({
 });
 
 /**
+ * Public authentication capabilities controlled by Laravel deployment configuration.
+ */
+export const GetAuthCapabilitiesResponse = zod.object({
+  registration: zod.boolean(),
+});
+
+/**
  * Resend the email verification notification to the authenticated user.
  */
 export const ResendEmailVerificationResponse = zod.void();

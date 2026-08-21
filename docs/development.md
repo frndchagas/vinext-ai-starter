@@ -29,7 +29,7 @@ Public application HTTP changes start in `contracts/http/main.tsp`:
 TypeSpec -> OpenAPI 3.1 -> Orval -> Fetch client, Query hooks, Zod and MSW
 ```
 
-The client validates documented responses with generated Zod schemas in development and tests. An invalid payload fails at the HTTP boundary with the operation, status and field path. Production does not parse responses. Protocol endpoints used directly by Sanctum or Echo are not generated client operations unless a screen consumes them.
+The client validates documented responses with generated Zod schemas in development and tests. An invalid payload fails at the HTTP boundary with the operation, status and field path. Production does not parse responses. Infrastructure may call contracted endpoints directly, as the session fetcher does for Sanctum CSRF; Echo broadcasting authorization remains outside the generated client.
 
 Realtime messages start in `contracts/realtime/asyncapi.yaml`. The official parser validates and dereferences the document before a small local generator writes the committed TypeScript models. A generated metadata file drives PHP conformance tests for the event name, channel and payload.
 

@@ -15,6 +15,7 @@ export APP_KEY
 APP_KEY=$(php -r 'echo "base64:".base64_encode(random_bytes(32));')
 export APP_NAME="Vinext production smoke"
 export APP_URL="http://127.0.0.1:$production_port"
+export FEATURE_REGISTRATION=true
 export IMAGE_TAG="$image_tag"
 export MAIL_MAILER=log
 export POSTGRES_PASSWORD=smoke-password
@@ -70,6 +71,13 @@ docker build \
 curl --fail --silent --show-error --dump-header "$headers_file" "$APP_URL/" >/dev/null
 curl --fail --silent --show-error "$APP_URL/up" >/dev/null
 curl --fail --silent --show-error "$APP_URL/ready" >/dev/null
+capabilities=$(
+    curl --fail --silent --show-error "$APP_URL/api/v1/auth/capabilities"
+)
+php -r '
+    $data = json_decode(stream_get_contents(STDIN), true, flags: JSON_THROW_ON_ERROR);
+    exit(($data["registration"] ?? null) === true ? 0 : 1);
+' <<<"$capabilities"
 
 schedule=$(
     "${compose[@]}" exec -T api-php php artisan schedule:list --no-ansi
