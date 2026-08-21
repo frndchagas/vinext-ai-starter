@@ -15,7 +15,7 @@ Laravel owns identity, authorization, persisted domain state, queues and broadca
 | `bun run bootstrap` | Install locked dependencies, start infrastructure, migrate and seed canonical roles |
 | `bun run dev` | Start Caddy dependencies plus Vinext, Laravel, Horizon and Reverb |
 | `bun run check` | Format check, lint, types, unit tests and Vinext build |
-| `bun run contracts:check` | Validate AsyncAPI and detect generated HTTP drift |
+| `bun run contracts:check` | Validate contracts and detect generated HTTP or realtime drift |
 | `bun run audit` | Check deduplication and dependency advisories |
 | `bun run test:e2e` | Run the browser journeys against the development stack |
 
@@ -29,9 +29,9 @@ Public application HTTP changes start in `contracts/http/main.tsp`:
 TypeSpec -> OpenAPI 3.1 -> Orval -> Fetch client, Query hooks, Zod and MSW
 ```
 
-Zod schemas are generated for consumers that need runtime validation. The current application client does not parse every response through them. Protocol endpoints used directly by Sanctum or Echo are not generated client operations unless a screen consumes them.
+The client validates documented responses with generated Zod schemas in development and tests. An invalid payload fails at the HTTP boundary with the operation, status and field path. Production does not parse responses. Protocol endpoints used directly by Sanctum or Echo are not generated client operations unless a screen consumes them.
 
-Realtime messages start in `contracts/realtime/asyncapi.yaml`. The current gate validates the document; it does not compare PHP event implementations with AsyncAPI automatically.
+Realtime messages start in `contracts/realtime/asyncapi.yaml`. The official CLI generates committed TypeScript models, and a generated metadata file drives PHP conformance tests for the event name, channel and payload.
 
 ## Quality gates
 
@@ -55,10 +55,10 @@ The web app uses shadcn/ui components with Base UI primitives and Tailwind CSS t
 
 Vinext 1.0.0-beta.8 enables the experimental React Compiler through Oxc. Every Vinext update must pass `vinext check`, production build and E2E.
 
-Vitest and Testing Library cover fast component behavior. Playwright covers browser integration. A dedicated accessibility scanner is not part of the current gate.
+Vitest and Testing Library cover fast component behavior. Playwright covers browser integration and runs axe WCAG A/AA checks on authenticated screens.
 
 ## Generated and runtime files
 
-Do not commit `.env`, credentials, logs, build output, Playwright reports or generated runtime state. OpenAPI and `packages/api-client/src/generated` are exceptions: they are deterministic contract artifacts and must be committed with their source change.
+Do not commit `.env`, credentials, logs, build output, Playwright reports or generated runtime state. OpenAPI, `contracts/realtime/generated` and `packages/api-client/src/generated` are deterministic contract artifacts and must be committed with their source change.
 
 Architecture changes require an ADR. Domain language changes require an update to `CONTEXT.md`.

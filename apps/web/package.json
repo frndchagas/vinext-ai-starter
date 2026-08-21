@@ -19,6 +19,7 @@
     "@icons-pack/react-simple-icons": "13.15.1",
     "@tanstack/react-query": "5.101.4",
     "@vinext-laravel-starter/api-client": "workspace:*",
+    "@vinext-laravel-starter/realtime-contract": "workspace:*",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "laravel-echo": "2.4.0",
