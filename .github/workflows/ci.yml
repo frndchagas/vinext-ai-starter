@@ -61,7 +61,7 @@ jobs:
           php-version: "8.5"
           extensions: pdo_sqlite, pcntl
           coverage: none
-          tools: composer:2.10.0
+          tools: composer:2.10.2
 
       - name: Cache Composer packages
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -148,7 +148,7 @@ jobs:
           php-version: ${{ matrix.php }}
           extensions: pdo_pgsql, redis, pcntl
           coverage: none
-          tools: composer:2.10.0
+          tools: composer:2.10.2
 
       - name: Cache Composer packages
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -187,7 +187,7 @@ jobs:
           php-version: "8.5"
           extensions: pdo_pgsql, redis, pcntl
           coverage: none
-          tools: composer:2.10.0
+          tools: composer:2.10.2
 
       - name: Cache Composer packages
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -263,7 +263,7 @@ jobs:
           php-version: "8.3"
           extensions: pdo_pgsql, redis, pcntl
           coverage: none
-          tools: composer:2.10.0
+          tools: composer:2.10.2
 
       - name: Cache Composer packages
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -291,7 +291,7 @@ jobs:
           php-version: "8.3"
           extensions: pdo_sqlite, redis, pcntl
           coverage: none
-          tools: composer:2.10.0
+          tools: composer:2.10.2
 
       - run: bun ci
       - run: composer install --working-dir apps/api --no-interaction --prefer-dist
@@ -411,11 +411,13 @@ jobs:
           ref: ${{ github.base_ref }}
           path: base
       - name: Detect breaking API changes
-        uses: oasdiff/oasdiff-action/breaking@1c611ffb1253a72924624aa4fb662e302b3565d3 # v0.0.21
+        uses: oasdiff/oasdiff-action/breaking@2649ebe137aeb72a95707671204e829f86e091fc # v0.1.13
         with:
           base: base/contracts/http/openapi/openapi.yaml
           revision: contracts/http/openapi/openapi.yaml
           fail-on-diff: true
+          review: false
+          github-token: ""
 
   dependency-review:
     if: github.event_name == 'pull_request'
