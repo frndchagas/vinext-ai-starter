@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UpdateUserRoleRequest;
 use App\Http\Resources\AdminUserResource;
 use App\Models\User;
+use App\Services\AdministrativeAccess;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
 class AdminUserController extends Controller
@@ -40,31 +42,38 @@ class AdminUserController extends Controller
         ]);
     }
 
-    public function updateRole(UpdateUserRoleRequest $request, User $user): AdminUserResource|JsonResponse
-    {
+    public function updateRole(
+        UpdateUserRoleRequest $request,
+        User $user,
+        AdministrativeAccess $administrativeAccess,
+    ): AdminUserResource|JsonResponse {
         Gate::authorize('users.manage');
 
         /** @var User $actor */
         $actor = $request->user();
         $role = (string) $request->validated('role');
 
-        if ($actor->is($user)) {
-            return $this->conflict(
-                'cannot_change_own_role',
-                'Administrators cannot change their own role.',
-            );
-        }
+        return DB::transaction(function () use ($actor, $administrativeAccess, $role, $user): AdminUserResource|JsonResponse {
+            $administrativeAccess->lock();
 
-        if ($role === 'member' && $user->hasRole('admin') && User::role('admin')->whereKeyNot($user)->doesntExist()) {
-            return $this->conflict(
-                'last_admin',
-                'The Last admin cannot be demoted.',
-            );
-        }
+            if ($actor->is($user)) {
+                return $this->conflict(
+                    'cannot_change_own_role',
+                    'Administrators cannot change their own role.',
+                );
+            }
 
-        $user->syncRoles([$role]);
+            if ($role === 'member' && $administrativeAccess->isLastAdmin($user)) {
+                return $this->conflict(
+                    'last_admin',
+                    'The Last admin cannot be demoted.',
+                );
+            }
 
-        return new AdminUserResource($user->load('roles'));
+            $user->syncRoles([$role]);
+
+            return new AdminUserResource($user->load('roles'));
+        });
     }
 
     private function conflict(string $code, string $detail): JsonResponse

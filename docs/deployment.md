@@ -1,6 +1,6 @@
 # Deployment
 
-The production reference runs one public Caddy service with separate containers for Vinext, Laravel, Horizon, the scheduler and Reverb. PostgreSQL and Redis keep persistent volumes. Laravel migrations run once before application services start.
+The production reference runs one public Caddy service with separate containers for Vinext, Laravel, Horizon, the scheduler and Reverb. PostgreSQL and Redis keep persistent volumes. Laravel migrations run once before application services start. The scheduler reconciles unfinished Task delivery, records Horizon metrics every five minutes and prunes failed jobs after seven days.
 
 ## Environment
 

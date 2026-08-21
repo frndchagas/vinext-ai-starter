@@ -74,4 +74,21 @@ class DeleteAccountTest extends TestCase
     {
         $this->deleteJson('/api/v1/auth/user', ['password' => 'password'])->assertUnauthorized();
     }
+
+    public function test_the_last_admin_cannot_delete_their_account(): void
+    {
+        $this->seed(RolesAndPermissionsSeeder::class);
+
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
+
+        $this->actingAs($admin)
+            ->deleteJson('/api/v1/auth/user', ['password' => 'password'])
+            ->assertConflict()
+            ->assertJsonPath('code', 'last_admin');
+
+        $this->assertDatabaseHas('users', ['id' => $admin->id]);
+        $this->assertTrue($admin->fresh()->hasRole('admin'));
+        $this->getJson('/api/v1/me')->assertOk();
+    }
 }
