@@ -30,6 +30,7 @@
     "test:production": "bash scripts/production-smoke.sh",
     "test:template": "bash scripts/template-smoke.sh",
     "test:distribution": "bash scripts/distribution-smoke.sh",
+    "release:check": "bash scripts/release-preflight.sh",
     "build": "bun run --parallel --if-present --filter '*' build",
     "config:check": "composer --working-dir apps/api validate --strict && docker compose config --quiet && bun run coolify:check",
     "coolify:build": "bun run scripts/coolify-compose.mjs",

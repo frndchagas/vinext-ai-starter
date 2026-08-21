@@ -202,6 +202,7 @@ try {
     "bun run config:check && bun run --parallel format:check lint typecheck test build";
   delete packageJson.scripts["test:distribution"];
   delete packageJson.scripts["test:template"];
+  delete packageJson.scripts["release:check"];
   write("package.json", `${JSON.stringify(packageJson, null, 2)}\n`);
   run("bun", ["install", "--ignore-scripts"], outputRoot);
 
@@ -257,7 +258,9 @@ try {
     "scripts/ci-changes.test.mjs",
     "scripts/distribution",
     "scripts/distribution-smoke.sh",
+    "scripts/release-preflight.sh",
     "scripts/template-smoke.sh",
+    "scripts/verify-main-ci.sh",
   ]) {
     rmSync(join(outputRoot, path), { recursive: true, force: true });
   }

@@ -6,16 +6,16 @@ on:
 
 permissions:
   actions: read
-  checks: read
   contents: read
 
 concurrency:
-  group: publish-distribution-${{ github.event.release.tag_name }}
+  group: publish-distribution
   cancel-in-progress: false
 
 jobs:
   packagist:
     if: github.repository == 'frndchagas/vinext-ai-starter' && github.event.release.prerelease == false
+    environment: distribution
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -34,47 +34,32 @@ jobs:
           tools: composer:2.10.0
 
       - name: Verify the release source
+        id: source
         env:
           GH_TOKEN: ${{ github.token }}
           SOURCE_TAG: ${{ github.event.release.tag_name }}
         run: |
+          [[ "$SOURCE_TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]
           source_commit=$(git rev-parse "${SOURCE_TAG}^{commit}")
           test "$(git cat-file -t "$SOURCE_TAG")" = tag
+          test "$(git rev-parse HEAD)" = "$source_commit"
           git fetch origin main
           git merge-base --is-ancestor "$source_commit" origin/main
-
-          check_runs=$(gh api \
-            "repos/${GITHUB_REPOSITORY}/commits/${source_commit}/check-runs?per_page=100")
-
-          for required_check in \
-            verify \
-            "integration (8.3)" \
-            "integration (8.5)" \
-            e2e \
-            template-smoke \
-            distribution-smoke \
-            production-smoke \
-            gitleaks \
-            CodeQL
-          do
-            jq --exit-status \
-              --arg name "$required_check" \
-              '.check_runs | any(.name == $name and .conclusion == "success")' \
-              <<< "$check_runs" > /dev/null
-          done
+          bash scripts/verify-main-ci.sh "$source_commit"
+          printf 'commit=%s\n' "$source_commit" >> "$GITHUB_OUTPUT"
 
       - name: Build the Laravel-root distribution
         env:
+          SOURCE_COMMIT: ${{ steps.source.outputs.commit }}
           SOURCE_TAG: ${{ github.event.release.tag_name }}
-        run: |
-          export SOURCE_COMMIT
-          SOURCE_COMMIT=$(git rev-parse "${SOURCE_TAG}^{commit}")
-          bun run scripts/build-distribution.mjs "$RUNNER_TEMP/distribution"
+        run: bun run scripts/build-distribution.mjs "$RUNNER_TEMP/distribution"
 
       - name: Configure the distribution deploy key
         env:
           DISTRIBUTION_DEPLOY_KEY: ${{ secrets.DISTRIBUTION_DEPLOY_KEY }}
         run: |
+          set -o pipefail
+          test -n "$DISTRIBUTION_DEPLOY_KEY"
           install -d -m 700 "$HOME/.ssh"
           printf '%s\n' "$DISTRIBUTION_DEPLOY_KEY" > "$HOME/.ssh/id_ed25519"
           chmod 600 "$HOME/.ssh/id_ed25519"
@@ -84,7 +69,7 @@ jobs:
 
       - name: Publish the matching tag
         env:
-          SOURCE_COMMIT: ${{ github.sha }}
+          SOURCE_COMMIT: ${{ steps.source.outputs.commit }}
           SOURCE_TAG: ${{ github.event.release.tag_name }}
         run: |
           git clone git@github.com:frndchagas/vinext-ai-starter-distribution.git "$RUNNER_TEMP/repository"
@@ -109,5 +94,4 @@ jobs:
           test "$(tr -d '\n' < .source-commit)" = "$SOURCE_COMMIT"
           test "$(tr -d '\n' < .source-tag)" = "$SOURCE_TAG"
           git tag --annotate "$SOURCE_TAG" --message "Distribute ${SOURCE_TAG}"
-          git push origin main
-          git push origin "$SOURCE_TAG"
+          git push --atomic origin main "$SOURCE_TAG"
