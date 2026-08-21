@@ -61,7 +61,7 @@ COMPOSER_CACHE_DIR="$composer_cache" COMPOSER_HOME="$composer_home" \
     cd "$install_parent"
     COMPOSER_CACHE_DIR="$composer_cache" COMPOSER_HOME="$composer_home" \
         "$composer_home/vendor/bin/laravel" new application \
-        --using=frndchagas/vinext-ai-starter \
+        --using=frndchagas/vinext-laravel-starter \
         --phpunit \
         --bun \
         --no-boost \
@@ -79,8 +79,8 @@ COMPOSER_CACHE_DIR="$composer_cache" COMPOSER_HOME="$composer_home" \
     # shellcheck disable=SC2016
     php -r '
         $composer = json_decode(file_get_contents("composer.json"), true, flags: JSON_THROW_ON_ERROR);
-        $valid = ($composer["name"] ?? null) === "frndchagas/vinext-ai-starter"
-            && ($composer["homepage"] ?? null) === "https://github.com/frndchagas/vinext-ai-starter"
+        $valid = ($composer["name"] ?? null) === "frndchagas/vinext-laravel-starter"
+            && ($composer["homepage"] ?? null) === "https://github.com/frndchagas/vinext-laravel-starter"
             && ($composer["scripts"]["dev"][1] ?? null) === "bun run bootstrap && bun run dev";
         exit($valid ? 0 : 1);
     '
@@ -91,7 +91,7 @@ COMPOSER_CACHE_DIR="$composer_cache" COMPOSER_HOME="$composer_home" \
     grep --quiet '^WEB_PUBLIC_PORT=13000$' .env.example
     grep --quiet '^## Laravel API instructions$' AGENTS.md
     grep --quiet 'new URL("../../../", import.meta.url)' apps/web/e2e/helpers.ts
-    if grep --quiet 'git clone https://github.com/frndchagas/vinext-ai-starter' README.md; then
+    if grep --quiet 'git clone https://github.com/frndchagas/vinext-laravel-starter' README.md; then
         echo 'Consumer README sends the User back through starter installation.' >&2
         exit 1
     fi

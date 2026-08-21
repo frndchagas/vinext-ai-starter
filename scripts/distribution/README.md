@@ -33,4 +33,4 @@ Start by reading [Customize the starter](docs/customizing.md), then use the [arc
 
 ## Source
 
-This application was generated from [Vinext Laravel Starter](https://github.com/frndchagas/vinext-ai-starter). The `.source-tag` and `.source-commit` files record the exact release source. This independent MIT-licensed project is not affiliated with or endorsed by Cloudflare or Laravel.
+This application was generated from [Vinext Laravel Starter](https://github.com/frndchagas/vinext-laravel-starter). The `.source-tag` and `.source-commit` files record the exact release source. This independent MIT-licensed project is not affiliated with or endorsed by Cloudflare or Laravel.

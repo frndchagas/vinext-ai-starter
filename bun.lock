@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "vinext-ai-starter",
+      "name": "vinext-laravel-starter",
       "devDependencies": {
         "lefthook": "2.1.10",
       },

@@ -12,8 +12,8 @@
 ## Start the application
 
 ```bash
-git clone https://github.com/frndchagas/vinext-ai-starter.git
-cd vinext-ai-starter
+git clone https://github.com/frndchagas/vinext-laravel-starter.git
+cd vinext-laravel-starter
 cp .env.example .env
 bun run bootstrap
 bun run dev
