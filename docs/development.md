@@ -31,7 +31,7 @@ TypeSpec -> OpenAPI 3.1 -> Orval -> Fetch client, Query hooks, Zod and MSW
 
 The client validates documented responses with generated Zod schemas in development and tests. An invalid payload fails at the HTTP boundary with the operation, status and field path. Production does not parse responses. Protocol endpoints used directly by Sanctum or Echo are not generated client operations unless a screen consumes them.
 
-Realtime messages start in `contracts/realtime/asyncapi.yaml`. The official CLI generates committed TypeScript models, and a generated metadata file drives PHP conformance tests for the event name, channel and payload.
+Realtime messages start in `contracts/realtime/asyncapi.yaml`. The official parser validates and dereferences the document before a small local generator writes the committed TypeScript models. A generated metadata file drives PHP conformance tests for the event name, channel and payload.
 
 ## Quality gates
 

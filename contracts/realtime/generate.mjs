@@ -1,5 +1,4 @@
-import { execFileSync } from "node:child_process";
-import { mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 import { DiagnosticSeverity, Parser, fromFile } from "@asyncapi/parser";
@@ -15,49 +14,6 @@ if (!outputPath.endsWith("/contracts/realtime/generated")) {
 rmSync(outputPath, { recursive: true, force: true });
 mkdirSync(outputPath, { recursive: true });
 
-execFileSync(
-  "bunx",
-  [
-    "asyncapi",
-    "generate",
-    "models",
-    "typescript",
-    contractPath,
-    "--output",
-    outputPath,
-    "--tsModelType",
-    "interface",
-    "--tsEnumType",
-    "union",
-    "--tsModuleSystem",
-    "ESM",
-    "--tsExportType",
-    "named",
-    "--tsIncludeComments",
-    "--tsRawPropertyNames",
-    "--no-interactive",
-  ],
-  {
-    cwd: workspace,
-    env: {
-      ...process.env,
-      NODE_CONFIG_ENV: "development",
-      NODE_ENV: "development",
-      SUPPRESS_NO_CONFIG_WARNING: "1",
-    },
-    stdio: "inherit",
-  },
-);
-
-for (const file of readdirSync(outputPath).filter((name) => name.endsWith(".ts"))) {
-  const path = `${outputPath}/${file}`;
-  const source = readFileSync(path, "utf8").replace(
-    /^export \{ ([A-Za-z0-9_]+) \};$/gm,
-    "export type { $1 };",
-  );
-  writeFileSync(path, source);
-}
-
 const parser = new Parser();
 const { document, diagnostics } = await fromFile(parser, contractPath).parse();
 const errors = diagnostics.filter(({ severity }) => severity === DiagnosticSeverity.Error);
@@ -69,6 +25,32 @@ if (document === undefined || errors.length > 0) {
 const parsed = document.json();
 const message = parsed.components.messages.taskStatusChanged;
 const channel = parsed.channels.taskStatus;
+const required = new Set(message.payload.required ?? []);
+const taskStates = message.payload.properties.state.enum;
+
+function propertyType(name, schema) {
+  if (name === "state") return "TaskState";
+  if (schema.type === "string") return "string";
+  if (schema.type === "integer" || schema.type === "number") return "number";
+  if (schema.type === "boolean") return "boolean";
+
+  throw new Error(`Unsupported realtime property type for ${name}: ${schema.type}`);
+}
+
+const properties = Object.entries(message.payload.properties).map(([name, schema]) => {
+  const comment = schema.description ? `  /** ${schema.description} */\n` : "";
+  const optional = required.has(name) ? "" : "?";
+  return `${comment}  ${name}${optional}: ${propertyType(name, schema)};`;
+});
+
+writeFileSync(
+  `${outputPath}/TaskState.ts`,
+  `export type TaskState = ${taskStates.map((state) => JSON.stringify(state)).join(" | ")};\n`,
+);
+writeFileSync(
+  `${outputPath}/TaskStatusChangedPayload.ts`,
+  `import type { TaskState } from "./TaskState";\n\nexport interface TaskStatusChangedPayload {\n${properties.join("\n")}\n}\n`,
+);
 
 function removeParserMetadata(value) {
   if (Array.isArray(value)) return value.map(removeParserMetadata);
@@ -101,9 +83,14 @@ writeFileSync(
   )}\n`,
 );
 
-execFileSync("bunx", ["oxfmt", "--write", "generated"], {
+const formatter = Bun.spawnSync(["bunx", "oxfmt", "--write", "generated"], {
   cwd: workspace,
-  stdio: "inherit",
+  stdout: "inherit",
+  stderr: "inherit",
 });
+
+if (formatter.exitCode !== 0) {
+  throw new Error(`oxfmt exited with ${formatter.exitCode}.`);
+}
 
 console.log(`Generated realtime artifacts: ${outputPath}`);

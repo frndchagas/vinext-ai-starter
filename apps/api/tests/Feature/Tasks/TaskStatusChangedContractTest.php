@@ -16,7 +16,8 @@ class TaskStatusChangedContractTest extends TestCase
      */
     public function test_the_broadcast_matches_the_generated_asyncapi_contract(): void
     {
-        $contractPath = realpath(base_path('../../contracts/realtime/generated/task-status-changed.contract.json'));
+        $contractPath = realpath(base_path('contracts/realtime/generated/task-status-changed.contract.json'))
+            ?: realpath(base_path('../../contracts/realtime/generated/task-status-changed.contract.json'));
 
         $this->assertNotFalse($contractPath, 'Generate realtime contract artifacts before running PHP tests.');
 

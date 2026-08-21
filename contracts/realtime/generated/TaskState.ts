@@ -1,2 +1,1 @@
-type TaskState = "queued" | "processing" | "completed" | "failed";
-export type { TaskState };
+export type TaskState = "queued" | "processing" | "completed" | "failed";

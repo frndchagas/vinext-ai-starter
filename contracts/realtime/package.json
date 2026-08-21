@@ -13,7 +13,6 @@
     "validate": "bun run validate.mjs"
   },
   "devDependencies": {
-    "@asyncapi/cli": "6.0.2",
     "@asyncapi/parser": "3.6.3",
     "oxfmt": "0.64.0",
     "typescript": "7.0.2"
