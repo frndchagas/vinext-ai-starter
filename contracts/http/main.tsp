@@ -91,6 +91,10 @@ model UpdatePasswordRequest {
   password_confirmation: string;
 }
 
+model DeleteCurrentUserRequest {
+  password: string;
+}
+
 model TwoFactorChallengeRequest {
   code?: string;
   recovery_code?: string;
@@ -196,6 +200,15 @@ namespace Auth {
   op updatePassword(@body body: UpdatePasswordRequest): {
     @statusCode statusCode: 200;
   } | ValidationErrorResponse | UnauthorizedResponse;
+
+  @operationId("deleteCurrentUser")
+  @doc("Permanently delete the authenticated User and resources owned only by that identity.")
+  @route("/user")
+  @delete
+  op deleteCurrentUser(@body body: DeleteCurrentUserRequest):
+    | NoContentResponse
+    | ValidationErrorResponse
+    | UnauthorizedResponse;
 
   @operationId("confirmPassword")
   @route("/user/confirm-password")

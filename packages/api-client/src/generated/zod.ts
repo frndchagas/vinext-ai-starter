@@ -84,6 +84,16 @@ export const CompleteTwoFactorChallengeBody = zod.object({
 export const CompleteTwoFactorChallengeResponse = zod.void()
 
 
+/**
+ * Permanently delete the authenticated User and resources owned only by that identity.
+ */
+export const DeleteCurrentUserBody = zod.object({
+  "password": zod.string()
+})
+
+export const DeleteCurrentUserResponse = zod.void()
+
+
 export const ConfirmPasswordBody = zod.object({
   "password": zod.string()
 })

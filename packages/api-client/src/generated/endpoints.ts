@@ -26,6 +26,7 @@ import type {
   CreateTask409,
   CreateTaskHeaders,
   CreateTaskRequest,
+  DeleteCurrentUserRequest,
   ForgotPasswordBody,
   GetTwoFactorSecretKey200,
   ListTasksParams,
@@ -875,6 +876,116 @@ export const useCompleteTwoFactorChallenge = <TError = ValidationProblem, TConte
   TContext
 > => {
   return useMutation(getCompleteTwoFactorChallengeMutationOptions(options), queryClient);
+};
+
+export type deleteCurrentUserResponse204 = {
+  data: void;
+  status: 204;
+};
+
+export type deleteCurrentUserResponse401 = {
+  data: Problem;
+  status: 401;
+};
+
+export type deleteCurrentUserResponse422 = {
+  data: ValidationProblem;
+  status: 422;
+};
+
+export type deleteCurrentUserResponseSuccess = deleteCurrentUserResponse204 & {
+  headers: Headers;
+};
+export type deleteCurrentUserResponseError = (
+  | deleteCurrentUserResponse401
+  | deleteCurrentUserResponse422
+) & {
+  headers: Headers;
+};
+
+export type deleteCurrentUserResponse =
+  | deleteCurrentUserResponseSuccess
+  | deleteCurrentUserResponseError;
+
+export const getDeleteCurrentUserUrl = () => {
+  return `/api/v1/auth/user`;
+};
+
+/**
+ * Permanently delete the authenticated User and resources owned only by that identity.
+ */
+export const deleteCurrentUser = async (
+  deleteCurrentUserRequest: DeleteCurrentUserRequest,
+  options?: Parameters<typeof apiFetch>[1],
+): Promise<deleteCurrentUserResponse> => {
+  return apiFetch<deleteCurrentUserResponse>(getDeleteCurrentUserUrl(), {
+    ...options,
+    method: "DELETE",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(deleteCurrentUserRequest),
+  });
+};
+
+export const getDeleteCurrentUserMutationOptions = <
+  TError = Problem | ValidationProblem,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteCurrentUser>>,
+    TError,
+    { data: DeleteCurrentUserRequest },
+    TContext
+  >;
+  request?: SecondParameter<typeof apiFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteCurrentUser>>,
+  TError,
+  { data: DeleteCurrentUserRequest },
+  TContext
+> => {
+  const mutationKey = ["deleteCurrentUser"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && "mutationKey" in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteCurrentUser>>,
+    { data: DeleteCurrentUserRequest }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return deleteCurrentUser(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteCurrentUserMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteCurrentUser>>
+>;
+export type DeleteCurrentUserMutationBody = DeleteCurrentUserRequest;
+export type DeleteCurrentUserMutationError = Problem | ValidationProblem;
+
+export const useDeleteCurrentUser = <TError = Problem | ValidationProblem, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof deleteCurrentUser>>,
+      TError,
+      { data: DeleteCurrentUserRequest },
+      TContext
+    >;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof deleteCurrentUser>>,
+  TError,
+  { data: DeleteCurrentUserRequest },
+  TContext
+> => {
+  return useMutation(getDeleteCurrentUserMutationOptions(options), queryClient);
 };
 
 export type confirmPasswordResponse201 = {

@@ -54,6 +54,11 @@ export default function LoginPage() {
           Password updated. Sign in again.
         </output>
       ) : null}
+      {searchParams.get("account_deleted") === "1" ? (
+        <output className="rounded-lg bg-muted px-3 py-2 text-sm text-pretty text-foreground">
+          Account deleted.
+        </output>
+      ) : null}
       <Field
         label="Email"
         name="email"

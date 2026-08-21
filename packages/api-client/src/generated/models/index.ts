@@ -10,6 +10,7 @@ export * from "./confirmTwoFactorBody";
 export * from "./createTask409";
 export * from "./createTaskHeaders";
 export * from "./createTaskRequest";
+export * from "./deleteCurrentUserRequest";
 export * from "./forgotPasswordBody";
 export * from "./getTwoFactorSecretKey200";
 export * from "./listTasksParams";
