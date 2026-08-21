@@ -49,6 +49,22 @@ updates:
           - minor
           - patch
 
+  - package-ecosystem: gomod
+    directory: /infra/docker/proxy/build
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Fortaleza
+    open-pull-requests-limit: 5
+    groups:
+      caddy-build-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+
   - package-ecosystem: docker
     directories:
       - /

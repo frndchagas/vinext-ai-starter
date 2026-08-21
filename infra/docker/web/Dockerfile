@@ -20,6 +20,15 @@ RUN bun run --filter web build
 
 FROM node:24.13.0-alpine3.23 AS runtime
 
+RUN apk upgrade --no-cache \
+    && rm -r \
+        /usr/local/lib/node_modules/corepack \
+        /usr/local/lib/node_modules/npm \
+    && rm \
+        /usr/local/bin/corepack \
+        /usr/local/bin/npm \
+        /usr/local/bin/npx
+
 ENV HOST=0.0.0.0 \
     NODE_ENV=production \
     PORT=3000
