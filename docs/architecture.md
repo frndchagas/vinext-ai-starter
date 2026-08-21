@@ -7,7 +7,7 @@ The browser uses one origin published by Caddy:
 ```text
 browser -> Caddy
              ├── /                         -> Vinext on Node
-             ├── /api/*, /sanctum/*, /up  -> Laravel
+             ├── /api/*, /sanctum/*, /up, /ready -> Laravel
              └── /ws/*                    -> Reverb, with /ws stripped
 
 Laravel -> PostgreSQL
@@ -34,7 +34,7 @@ See [Authentication](authentication.md), [API conventions](api-conventions.md) a
 
 The starter has no AI provider, billing, teams or passkeys today. Vinext is still in beta and the React Compiler integration is experimental.
 
-The production reference is a regular Docker Compose deployment. It is health checked and suitable for Coolify, but it does not provide zero-downtime traffic switching.
+The production reference is a regular Docker Compose deployment. It has separate liveness and dependency-readiness checks, security headers and a tested PostgreSQL restore path. It is suitable for Coolify but does not provide zero-downtime traffic switching.
 
 ## Positioning
 

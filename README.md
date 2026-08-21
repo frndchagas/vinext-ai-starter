@@ -45,6 +45,8 @@ See [Getting started](docs/getting-started.md) for the expected services, shutdo
 | `bun run test:production` | Build and exercise the production containers |
 | `bun run test:template` | Create and verify a fresh template snapshot |
 | `bun run infra:down` | Stop local Docker infrastructure without deleting volumes |
+| `bun run db:backup -- backup.dump` | Create a private PostgreSQL custom-format backup |
+| `bun run db:restore -- backup.dump restored_database` | Restore into a new PostgreSQL database |
 
 ## Documentation
 

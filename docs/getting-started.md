@@ -27,6 +27,7 @@ Open these URLs after `dev` reports that Vinext and Laravel are ready:
 | --- | --- |
 | Application through Caddy | `http://localhost:13000` |
 | Laravel health check | `http://localhost:13000/up` |
+| Database and cache readiness | `http://localhost:13000/ready` |
 | Mailpit | `http://localhost:18025` |
 | Laravel directly | `http://localhost:18000` |
 
