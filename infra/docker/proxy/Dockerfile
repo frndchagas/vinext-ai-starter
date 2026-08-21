@@ -4,7 +4,14 @@ WORKDIR /src
 
 COPY infra/docker/proxy/build/go.mod infra/docker/proxy/build/go.sum ./
 
-RUN go mod download
+RUN apk add --no-cache patch \
+    && go mod download
+
+COPY infra/docker/proxy/build/caddy-cel-go-0.29.patch ./
+
+RUN caddy_source="$(go env GOMODCACHE)/github.com/caddyserver/caddy/v2@v2.11.4" \
+    && chmod u+w "$caddy_source/modules/caddyhttp/celmatcher.go" \
+    && patch --directory="$caddy_source" --strip=1 < caddy-cel-go-0.29.patch
 
 COPY infra/docker/proxy/build/main.go ./
 
