@@ -5,7 +5,13 @@ on:
     types: [published]
 
 permissions:
+  actions: read
+  checks: read
   contents: read
+
+concurrency:
+  group: publish-distribution-${{ github.event.release.tag_name }}
+  cancel-in-progress: false
 
 jobs:
   packagist:
@@ -26,6 +32,36 @@ jobs:
           php-version: "8.3"
           coverage: none
           tools: composer:2.10.0
+
+      - name: Verify the release source
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          source_commit=$(git rev-parse "${SOURCE_TAG}^{commit}")
+          test "$(git cat-file -t "$SOURCE_TAG")" = tag
+          git fetch origin main
+          git merge-base --is-ancestor "$source_commit" origin/main
+
+          check_runs=$(gh api \
+            "repos/${GITHUB_REPOSITORY}/commits/${source_commit}/check-runs?per_page=100")
+
+          for required_check in \
+            verify \
+            "integration (8.3)" \
+            "integration (8.5)" \
+            e2e \
+            template-smoke \
+            distribution-smoke \
+            production-smoke \
+            gitleaks \
+            CodeQL
+          do
+            jq --exit-status \
+              --arg name "$required_check" \
+              '.check_runs | any(.name == $name and .conclusion == "success")' \
+              <<< "$check_runs" > /dev/null
+          done
 
       - name: Build the Laravel-root distribution
         env:
@@ -48,15 +84,30 @@ jobs:
 
       - name: Publish the matching tag
         env:
+          SOURCE_COMMIT: ${{ github.sha }}
           SOURCE_TAG: ${{ github.event.release.tag_name }}
         run: |
           git clone git@github.com:frndchagas/vinext-ai-starter-distribution.git "$RUNNER_TEMP/repository"
-          rsync -a --delete --exclude .git/ "$RUNNER_TEMP/distribution/" "$RUNNER_TEMP/repository/"
           cd "$RUNNER_TEMP/repository"
           git config user.name "vinext-ai-starter release"
           git config user.email "actions@users.noreply.github.com"
+
+          if git rev-parse --verify --quiet "refs/tags/${SOURCE_TAG}"; then
+            test "$(git show "${SOURCE_TAG}:.source-commit")" = "$SOURCE_COMMIT"
+            test "$(git show "${SOURCE_TAG}:.source-tag")" = "$SOURCE_TAG"
+            echo "${SOURCE_TAG} already maps to ${SOURCE_COMMIT}."
+            exit 0
+          fi
+
+          rsync -a --delete --exclude .git/ "$RUNNER_TEMP/distribution/" ./
           git add --all
-          git commit -m "Distribute ${SOURCE_TAG}"
-          git tag "$SOURCE_TAG"
+
+          if ! git diff --cached --quiet; then
+            git commit -m "Distribute ${SOURCE_TAG}"
+          fi
+
+          test "$(tr -d '\n' < .source-commit)" = "$SOURCE_COMMIT"
+          test "$(tr -d '\n' < .source-tag)" = "$SOURCE_TAG"
+          git tag --annotate "$SOURCE_TAG" --message "Distribute ${SOURCE_TAG}"
           git push origin main
           git push origin "$SOURCE_TAG"
