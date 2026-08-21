@@ -3,17 +3,43 @@
 set -euo pipefail
 
 distribution_dir=$(mktemp -d)
-install_dir=$(mktemp -d)
+install_parent=$(mktemp -d)
+install_dir="$install_parent/application"
 composer_home=$(mktemp -d)
 composer_cache=$(composer config --global cache-dir --absolute)
+dev_pid=""
+dev_project="vinext-distribution-dev-${GITHUB_RUN_ID:-$$}-${GITHUB_RUN_ATTEMPT:-1}"
 
 cleanup() {
-    rm -rf "$distribution_dir" "$install_dir" "$composer_home"
+    set +e
+
+    if [[ -n "$dev_pid" ]]; then
+        kill -TERM -- "-$dev_pid" 2>/dev/null
+
+        for _ in {1..50}; do
+            if ! kill -0 -- "-$dev_pid" 2>/dev/null; then
+                break
+            fi
+            sleep 0.1
+        done
+
+        kill -KILL -- "-$dev_pid" 2>/dev/null
+        wait "$dev_pid" 2>/dev/null
+    fi
+
+    if [[ -d "$install_dir" ]]; then
+        (
+            cd "$install_dir"
+            docker compose --project-name "$dev_project" down --volumes --remove-orphans
+        )
+    fi
+
+    rm -rf "$distribution_dir" "$install_parent" "$composer_home"
 }
 
 trap cleanup EXIT
 
-rmdir "$distribution_dir" "$install_dir"
+rmdir "$distribution_dir"
 bun run scripts/build-distribution.mjs "$distribution_dir"
 
 (
@@ -28,11 +54,19 @@ bun run scripts/build-distribution.mjs "$distribution_dir"
 
 COMPOSER_CACHE_DIR="$composer_cache" COMPOSER_HOME="$composer_home" \
     composer config --global repositories.starter vcs "$distribution_dir"
-COMPOSER_CACHE_DIR="$composer_cache" COMPOSER_HOME="$composer_home" composer create-project \
-    frndchagas/vinext-ai-starter:0.0.0 \
-    "$install_dir" \
-    --no-interaction \
-    --prefer-dist
+COMPOSER_CACHE_DIR="$composer_cache" COMPOSER_HOME="$composer_home" \
+    composer global require laravel/installer:5.31.1 --no-interaction --prefer-dist
+
+(
+    cd "$install_parent"
+    COMPOSER_CACHE_DIR="$composer_cache" COMPOSER_HOME="$composer_home" \
+        "$composer_home/vendor/bin/laravel" new application \
+        --using=frndchagas/vinext-ai-starter \
+        --phpunit \
+        --bun \
+        --no-boost \
+        --no-interaction
+)
 
 (
     cd "$install_dir"
@@ -41,13 +75,103 @@ COMPOSER_CACHE_DIR="$composer_cache" COMPOSER_HOME="$composer_home" composer cre
     git config user.email "distribution-smoke@example.com"
     git add .
     git commit --quiet -m "Installed starter"
+    # PHP receives this program literally.
+    # shellcheck disable=SC2016
+    php -r '
+        $composer = json_decode(file_get_contents("composer.json"), true, flags: JSON_THROW_ON_ERROR);
+        $valid = ($composer["name"] ?? null) === "frndchagas/vinext-ai-starter"
+            && ($composer["homepage"] ?? null) === "https://github.com/frndchagas/vinext-ai-starter"
+            && ($composer["scripts"]["dev"][1] ?? null) === "bun run bootstrap && bun run dev";
+        exit($valid ? 0 : 1);
+    '
+    test -f .github/workflows/ci.yml
+    test -f .github/dependabot.yml
+    test ! -e .github/workflows/publish-distribution.yml
+    test ! -e scripts/build-distribution.mjs
+    grep --quiet '^WEB_PUBLIC_PORT=13000$' .env.example
+    grep --quiet '^## Laravel API instructions$' AGENTS.md
+    grep --quiet 'new URL("../../../", import.meta.url)' apps/web/e2e/helpers.ts
+    if grep --quiet 'git clone https://github.com/frndchagas/vinext-ai-starter' README.md; then
+        echo 'Consumer README sends the User back through starter installation.' >&2
+        exit 1
+    fi
     bun ci
     bun run config:check
     bun run contracts:check
+    bun run audit
     bun run check
     bun run test:production
     test "$(php artisan migrate:status --no-ansi | grep -c '\[1\] Ran')" -eq \
         "$(find database/migrations -type f -name '*.php' | wc -l | tr -d ' ')"
 )
 
-echo "Packagist distribution smoke passed."
+port_base=""
+seed=${GITHUB_RUN_ID:-$RANDOM}
+
+for attempt in {1..20}; do
+    candidate=$((20000 + (seed + attempt * 97) % 39000))
+
+    # PHP receives this program literally.
+    # shellcheck disable=SC2016
+    if php -r '
+        $base = (int) $argv[1];
+        for ($port = $base; $port < $base + 8; $port++) {
+            $socket = @stream_socket_server("tcp://127.0.0.1:{$port}");
+            if ($socket === false) exit(1);
+            fclose($socket);
+        }
+    ' "$candidate"; then
+        port_base=$candidate
+        break
+    fi
+done
+
+if [[ -z "$port_base" ]]; then
+    echo 'Could not find eight free ports for the installed application.' >&2
+    exit 1
+fi
+
+export COMPOSE_PROJECT_NAME="$dev_project"
+export WEB_PUBLIC_PORT=$port_base
+export WEB_PORT=$((port_base + 1))
+export API_PORT=$((port_base + 2))
+export REVERB_PORT=$((port_base + 3))
+export POSTGRES_PORT=$((port_base + 4))
+export REDIS_PORT=$((port_base + 5))
+export MAILPIT_SMTP_PORT=$((port_base + 6))
+export MAILPIT_HTTP_PORT=$((port_base + 7))
+
+cd "$install_dir"
+app_key_before=$(sed -n 's/^APP_KEY=//p' .env)
+
+if command -v setsid >/dev/null 2>&1; then
+    setsid composer run dev >distribution-dev.log 2>&1 &
+else
+    perl -e 'use POSIX qw(setsid); setsid(); exec @ARGV' \
+        composer run dev >distribution-dev.log 2>&1 &
+fi
+dev_pid=$!
+
+ready=false
+for _ in {1..60}; do
+    if curl --fail --silent "http://127.0.0.1:$WEB_PUBLIC_PORT/up" >/dev/null; then
+        ready=true
+        break
+    fi
+    sleep 2
+done
+
+if [[ "$ready" != true ]]; then
+    sed -n '1,320p' distribution-dev.log >&2
+    exit 1
+fi
+
+app_key_after=$(sed -n 's/^APP_KEY=//p' .env)
+if [[ -z "$app_key_before" || "$app_key_after" != "$app_key_before" ]]; then
+    echo 'composer run dev replaced the installed APP_KEY.' >&2
+    exit 1
+fi
+
+curl --fail --silent --show-error "http://127.0.0.1:$WEB_PUBLIC_PORT/" >/dev/null
+
+echo "Laravel Installer distribution smoke passed."

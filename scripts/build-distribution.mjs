@@ -80,6 +80,20 @@ try {
   const apiRoot = join(outputRoot, "apps/api");
   const rootGitignore = read(".gitignore").trim().split("\n");
   const apiGitignore = read("apps/api/.gitignore").trim().split("\n");
+  const apiInstructions = read("apps/api/AGENTS.md");
+  const apiEnvironment = read("apps/api/.env.example");
+  const apiEnvironmentKeys = new Set(
+    apiEnvironment
+      .split("\n")
+      .map((line) => line.match(/^([A-Z][A-Z0-9_]*)=/)?.[1])
+      .filter(Boolean),
+  );
+  const rootOnlyEnvironment = read(".env.example")
+    .split("\n")
+    .filter((line) => {
+      const key = line.match(/^([A-Z][A-Z0-9_]*)=/)?.[1];
+      return key !== undefined && !apiEnvironmentKeys.has(key);
+    });
 
   for (const entry of [
     "app",
@@ -99,7 +113,10 @@ try {
     renameSync(join(apiRoot, entry), join(outputRoot, entry));
   }
 
-  cpSync(join(apiRoot, ".env.example"), join(outputRoot, ".env.example"));
+  write(
+    ".env.example",
+    `${apiEnvironment.trimEnd()}\n\n# Development ports\n${rootOnlyEnvironment.join("\n")}\n`,
+  );
   replace(".env.example", [
     [
       "DB_CONNECTION=pgsql\nDB_HOST=127.0.0.1\nDB_PORT=15432\nDB_DATABASE=starter\nDB_USERNAME=starter\nDB_PASSWORD=starter",
@@ -116,11 +133,24 @@ try {
   );
   write(".gitignore", `${[...gitignore, ...gitignoreExceptions].join("\n")}\n`);
   rmSync(apiRoot, { recursive: true, force: true });
+  write(
+    "AGENTS.md",
+    `${read("AGENTS.md").trimEnd()}\n\n${apiInstructions.replace("# API instructions", "## Laravel API instructions").trim()}\n`,
+  );
 
   const composer = JSON.parse(read("composer.json"));
   composer.name = "frndchagas/vinext-ai-starter";
   composer.description = "Laravel and Vinext foundation for coding agents.";
   composer.keywords = ["laravel", "vinext", "react", "starter-kit", "bun"];
+  composer.homepage = "https://github.com/frndchagas/vinext-ai-starter";
+  composer.support = {
+    issues: "https://github.com/frndchagas/vinext-ai-starter/issues",
+    source: "https://github.com/frndchagas/vinext-ai-starter",
+  };
+  composer.scripts.dev = [
+    "Composer\\Config::disableProcessTimeout",
+    "bun run bootstrap && bun run dev",
+  ];
   write("composer.json", `${JSON.stringify(composer, null, 4)}\n`);
   run(
     "composer",
@@ -155,8 +185,7 @@ try {
   packageJson.scripts["format:check:php"] = "vendor/bin/pint --test";
   packageJson.scripts["format:check:workspaces"] = workspaceScripts["format:check"];
   packageJson.scripts.lint = "bun run --parallel lint:php lint:workspaces";
-  packageJson.scripts["lint:php"] =
-    "vendor/bin/phpstan analyse --no-progress --memory-limit=512M";
+  packageJson.scripts["lint:php"] = "vendor/bin/phpstan analyse --no-progress --memory-limit=512M";
   packageJson.scripts["lint:workspaces"] = workspaceScripts.lint;
   packageJson.scripts.test = "bun run --parallel test:php test:workspaces";
   packageJson.scripts["test:php"] = "php artisan test";
@@ -171,11 +200,16 @@ try {
   );
   packageJson.scripts.check =
     "bun run config:check && bun run --parallel format:check lint typecheck test build";
+  delete packageJson.scripts["test:distribution"];
+  delete packageJson.scripts["test:template"];
   write("package.json", `${JSON.stringify(packageJson, null, 2)}\n`);
   run("bun", ["install", "--ignore-scripts"], outputRoot);
 
   replace("infra/docker/api/Dockerfile", [
-    ["COPY apps/api/composer.json apps/api/composer.lock ./", "COPY composer.json composer.lock ./"],
+    [
+      "COPY apps/api/composer.json apps/api/composer.lock ./",
+      "COPY composer.json composer.lock ./",
+    ],
     [
       "COPY apps/api ./",
       [
@@ -193,16 +227,42 @@ try {
   replace("infra/docker/web/Dockerfile", [
     ["COPY apps/api/package.json ./apps/api/package.json\n", ""],
   ]);
+  replace("apps/web/e2e/helpers.ts", [
+    ['new URL("../../api/", import.meta.url)', 'new URL("../../../", import.meta.url)'],
+  ]);
   replace(".dockerignore", [
     ["apps/api/vendor\n", "vendor\n"],
     ["apps/api/storage\n", "storage\n"],
   ]);
-  replace("scripts/template-smoke.sh", [["apps/api/database/migrations", "database/migrations"]]);
   replace("scripts/production-smoke.sh", [["apps/api/database/migrations", "database/migrations"]]);
 
+  const dependabot = read(".github/dependabot.yml").replace("directory: /apps/api", "directory: /");
   rmSync(join(outputRoot, ".github"), { recursive: true, force: true });
+  write(".github/dependabot.yml", dependabot);
+  mkdirSync(join(outputRoot, ".github/workflows"), { recursive: true });
+  cpSync(
+    join(sourceRoot, "scripts/distribution/ci.yml"),
+    join(outputRoot, ".github/workflows/ci.yml"),
+  );
 
-  for (const path of ["AGENTS.md", "CONTRIBUTING.md", "README.md"]) {
+  cpSync(join(sourceRoot, "scripts/distribution/README.md"), join(outputRoot, "README.md"));
+  cpSync(
+    join(sourceRoot, "scripts/distribution/getting-started.md"),
+    join(outputRoot, "docs/getting-started.md"),
+  );
+
+  for (const path of [
+    "scripts/build-distribution.mjs",
+    "scripts/ci-changes.mjs",
+    "scripts/ci-changes.test.mjs",
+    "scripts/distribution",
+    "scripts/distribution-smoke.sh",
+    "scripts/template-smoke.sh",
+  ]) {
+    rmSync(join(outputRoot, path), { recursive: true, force: true });
+  }
+
+  for (const path of ["AGENTS.md", "CONTRIBUTING.md"]) {
     rewriteMarkdown(path);
   }
 

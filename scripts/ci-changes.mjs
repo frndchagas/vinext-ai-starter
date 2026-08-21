@@ -36,7 +36,7 @@ const patterns = {
   distribution: [
     /^apps\/api\/composer\.(json|lock)$/,
     /^infra\/docker\//,
-    /^scripts\/(build-distribution\.mjs|distribution-smoke\.sh)$/,
+    /^scripts\/(build-distribution\.mjs|distribution-smoke\.sh|distribution\/)/,
   ],
   production: [
     /^\.github\/dependabot\.yml$/,

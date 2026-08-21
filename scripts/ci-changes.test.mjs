@@ -4,16 +4,15 @@ import { classifyChanges } from "./ci-changes.mjs";
 
 describe("classifyChanges", () => {
   test("keeps documentation and Actions-only pull requests fast", () => {
-    expect(classifyChanges(["docs/development.md", ".github/workflows/ci.yml"]))
-      .toEqual({
-        integration: false,
-        e2e: false,
-        template: false,
-        distribution: false,
-        production: false,
-        breaking: false,
-        docker: false,
-      });
+    expect(classifyChanges(["docs/development.md", ".github/workflows/ci.yml"])).toEqual({
+      integration: false,
+      e2e: false,
+      template: false,
+      distribution: false,
+      production: false,
+      breaking: false,
+      docker: false,
+    });
   });
 
   test("selects application gates without unrelated packaging smokes", () => {
@@ -49,6 +48,18 @@ describe("classifyChanges", () => {
       production: true,
       breaking: false,
       docker: true,
+    });
+  });
+
+  test("rebuilds the distribution when a consumer asset changes", () => {
+    expect(classifyChanges(["scripts/distribution/README.md"])).toEqual({
+      integration: false,
+      e2e: false,
+      template: false,
+      distribution: true,
+      production: false,
+      breaking: false,
+      docker: false,
     });
   });
 
