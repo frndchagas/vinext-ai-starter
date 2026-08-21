@@ -35,7 +35,7 @@ Realtime messages start in `contracts/realtime/asyncapi.yaml`. The official pars
 
 ## Quality gates
 
-GitHub Actions runs:
+GitHub Actions always runs the fast verification, dependency and secret checks on pull requests. Changed paths select the integration and expensive smoke jobs. Pushes to `main`, nightly schedules and manual pre-release runs execute the complete suite:
 
 - verification on PHP 8.5 with frozen installs, dependency audit, contracts and the standard gate;
 - integration tests on PHP 8.3 and 8.5 against PostgreSQL and Redis;

@@ -19,7 +19,7 @@ The release does not include passkeys, Organizations, billing, social login, SSO
 
 ## Delivery
 
-Changes land through small, focused pull requests. Fast checks run on every pull request. Affected paths select the expensive smokes. The complete suite runs on `main`, nightly and before each stable release. The repository rename and legacy v1 reset happen after the replacement is green.
+Changes land through small, focused pull requests. Fast checks run on every pull request, while affected paths select integration and the expensive smokes. The complete suite runs on `main`, nightly and through the manual pre-release trigger. A stable release is allowed only after those checks pass on its source commit. The repository rename and legacy v1 reset happen after the replacement is green.
 
 ## Adoption
 

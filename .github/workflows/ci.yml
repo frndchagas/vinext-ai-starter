@@ -4,15 +4,48 @@ on:
   push:
     branches: [main]
   pull_request:
+  schedule:
+    - cron: "23 3 * * *"
+      timezone: America/Fortaleza
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      integration: ${{ steps.classify.outputs.integration }}
+      e2e: ${{ steps.classify.outputs.e2e }}
+      template: ${{ steps.classify.outputs.template }}
+      distribution: ${{ steps.classify.outputs.distribution }}
+      production: ${{ steps.classify.outputs.production }}
+      breaking: ${{ steps.classify.outputs.breaking }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.4.0
+
+      - name: Test path classification
+        run: bun test scripts/ci-changes.test.mjs
+
+      - name: Select affected gates
+        id: classify
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          CI_FORCE_FULL: ${{ github.event_name != 'pull_request' }}
+        run: bun run scripts/ci-changes.mjs
+
   verify:
     runs-on: ubuntu-latest
     steps:
@@ -52,6 +85,8 @@ jobs:
         run: bun run check
 
   integration:
+    needs: changes
+    if: needs.changes.outputs.integration == 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -121,6 +156,8 @@ jobs:
         run: php artisan test
 
   e2e:
+    needs: changes
+    if: needs.changes.outputs.e2e == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -195,6 +232,8 @@ jobs:
           docker compose down
 
   template-smoke:
+    needs: changes
+    if: needs.changes.outputs.template == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -221,6 +260,8 @@ jobs:
         run: bun run test:template
 
   distribution-smoke:
+    needs: changes
+    if: needs.changes.outputs.distribution == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -242,6 +283,8 @@ jobs:
       - run: bun run test:distribution
 
   production-smoke:
+    needs: changes
+    if: needs.changes.outputs.production == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -266,7 +309,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   breaking-changes:
-    if: github.event_name == 'pull_request'
+    needs: changes
+    if: github.event_name == 'pull_request' && needs.changes.outputs.breaking == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
