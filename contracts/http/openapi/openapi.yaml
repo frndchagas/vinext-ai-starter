@@ -5,9 +5,127 @@ info:
 tags:
   - name: Auth
   - name: Identity
+  - name: Administration
   - name: Infrastructure
   - name: Tasks
 paths:
+  /api/v1/admin/users:
+    get:
+      operationId: listAdminUsers
+      description: Search and cursor-page through safe User identity and role metadata. Requires users.view.
+      parameters:
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+        - name: per_page
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+          explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUserPage'
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Access is forbidden.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      tags:
+        - Administration
+  /api/v1/admin/users/{id}/role:
+    patch:
+      operationId: updateAdminUserRole
+      description: Replace another User's canonical role. Requires users.manage.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUser'
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Access is forbidden.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: The request conflicts with the current state of the server.
+          content:
+            application/problem+json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                  title:
+                    type: string
+                  status:
+                    type: integer
+                    format: int32
+                  detail:
+                    type: string
+                  code:
+                    type: string
+                required:
+                  - type
+                  - title
+                  - status
+                  - code
+        '422':
+          description: Client error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidationProblem'
+      tags:
+        - Administration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAdminUserRoleRequest'
   /api/v1/auth/email/verification-notification:
     post:
       operationId: resendEmailVerification
@@ -729,6 +847,61 @@ paths:
         - Infrastructure
 components:
   schemas:
+    AdminUser:
+      type: object
+      required:
+        - id
+        - name
+        - email
+        - email_verified
+        - roles
+        - created_at
+      properties:
+        id:
+          type: string
+          description: Opaque identifier. Clients must not infer meaning from its value.
+        name:
+          type: string
+        email:
+          type: string
+        email_verified:
+          type: boolean
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminUserRole'
+        created_at:
+          type: string
+          format: date-time
+    AdminUserPage:
+      type: object
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminUser'
+        meta:
+          type: object
+          properties:
+            next_cursor:
+              anyOf:
+                - type: string
+                - type: 'null'
+            prev_cursor:
+              anyOf:
+                - type: string
+                - type: 'null'
+          required:
+            - next_cursor
+            - prev_cursor
+    AdminUserRole:
+      type: string
+      enum:
+        - member
+        - admin
     CreateTaskRequest:
       type: object
       required:
@@ -951,6 +1124,13 @@ components:
           type: string
         url:
           type: string
+    UpdateAdminUserRoleRequest:
+      type: object
+      required:
+        - role
+      properties:
+        role:
+          $ref: '#/components/schemas/AdminUserRole'
     UpdatePasswordRequest:
       type: object
       required:

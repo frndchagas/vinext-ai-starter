@@ -5,6 +5,10 @@
  * OpenAPI spec version: 0.0.0
  */
 
+export * from "./adminUser";
+export * from "./adminUserPage";
+export * from "./adminUserPageMeta";
+export * from "./adminUserRole";
 export * from "./confirmPasswordBody";
 export * from "./confirmTwoFactorBody";
 export * from "./createTask409";
@@ -13,6 +17,7 @@ export * from "./createTaskRequest";
 export * from "./deleteCurrentUserRequest";
 export * from "./forgotPasswordBody";
 export * from "./getTwoFactorSecretKey200";
+export * from "./listAdminUsersParams";
 export * from "./listTasksParams";
 export * from "./loginRequest";
 export * from "./loginResult";
@@ -29,6 +34,8 @@ export * from "./taskPageMeta";
 export * from "./taskState";
 export * from "./twoFactorChallengeRequest";
 export * from "./twoFactorQrCode";
+export * from "./updateAdminUserRole409";
+export * from "./updateAdminUserRoleRequest";
 export * from "./updatePasswordRequest";
 export * from "./updateProfileRequest";
 export * from "./validationProblem";

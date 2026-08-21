@@ -7,6 +7,52 @@
 import * as zod from 'zod';
 
 /**
+ * Search and cursor-page through safe User identity and role metadata. Requires users.view.
+ */
+export const ListAdminUsersQueryParams = zod.object({
+  "search": zod.string().optional(),
+  "cursor": zod.string().optional(),
+  "per_page": zod.int().optional()
+})
+
+export const ListAdminUsersResponse = zod.object({
+  "data": zod.array(zod.object({
+  "id": zod.string().describe('Opaque identifier. Clients must not infer meaning from its value.'),
+  "name": zod.string(),
+  "email": zod.string(),
+  "email_verified": zod.boolean(),
+  "roles": zod.array(zod.enum(['member', 'admin'])),
+  "created_at": zod.iso.datetime({"offset":true})
+})),
+  "meta": zod.object({
+  "next_cursor": zod.union([zod.string(),zod.null()]),
+  "prev_cursor": zod.union([zod.string(),zod.null()])
+})
+})
+
+
+/**
+ * Replace another User's canonical role. Requires users.manage.
+ */
+export const UpdateAdminUserRoleParams = zod.object({
+  "id": zod.string()
+})
+
+export const UpdateAdminUserRoleBody = zod.object({
+  "role": zod.enum(['member', 'admin'])
+})
+
+export const UpdateAdminUserRoleResponse = zod.object({
+  "id": zod.string().describe('Opaque identifier. Clients must not infer meaning from its value.'),
+  "name": zod.string(),
+  "email": zod.string(),
+  "email_verified": zod.boolean(),
+  "roles": zod.array(zod.enum(['member', 'admin'])),
+  "created_at": zod.iso.datetime({"offset":true})
+})
+
+
+/**
  * Resend the email verification notification to the authenticated user.
  */
 export const ResendEmailVerificationResponse = zod.void()
