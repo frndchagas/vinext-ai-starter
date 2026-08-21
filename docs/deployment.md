@@ -55,4 +55,8 @@ The API environment accepts `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, 
 
 The production proxy sets CSP, HSTS, clickjacking, MIME-sniffing, referrer and browser-permission policies. The CSP allows inline scripts and styles because the current Vinext document bootstrap requires them. Tighten it only after replacing those inline blocks with nonces or hashes and rerunning the production browser flow.
 
+## Container scan policy
+
+Trivy blocks fixable high and critical findings in application images, Redis and PostgreSQL operating-system packages. The official PostgreSQL image currently bundles `gosu` built with an older Go standard library. Those library findings stay visible as a nonblocking step until the official image is rebuilt or reachability can be justified; they are not silently ignored or marked unaffected without evidence.
+
 Coolify recreates services in a regular Docker Compose deployment. This reference does not claim zero downtime. Roll back by selecting the previous source tag and redeploying it; do not roll back the database unless the migration has an explicit reversal plan.

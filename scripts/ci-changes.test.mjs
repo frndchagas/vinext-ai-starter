@@ -44,7 +44,7 @@ describe("classifyChanges", () => {
       integration: false,
       e2e: false,
       template: false,
-      distribution: false,
+      distribution: true,
       production: true,
       breaking: false,
       docker: true,
@@ -60,6 +60,24 @@ describe("classifyChanges", () => {
       production: false,
       breaking: false,
       docker: false,
+    });
+  });
+
+  test("covers build context, archive and public entrypoint changes", () => {
+    expect(classifyChanges([".dockerignore"])).toMatchObject({
+      distribution: true,
+      production: true,
+      docker: true,
+    });
+    expect(classifyChanges([".gitignore"])).toMatchObject({
+      template: true,
+      distribution: true,
+    });
+    expect(classifyChanges(["apps/api/public/index.php"])).toMatchObject({
+      integration: true,
+      e2e: true,
+      distribution: true,
+      production: true,
     });
   });
 

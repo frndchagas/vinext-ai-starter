@@ -37,13 +37,13 @@ Realtime messages start in `contracts/realtime/asyncapi.yaml`. The official pars
 
 GitHub Actions always runs the fast verification, dependency and secret checks on pull requests. Changed paths select the integration and expensive smoke jobs. Pushes to `main`, nightly schedules and manual pre-release runs execute the complete suite:
 
-- verification on PHP 8.5 with frozen installs, dependency audit, contracts and the standard gate;
+- verification on PHP 8.5 with frozen installs, workflow and shell lint, dependency audit, contracts and the standard gate;
 - integration tests on PHP 8.3 and 8.5 against PostgreSQL and Redis;
 - serial Chromium E2E for auth, mail, queues and reconnection;
 - a fresh template snapshot with isolated ports, migrations, contracts, build and proxy smoke tests;
 - a flattened package installed through the real Laravel Installer, followed by its consumer and production gates;
 - production image builds followed by migrations, readiness, security-header checks, a session flow, queued Task processing and a PostgreSQL restore round-trip;
-- Trivy scans fixable high and critical vulnerabilities in each production runtime image when Docker inputs change and on every complete run;
+- Trivy scans fixable high and critical vulnerabilities in the application, proxy, Redis and PostgreSQL runtime images when Docker inputs change and on every complete run;
 - Gitleaks, dependency review and OpenAPI breaking-change detection;
 - GitHub CodeQL default setup outside the repository workflow.
 
@@ -51,7 +51,7 @@ Lefthook is intentionally smaller. Pre-commit runs format checks and uses Gitlea
 
 Tests never call a real external provider. The starter has no AI provider in the current release.
 
-Dependabot checks Bun, Composer, GitHub Actions and every Dockerfile or Compose manifest each week. Docker updates remain grouped by dependency and must pass the affected production gate.
+Dependabot checks Bun, Composer, GitHub Actions and every Dockerfile or Compose manifest each week. Major dependency updates and Docker runtime-line changes remain manual; automated Docker pull requests are patch-only and must pass the production gate.
 
 ## Frontend baseline
 

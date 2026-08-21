@@ -4,8 +4,6 @@ set -euo pipefail
 
 input=${1:?Usage: bun run db:restore -- <backup-file> <new-database>}
 target=${2:?Usage: bun run db:restore -- <backup-file> <new-database>}
-source_database=${DB_DATABASE:-starter}
-username=${DB_USERNAME:-starter}
 created=false
 completed=false
 compose=(docker compose)
@@ -13,6 +11,9 @@ compose=(docker compose)
 if [[ -n "${POSTGRES_ENV_FILE:-}" ]]; then
     compose+=(--env-file "$POSTGRES_ENV_FILE")
 fi
+
+source_database=${DB_DATABASE:-$("${compose[@]}" exec -T postgres printenv POSTGRES_DB)}
+username=${DB_USERNAME:-$("${compose[@]}" exec -T postgres printenv POSTGRES_USER)}
 
 if [[ ! -s "$input" ]]; then
     echo "Backup does not exist or is empty: $input" >&2

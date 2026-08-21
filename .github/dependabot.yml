@@ -16,6 +16,10 @@ updates:
         update-types:
           - minor
           - patch
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-major
 
   - package-ecosystem: composer
     directory: /apps/api
@@ -32,6 +36,10 @@ updates:
         update-types:
           - minor
           - patch
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-major
 
   - package-ecosystem: github-actions
     directory: /
@@ -48,6 +56,10 @@ updates:
         update-types:
           - minor
           - patch
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-major
 
   - package-ecosystem: gomod
     directory: /infra/docker/proxy/build
@@ -64,6 +76,10 @@ updates:
         update-types:
           - minor
           - patch
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-major
 
   - package-ecosystem: docker
     directories:
@@ -79,9 +95,13 @@ updates:
       timezone: America/Fortaleza
     open-pull-requests-limit: 5
     groups:
-      docker-minor-and-patch:
+      docker-patch:
         patterns:
           - "*"
         update-types:
-          - minor
           - patch
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
