@@ -13,8 +13,10 @@ if [[ -n "${SMOKE_PORT_BASE:-}" ]]; then
 else
     port_base=""
 
-    for _ in {1..20}; do
-        candidate=$((30000 + RANDOM % 20000))
+    seed=${GITHUB_RUN_ID:-$RANDOM}
+
+    for attempt in {1..20}; do
+        candidate=$((20000 + (seed + attempt * 97) % 39000))
 
         if php -r '
             $base = (int) $argv[1];
