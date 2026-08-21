@@ -4,6 +4,7 @@ set -euo pipefail
 
 source_root=$(git rev-parse --show-toplevel)
 template_root=$(mktemp -d)
+archive_file=$(mktemp)
 project_name="vinext-template-smoke-${GITHUB_RUN_ID:-$$}-${GITHUB_RUN_ATTEMPT:-1}"
 dev_pid=""
 dev_process_group=false
@@ -58,6 +59,10 @@ cleanup() {
         wait "$dev_pid" 2>/dev/null
     fi
 
+    if [[ -n "$archive_file" ]]; then
+        rm -f -- "$archive_file"
+    fi
+
     if [[ -d "$template_root" ]]; then
         (
             cd "$template_root"
@@ -81,7 +86,10 @@ cleanup() {
 
 trap cleanup EXIT INT TERM
 
-git -C "$source_root" archive HEAD | tar -x -C "$template_root"
+git -C "$source_root" archive --format=tar HEAD --output "$archive_file"
+tar -xf "$archive_file" -C "$template_root"
+rm -f -- "$archive_file"
+archive_file=""
 
 cd "$template_root"
 git init --quiet --initial-branch=main

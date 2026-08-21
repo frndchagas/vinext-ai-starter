@@ -71,6 +71,13 @@ curl --fail --silent --show-error --dump-header "$headers_file" "$APP_URL/" >/de
 curl --fail --silent --show-error "$APP_URL/up" >/dev/null
 curl --fail --silent --show-error "$APP_URL/ready" >/dev/null
 
+schedule=$(
+    "${compose[@]}" exec -T api-php php artisan schedule:list --no-ansi
+)
+grep --quiet 'tasks:reconcile' <<<"$schedule"
+grep --quiet 'horizon:snapshot' <<<"$schedule"
+grep --quiet 'queue:prune-failed --hours=168' <<<"$schedule"
+
 grep --ignore-case --quiet '^Content-Security-Policy:' "$headers_file"
 grep --ignore-case --quiet '^Permissions-Policy:' "$headers_file"
 grep --ignore-case --quiet '^Referrer-Policy: strict-origin-when-cross-origin' "$headers_file"
