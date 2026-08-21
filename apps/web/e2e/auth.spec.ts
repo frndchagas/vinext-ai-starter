@@ -97,7 +97,7 @@ test("update account settings and complete the two-factor recovery flow", async 
   const newPassword = "settings-updated-password";
 
   await registerVerifiedUser(page, uniqueEmail, originalPassword);
-  await page.getByRole("link", { name: "Settings" }).click();
+  await page.goto("/settings");
   await expect(page).toHaveURL(/\/settings$/);
 
   await page.getByRole("button", { name: "Dark" }).click();
@@ -177,7 +177,7 @@ test("permanently delete the current account", async ({ page }) => {
   const password = "delete-account-password";
 
   await registerVerifiedUser(page, uniqueEmail, password);
-  await page.getByRole("link", { name: "Settings" }).click();
+  await page.goto("/settings");
   await page.getByRole("button", { name: "Delete account" }).click();
 
   const dialog = page.getByRole("alertdialog");
