@@ -63,6 +63,10 @@ describe("classifyChanges", () => {
     });
   });
 
+  test("rebuilds the distribution when its contract verifier changes", () => {
+    expect(classifyChanges(["scripts/contracts-check.mjs"])).toMatchObject({ distribution: true });
+  });
+
   test("covers build context, archive and public entrypoint changes", () => {
     expect(classifyChanges([".dockerignore"])).toMatchObject({
       distribution: true,

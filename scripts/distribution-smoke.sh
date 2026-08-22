@@ -70,11 +70,7 @@ COMPOSER_CACHE_DIR="$composer_cache" COMPOSER_HOME="$composer_home" \
 
 (
     cd "$install_dir"
-    git init --initial-branch=main --quiet
-    git config user.name "Distribution Smoke"
-    git config user.email "distribution-smoke@example.com"
-    git add .
-    git commit --quiet -m "Installed starter"
+    test ! -e .git
     # PHP receives this program literally.
     # shellcheck disable=SC2016
     php -r '
