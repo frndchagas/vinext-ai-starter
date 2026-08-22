@@ -37,13 +37,14 @@ const patterns = {
   distribution: [
     /^\.dockerignore$/,
     /^\.github\/dependabot\.yml$/,
+    /^\.github\/workflows\/publish-distribution\.yml$/,
     /^\.gitignore$/,
     /^apps\/api\/(\.env\.example|\.gitignore|AGENTS\.md)$/,
     /^apps\/api\/composer\.(json|lock)$/,
     /^apps\/api\/public\//,
     /^apps\/web\/e2e\/helpers\.ts$/,
     /^infra\/docker\//,
-    /^scripts\/(build-distribution\.mjs|contracts-check(?:\.test)?\.mjs|distribution-smoke\.sh|distribution\/)/,
+    /^scripts\/(build-distribution\.mjs|contracts-check(?:\.test)?\.mjs|distribution-smoke\.sh|sync-distribution\.sh|distribution\/)/,
   ],
   production: [
     /^\.dockerignore$/,

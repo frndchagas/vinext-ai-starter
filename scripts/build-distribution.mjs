@@ -259,6 +259,7 @@ try {
     "scripts/distribution",
     "scripts/distribution-smoke.sh",
     "scripts/release-preflight.sh",
+    "scripts/sync-distribution.sh",
     "scripts/template-smoke.sh",
     "scripts/verify-main-ci.sh",
   ]) {

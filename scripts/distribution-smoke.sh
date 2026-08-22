@@ -3,6 +3,7 @@
 set -euo pipefail
 
 distribution_dir=$(mktemp -d)
+sync_target=$(mktemp -d)
 install_parent=$(mktemp -d)
 install_dir="$install_parent/application"
 composer_home=$(mktemp -d)
@@ -34,13 +35,23 @@ cleanup() {
         )
     fi
 
-    rm -rf "$distribution_dir" "$install_parent" "$composer_home"
+    rm -rf "$distribution_dir" "$sync_target" "$install_parent" "$composer_home"
 }
 
 trap cleanup EXIT
 
 rmdir "$distribution_dir"
 bun run scripts/build-distribution.mjs "$distribution_dir"
+
+mkdir -p "$sync_target/.git"
+printf 'replacement\n' > "$sync_target/.source-tag"
+touch -r "$distribution_dir/.source-tag" "$sync_target/.source-tag"
+touch "$sync_target/.git/keep"
+test "$(wc -c < "$sync_target/.source-tag")" -eq \
+    "$(wc -c < "$distribution_dir/.source-tag")"
+bash scripts/sync-distribution.sh "$distribution_dir" "$sync_target"
+cmp "$distribution_dir/.source-tag" "$sync_target/.source-tag"
+test -f "$sync_target/.git/keep"
 
 (
     cd "$distribution_dir"
