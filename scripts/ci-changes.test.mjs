@@ -67,6 +67,15 @@ describe("classifyChanges", () => {
     expect(classifyChanges(["scripts/contracts-check.mjs"])).toMatchObject({ distribution: true });
   });
 
+  test("rebuilds the distribution when its publisher changes", () => {
+    expect(
+      classifyChanges([
+        ".github/workflows/publish-distribution.yml",
+        "scripts/sync-distribution.sh",
+      ]),
+    ).toMatchObject({ distribution: true });
+  });
+
   test("covers build context, archive and public entrypoint changes", () => {
     expect(classifyChanges([".dockerignore"])).toMatchObject({
       distribution: true,

@@ -84,7 +84,9 @@ jobs:
             exit 0
           fi
 
-          rsync -a --delete --exclude .git/ "$RUNNER_TEMP/distribution/" ./
+          bash "$GITHUB_WORKSPACE/scripts/sync-distribution.sh" \
+            "$RUNNER_TEMP/distribution" \
+            "$RUNNER_TEMP/repository"
           git add --all
 
           if ! git diff --cached --quiet; then
