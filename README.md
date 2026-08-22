@@ -6,6 +6,8 @@ A Laravel and Vinext foundation for coding agents.
 
 [Live demo](https://vinext-laravel-starter.dev-0.fortetecnologias.com.br) · [Deployment guide](docs/deployment.md)
 
+![Vinext Laravel Starter](.github/social-preview.jpg)
+
 The starter provides same-origin sessions, profile and password settings, optional TOTP, explicit HTTP and realtime contracts, a generated TypeScript client, working role-based administration, Redis queues, Reverb and one idempotent asynchronous flow. It is designed for agent-assisted development, but does not bundle an AI provider.
 
 Vinext is still in beta and the React Compiler integration is experimental. CI verifies local setup, browser behavior, a fresh template snapshot and the production container topology.
